@@ -1,0 +1,34 @@
+<h1>Listing slices</h1>
+
+<table>
+  <tr>
+    <th>Time</th>
+    <th>Lat</th>
+    <th>Lon</th>
+    <th>Avgvel</th>
+    <th>Headingdeg</th>
+    <th>Dist</th>
+    <th>Startlat</th>
+    <th>Startlon</th>
+  </tr>
+
+<% for slice in @slices %>
+  <tr>
+    <td><%=h slice.time %></td>
+    <td><%=h slice.lat %></td>
+    <td><%=h slice.lon %></td>
+    <td><%=h slice.avgvel %></td>
+    <td><%=h slice.headingdeg %></td>
+    <td><%=h slice.dist %></td>
+    <td><%=h slice.startlat %></td>
+    <td><%=h slice.startlon %></td>
+    <td><%= link_to 'Show', slice %></td>
+    <td><%= link_to 'Edit', edit_slice_path(slice) %></td>
+    <td><%= link_to 'Destroy', slice, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New slice', new_slice_path %>

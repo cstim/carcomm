@@ -1,0 +1,43 @@
+<p>
+  <b>Time:</b>
+  <%=h @slice.time %>
+</p>
+
+<p>
+  <b>Lat [deg]:</b>
+  <%=h @slice.lat %>
+</p>
+
+<p>
+  <b>Lon [deg]:</b>
+  <%=h @slice.lon %>
+</p>
+
+<p>
+  <b>Avgvel [m/s]:</b>
+  <%=h @slice.avgvel %>
+</p>
+
+<p>
+  <b>Headingdeg [deg]:</b>
+  <%=h @slice.headingdeg %>
+</p>
+
+<p>
+  <b>Dist [m]:</b>
+  <%=h @slice.dist %>
+</p>
+
+<p>
+  <b>Startlat [deg]:</b>
+  <%=h @slice.startlat %>
+</p>
+
+<p>
+  <b>Startlon [deg]:</b>
+  <%=h @slice.startlon %>
+</p>
+
+
+<%= link_to 'Edit', edit_slice_path(@slice) %> |
+<%= link_to 'Back', slices_path %>

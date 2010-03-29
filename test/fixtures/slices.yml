@@ -1,0 +1,21 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  time: 2010-03-29 22:40:52
+  lat: 1.5
+  lon: 1.5
+  avgvel: 1.5
+  headingdeg: 1.5
+  dist: 1.5
+  startlat: 1.5
+  startlon: 1.5
+
+two:
+  time: 2010-03-29 22:40:52
+  lat: 1.5
+  lon: 1.5
+  avgvel: 1.5
+  headingdeg: 1.5
+  dist: 1.5
+  startlat: 1.5
+  startlon: 1.5
