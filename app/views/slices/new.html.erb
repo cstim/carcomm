@@ -1,43 +1,5 @@
 <h1>New slice</h1>
 
-<% form_for(@slice) do |f| %>
-  <%= f.error_messages %>
-
-  <p>
-    <%= f.label :time %><br />
-    <%= f.datetime_select :time %>
-  </p>
-  <p>
-    <%= f.label :lat %><br />
-    <%= f.text_field :lat %>
-  </p>
-  <p>
-    <%= f.label :lon %><br />
-    <%= f.text_field :lon %>
-  </p>
-  <p>
-    <%= f.label :avgvel %><br />
-    <%= f.text_field :avgvel %>
-  </p>
-  <p>
-    <%= f.label :headingdeg %><br />
-    <%= f.text_field :headingdeg %>
-  </p>
-  <p>
-    <%= f.label :dist %><br />
-    <%= f.text_field :dist %>
-  </p>
-  <p>
-    <%= f.label :startlat %><br />
-    <%= f.text_field :startlat %>
-  </p>
-  <p>
-    <%= f.label :startlon %><br />
-    <%= f.text_field :startlon %>
-  </p>
-  <p>
-    <%= f.submit "Create" %>
-  </p>
-<% end %>
+<%= render :partial => "form" %>
 
 <%= link_to 'Back', slices_path %>

@@ -1,0 +1,39 @@
+<% form_for(@slice) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :time %><br />
+    <%= f.datetime_select :time %>
+  </p>
+  <p>
+    <%= f.label :lat %> [deg]<br />
+    <%= f.text_field :lat %>
+  </p>
+  <p>
+    <%= f.label :lon %> [deg]<br />
+    <%= f.text_field :lon %>
+  </p>
+  <p>
+    <%= f.label :avgvel %> [m/s]<br />
+    <%= f.text_field :avgvel %>
+  </p>
+  <p>
+    <%= f.label :headingdeg %> [deg], optional<br />
+    <%= f.text_field :headingdeg %>
+  </p>
+  <p>
+    <%= f.label :dist %> [m], optional<br />
+    <%= f.text_field :dist %>
+  </p>
+  <p>
+    <%= f.label :startlat %> [deg]<br />
+    <%= f.text_field :startlat %>
+  </p>
+  <p>
+    <%= f.label :startlon %> [deg]<br />
+    <%= f.text_field :startlon %>
+  </p>
+  <p>
+    <%= f.submit "Save" %>
+  </p>
+<% end %>
