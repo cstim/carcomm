@@ -52,6 +52,18 @@
             var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
             var icon = new OpenLayers.Icon('http://www.openstreetmap.org/openlayers/img/marker.png',size,offset);
             layerMarkers.addMarker(new OpenLayers.Marker(lonLat,icon));
+
+            var vectorLayer = new OpenLayers.Layer.Vector("Overlay");
+            var feature = new OpenLayers.Feature.Vector(
+                new OpenLayers.Geometry.Point(53.5, 9.8),
+                {some:'data'});
+            vectorLayer.addFeatures(feature);
+            map.addLayer(vectorLayer);
+
+            //var point1 = new OpenLayers.Geometry.Point(52.5, 8.9);
+            //var sourceNode = new OpenLayers.Feature.Vector(point1);
+            //var point2 = new OpenLayers.Geometry.Point(54.5, 10.9);
+
         }
  
     </script>
