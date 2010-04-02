@@ -1,4 +1,7 @@
 class SlicesController < ApplicationController
+  before_filter :find_slice,
+    :only => [:show, :edit, :update, :destroy]
+
   # GET /slices
   # GET /slices.xml
   def index
@@ -13,8 +16,7 @@ class SlicesController < ApplicationController
   # GET /slices/1
   # GET /slices/1.xml
   def show
-    @slice = Slice.find(params[:id])
-
+    # The before_filter find_slice is run beforehand
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @slice }
@@ -34,7 +36,7 @@ class SlicesController < ApplicationController
 
   # GET /slices/1/edit
   def edit
-    @slice = Slice.find(params[:id])
+    # The before_filter find_slice is run beforehand
   end
 
   # POST /slices
@@ -57,7 +59,7 @@ class SlicesController < ApplicationController
   # PUT /slices/1
   # PUT /slices/1.xml
   def update
-    @slice = Slice.find(params[:id])
+    # The before_filter find_slice is run beforehand
 
     respond_to do |format|
       if @slice.update_attributes(params[:slice])
@@ -74,7 +76,7 @@ class SlicesController < ApplicationController
   # DELETE /slices/1
   # DELETE /slices/1.xml
   def destroy
-    @slice = Slice.find(params[:id])
+    # The before_filter find_slice is run beforehand
     @slice.destroy
 
     respond_to do |format|
@@ -82,4 +84,10 @@ class SlicesController < ApplicationController
       format.xml  { head :ok }
     end
   end
+
+  private
+  def find_slice
+    @slice = Slice.find(params[:id])
+  end
+
 end
