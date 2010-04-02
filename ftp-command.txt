@@ -1,0 +1,12 @@
+# Local directory is carcomm/
+
+lftp 17573-ftp@ftp.cstim.de
+
+cd webapps/
+cd carcomm/
+
+mirror -R -x .git -n .
+
+# -x REGEX  - to exclude REGEX from transfer
+# -n        - to transfer only newer files
+# -R        - Reverse mirror to transfer in upload direction

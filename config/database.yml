@@ -16,7 +16,10 @@ test:
   timeout: 5000
 
 production:
-  adapter: sqlite3
-  database: db/production.sqlite3
+  adapter: mysql
+  encoding: utf8
+  database: db17573_1
+  username: db17573_1
+  password: E9vUE7STJG
+  host: mysql4.cstim.de
   pool: 5
-  timeout: 5000
