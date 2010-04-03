@@ -18,6 +18,7 @@
         var zoom=12;
  
         var map; //complex object of type OpenLayers.Map
+        var lgpx;
  
         //Initialise the 'map' object
         function init() {
@@ -40,29 +41,27 @@
             // Other defined layers are OpenLayers.Layer.OSM.Mapnik, OpenLayers.Layer.OSM.Maplint and OpenLayers.Layer.OSM.CycleMap
             layerMapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
             map.addLayer(layerMapnik);
-            layerMarkers = new OpenLayers.Layer.Markers("Markers");
-            map.addLayer(layerMarkers);
 
             if( ! map.getCenter() ){
                 var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
                 map.setCenter (lonLat, zoom);
             }
 
+            layerMarkers = new OpenLayers.Layer.Markers("Markers");
+            map.addLayer(layerMarkers);
             var size = new OpenLayers.Size(21,25);
             var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
             var icon = new OpenLayers.Icon('http://www.openstreetmap.org/openlayers/img/marker.png',size,offset);
             layerMarkers.addMarker(new OpenLayers.Marker(lonLat,icon));
 
-            var vectorLayer = new OpenLayers.Layer.Vector("Overlay");
-            var feature = new OpenLayers.Feature.Vector(
-                new OpenLayers.Geometry.Point(53.5, 9.8),
-                {some:'data'});
-            vectorLayer.addFeatures(feature);
-            map.addLayer(vectorLayer);
-
-            //var point1 = new OpenLayers.Geometry.Point(52.5, 8.9);
-            //var sourceNode = new OpenLayers.Feature.Vector(point1);
-            //var point2 = new OpenLayers.Geometry.Point(54.5, 10.9);
+            // Add the Layer with GPX Track
+            lgpx = new OpenLayers.Layer.GML("GML",
+                                            "slices.gpx", {
+                         format: OpenLayers.Format.GPX,
+                         style: {strokeColor: "green", strokeWidth: 10, strokeOpacity: 0.5},
+                         projection: new OpenLayers.Projection("EPSG:4326")
+                                                    });
+            map.addLayer(lgpx);
 
         }
  
