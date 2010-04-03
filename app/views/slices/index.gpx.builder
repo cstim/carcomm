@@ -7,6 +7,7 @@ xml.gpx("version" => "1.0", "creator" => "CarComm Server",
       xml.extensions do
         xml.avgvel(slice.avgvel)
       end
+      xml.avgvel(slice.avgvel.to_int)
       xml.rtept("lat" => slice.lat, "lon" => slice.lon) do
         xml.time(slice.time.to_datetime)
         xml.extensions do

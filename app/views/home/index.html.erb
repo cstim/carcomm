@@ -18,7 +18,6 @@
         var zoom=12;
  
         var map; //complex object of type OpenLayers.Map
-        var lgpx;
  
         //Initialise the 'map' object
         function init() {
@@ -55,10 +54,11 @@
             layerMarkers.addMarker(new OpenLayers.Marker(lonLat,icon));
 
             // Add the Layer with GPX Track
-            lgpx = new OpenLayers.Layer.GML("GML",
+            var myStyleMap = new OpenLayers.StyleMap({strokeColor: "green", strokeOpacity: 0.5, strokeWidth: '${avgvel}' });
+            var lgpx = new OpenLayers.Layer.GML("GML",
                                             "slices.gpx", {
                          format: OpenLayers.Format.GPX,
-                         style: {strokeColor: "green", strokeWidth: 10, strokeOpacity: 0.5},
+                         styleMap: myStyleMap,
                          projection: new OpenLayers.Projection("EPSG:4326")
                                                     });
             map.addLayer(lgpx);
@@ -93,16 +93,20 @@ I left both in there.</p>
 <p>Now go here to <%=
 link_to "view the table of reported slices", slices_path %></p>
 
-<h1>Embedding Open Street Map</h1>
+<h1>Displaying the ways on a map</h1>
 
-<p>This is the example from <a
-href="http://wiki.openstreetmap.org/wiki/OpenLayers_Marker_Example">http://wiki.openstreetmap.org/wiki/OpenLayers_Marker_Example</a>
-showing not only the map at some position but additionally one single
-static marker. </p>
+<p>This display uses the <a
+href="http://www.openstreetmap.org">openstreetmap.org</a>
+map. Additionally, all the way slices from <%= link_to "here",
+slices_path %> are shown as well, with the "average velocity" (in m/s)
+as strokeWidth in pixels. I.e. wider lines represent a way slice with
+higher velocity. OpenLayers additionally offers the possibility to add
+rule sets here to use a mapping of velocity to route color, or other
+style methods. See <a
+href="http://doc.openlayers.org/library/feature_styling.html">http://doc.openlayers.org/library/feature_styling.html</a>
+.</p>
 
 <!-- define a DIV into which the map will appear. Make it take up the whole window -->
 <div style="width:400px; height:400px" id="map"></div>
-
-<p>I would plan to have this map display the stored way slices of from <%= link_to "here", slices_path %></p>
 
 </body>
