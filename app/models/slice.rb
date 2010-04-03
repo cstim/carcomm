@@ -16,7 +16,7 @@ class Slice < ActiveRecord::Base
       # the distance. This uses the Haversine formula, see
       # http://www.movable-type.co.uk/scripts/latlong.html
 
-      earthR = 6371 # km
+      earthR = 6371000 # m
       lat_rad = lat / 180 * Math::PI
       startlat_rad = startlat / 180 * Math::PI
 
