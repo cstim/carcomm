@@ -10,6 +10,7 @@ class SlicesController < ApplicationController
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @slices }
+      format.gpx  # index.gpx.builder
     end
   end
 
