@@ -12,13 +12,24 @@
     <script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
  
     <script type="text/javascript">
-        // Start position for the map (hardcoded here for simplicity)
-        var lat=53.5514;
-        var lon=9.99;
-        var zoom=12;
  
         var map; //complex object of type OpenLayers.Map
- 
+        var layerGpx;
+
+        function zoomTo(lat, lon, zoom) {
+            var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+            map.setCenter (lonLat, zoom);
+        }
+
+        function zoomToHamburg() {
+            // Start position for the map (hardcoded here for simplicity)
+            zoomTo(53.5514, 9.99, 12);
+        }
+
+        function zoomToMuenchen() {
+            zoomTo(48.1361, 11.5376, 12);
+        }
+
         //Initialise the 'map' object
         function init() {
  
@@ -41,27 +52,74 @@
             layerMapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
             map.addLayer(layerMapnik);
 
-            if( ! map.getCenter() ){
-                var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
-                map.setCenter (lonLat, zoom);
-            }
+            // Create the style for the GPX traces
+            var gpxStyle = new OpenLayers.Style(
+                { //strokeColor: "green",
+                        strokeOpacity: 0.5,
+                        strokeWidth: 10 //'${avgvel}'
+                        });
 
-            layerMarkers = new OpenLayers.Layer.Markers("Markers");
-            map.addLayer(layerMarkers);
-            var size = new OpenLayers.Size(21,25);
-            var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-            var icon = new OpenLayers.Icon('http://www.openstreetmap.org/openlayers/img/marker.png',size,offset);
-            layerMarkers.addMarker(new OpenLayers.Marker(lonLat,icon));
+            var ruleStopping = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.LESS_THAN,
+                              property: "avgvel",
+                              value: 18 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "red" }
+                });
+            var ruleCitySlow = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.BETWEEN,
+                              property: "avgvel",
+                              lowerBoundary: 18 / 3.6,
+                              upperBoundary: 40 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "yellow" }
+                });
+            var ruleCityFast = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.BETWEEN,
+                              property: "avgvel",
+                              lowerBoundary: 40 / 3.6,
+                              upperBoundary: 65 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "green" }
+                });
+            var ruleHighwaySlow = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.BETWEEN,
+                              property: "avgvel",
+                              lowerBoundary: 65 / 3.6,
+                              upperBoundary: 95 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "cyan" }
+                });
+            var ruleHighwayFast = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.GREATER_THAN,
+                              property: "avgvel",
+                              value: 95 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "blue" }
+                });
+            gpxStyle.addRules([ruleStopping,
+                               ruleCitySlow,
+                               ruleCityFast,
+                               ruleHighwaySlow,
+                               ruleHighwayFast]);
+
+            var myStyleMap = new OpenLayers.StyleMap({'default': gpxStyle});
 
             // Add the Layer with GPX Track
-            var myStyleMap = new OpenLayers.StyleMap({strokeColor: "green", strokeOpacity: 0.5, strokeWidth: '${avgvel}' });
-            var lgpx = new OpenLayers.Layer.GML("GML",
+            layerGpx = new OpenLayers.Layer.GML("GML",
                                             "slices.gpx", {
                          format: OpenLayers.Format.GPX,
                          styleMap: myStyleMap,
                          projection: new OpenLayers.Projection("EPSG:4326")
                                                     });
-            map.addLayer(lgpx);
+            map.addLayer(layerGpx);
+
+            zoomToHamburg();
 
         }
  
@@ -108,5 +166,10 @@ href="http://doc.openlayers.org/library/feature_styling.html">http://doc.openlay
 
 <!-- define a DIV into which the map will appear. Make it take up the whole window -->
 <div style="width:400px; height:400px" id="map"></div>
+
+<p>Zoom to
+<input type="button" value="Hamburg" onClick="zoomToHamburg()">
+<input type="button" value="M&uuml;nchen" onClick="zoomToMuenchen()">
+</p>
 
 </body>
