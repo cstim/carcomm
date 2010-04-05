@@ -15,10 +15,12 @@
  
         var map; //complex object of type OpenLayers.Map
         var layerGpx;
+        var gpxStyleMap;
 
         function zoomTo(lat, lon, zoom) {
             var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
             map.setCenter (lonLat, zoom);
+            updateExtent();
         }
 
         function zoomToHamburg() {
@@ -108,19 +110,55 @@
                                ruleHighwaySlow,
                                ruleHighwayFast]);
 
-            var myStyleMap = new OpenLayers.StyleMap({'default': gpxStyle});
+            gpxStyleMap = new OpenLayers.StyleMap({'default': gpxStyle});
+
+            // Choose Hamburg as center
+            zoomToHamburg();
+
+        }
+
+        function reloadWays() {
+            if (layerGpx) {
+                map.removeLayer(layerGpx);
+                layerGpx.destroy();
+            }
+
+            var min_lat = document.forms.extent.min_lat.value;
+            var max_lat = document.forms.extent.max_lat.value;
+            var min_lon = document.forms.extent.min_lon.value;
+            var max_lon = document.forms.extent.max_lon.value;
 
             // Add the Layer with GPX Track
             layerGpx = new OpenLayers.Layer.GML("GML",
-                                            "slices.gpx", {
+                         "slices.gpx?"
+                         + "min_lat=" + min_lat
+                         + "&max_lat=" + max_lat
+                         + "&min_lon=" + min_lon
+                         + "&max_lon=" + max_lon
+                         , {
                          format: OpenLayers.Format.GPX,
-                         styleMap: myStyleMap,
+                         styleMap: gpxStyleMap,
                          projection: new OpenLayers.Projection("EPSG:4326")
                                                     });
             map.addLayer(layerGpx);
+        }
 
-            zoomToHamburg();
+        function updateExtent() {
+            var lonLatUR = map.getLonLatFromPixel(new OpenLayers.Pixel(0,0))
+                .transform(map.getProjectionObject(),
+                           new OpenLayers.Projection("EPSG:4326"));
 
+            var mapSize = map.getSize();
+            var lonLatLL = map.getLonLatFromPixel(new OpenLayers.Pixel(mapSize.w, mapSize.h))
+                .transform(map.getProjectionObject(),
+                           new OpenLayers.Projection("EPSG:4326"));
+
+            document.forms.extent.min_lat.value = lonLatLL.lat;
+            document.forms.extent.max_lon.value = lonLatLL.lon;
+            document.forms.extent.max_lat.value = lonLatUR.lat;
+            document.forms.extent.min_lon.value = lonLatUR.lon;
+
+            reloadWays();
         }
  
     </script>
@@ -156,16 +194,35 @@ link_to "view the table of reported slices", slices_path %></p>
 <p>This display uses the <a
 href="http://www.openstreetmap.org">openstreetmap.org</a>
 map. Additionally, all the way slices from <%= link_to "here",
-slices_path %> are shown as well, with the "average velocity" (in m/s)
-as strokeWidth in pixels. I.e. wider lines represent a way slice with
-higher velocity. OpenLayers additionally offers the possibility to add
-rule sets here to use a mapping of velocity to route color, or other
-style methods. See <a
-href="http://doc.openlayers.org/library/feature_styling.html">http://doc.openlayers.org/library/feature_styling.html</a>
-.</p>
+                                             slices_path %> are shown as well, and the "average velocity" (in [m/s] in the table, but in [km/h] for the colors)
+    chooses the display color, as shown below.</p>
 
-<!-- define a DIV into which the map will appear. Make it take up the whole window -->
+<table><tr><td>
+<!-- define a DIV into which the map will appear. Make it take up 400 pixels -->
 <div style="width:400px; height:400px" id="map"></div>
+</td><td valign="top">
+<form name="extent">
+<table>
+<tr><td>min_lat</td><td><input type="text" name="min_lat" value=""></td></tr>
+<tr><td>max_lat</td><td><input type="text" name="max_lat" value=""></td></tr>
+<tr><td>min_lon</td><td><input type="text" name="min_lon" value=""></td></tr>
+<tr><td>max_lon</td><td><input type="text" name="max_lon" value=""></td></tr>
+<tr><td colspan="2"><input type="button" value="Only Reload Ways" onClick="reloadWays()"> according to the coordinates above</td></tr>
+<tr><td colspan="2"><input type="button" value="Reload" onClick="updateExtent()"> everything (coordinates from map, and ways from coordinates)</td></tr>
+</table>
+</form>
+
+<br>
+
+<table><tr><td>Average [km/h]</td><td>Color</td></tr>
+<tr><td>0 - 18</td><td style="background-color:red">Red</td></tr>
+<tr><td>18 - 40</td><td style="background-color:yellow">Yellow</td></tr>
+<tr><td>40 - 65</td><td style="background-color:green">Green</td></tr>
+<tr><td>65 - 95</td><td style="background-color:cyan">Cyan</td></tr>
+<tr><td>95 - 250</td><td style="background-color:blue">Blue</td></tr>
+</table>
+
+</td></tr></table>
 
 <p>Zoom to
 <input type="button" value="Hamburg" onClick="zoomToHamburg()">

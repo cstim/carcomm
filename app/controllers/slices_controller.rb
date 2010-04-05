@@ -7,8 +7,22 @@ class SlicesController < ApplicationController
   # GET /slices
   # GET /slices.xml
   def index
-    @slices = Slice.find(:all)
+    # Build the conditions for the sub-set of slices
+    conds = {}
+    if params.has_key?(:min_lat) and params.has_key?(:max_lat)
+      conds[:lat] = params[:min_lat]..params[:max_lat]
+    end
+    if params.has_key?(:min_lon) and params.has_key?(:max_lon)
+      conds[:lon] = params[:min_lon]..params[:max_lon]
+    end
+    if params.has_key?(:min_time) and params.has_key?(:max_time)
+      conds[:time] = params[:min_time]..params[:max_time]
+    end
 
+    # Run the query
+    @slices = Slice.all(:conditions => conds)
+
+    # And choose the output format
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @slices }
