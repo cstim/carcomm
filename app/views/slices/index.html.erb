@@ -3,13 +3,14 @@
 <table>
   <tr>
     <th>Time</th>
-    <th>Lat</th>
-    <th>Lon</th>
-    <th>Avgvel</th>
-    <th>Headingdeg</th>
-    <th>Dist</th>
-    <th>Startlat</th>
-    <th>Startlon</th>
+    <th>Lat [deg]</th>
+    <th>Lon [deg]</th>
+    <th>Avgvel [m/s]</th>
+    <th>Headingdeg [deg]</th>
+    <th>Dist [m]</th>
+    <th>Duration [s]</th>
+    <th>Startlat [deg]</th>
+    <th>Startlon [deg]</th>
   </tr>
 
 <% for slice in @slices %>
@@ -20,6 +21,7 @@
     <td><%=h slice.avgvel %></td>
     <td><%=h slice.headingdeg %></td>
     <td><%=h slice.dist %></td>
+    <td><%=h slice.duration %></td>
     <td><%=h slice.startlat %></td>
     <td><%=h slice.startlon %></td>
     <td><%= link_to 'Show', slice %></td>
