@@ -28,7 +28,7 @@ def main
       else
         duration = trkpt.time - prev.time
         # Ignore slices smaller than 5 seconds
-        if duration >= 5
+        if duration > 9
           if duration < 95
             puts "Time: #{trkpt.time} Lat: #{trkpt.lat} Lon: #{trkpt.lon} Duration: #{duration}s Startlat: #{prev.lat} Startlon: #{prev.lon}"
 
