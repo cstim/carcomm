@@ -2,7 +2,7 @@ class SlicesController < ApplicationController
   before_filter :find_slice,
     :only => [:show, :edit, :update, :destroy]
 
-  #protect_from_forgery :except => :create
+  protect_from_forgery :except => :create
 
   # GET /slices
   # GET /slices.xml

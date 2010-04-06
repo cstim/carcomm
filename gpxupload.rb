@@ -23,10 +23,10 @@ def main
 
     prev = nil
     track.points.each do | trkpt |
-      if prev.nil?
+      if prev.nil? or trkpt.time.nil?
         prev = trkpt
       else
-        duration = trkpt.time - prev.time
+        duration = prev.time.nil? ? 0 : trkpt.time - prev.time
         # Ignore slices smaller than 5 seconds
         if duration > 9
           if duration < 95
