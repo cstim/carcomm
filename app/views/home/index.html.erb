@@ -128,6 +128,9 @@
             var min_lon = document.forms.extent.min_lon.value;
             var max_lon = document.forms.extent.max_lon.value;
 
+            var min_time = document.forms.extent.min_time.value;
+            var max_time = document.forms.extent.max_time.value;
+
             // Add the Layer with GPX Track
             layerGpx = new OpenLayers.Layer.GML("GML",
                          "slices.gpx?"
@@ -135,6 +138,8 @@
                          + "&max_lat=" + max_lat
                          + "&min_lon=" + min_lon
                          + "&max_lon=" + max_lon
+                         + "&min_time=" + min_time
+                         + "&max_time=" + max_time
                          , {
                          format: OpenLayers.Format.GPX,
                          styleMap: gpxStyleMap,
@@ -157,6 +162,18 @@
             document.forms.extent.max_lon.value = lonLatLL.lon;
             document.forms.extent.max_lat.value = lonLatUR.lat;
             document.forms.extent.min_lon.value = lonLatUR.lon;
+
+            var zeropad = function (num) { return ((num < 10) ? '0' : '') + num; }
+            var now = new Date();
+            // 2009-05-01T00:00:00Z
+            var timestring = String(now.getFullYear())
+                + "-" + zeropad(now.getMonth() + 1)
+                + "-" + zeropad(now.getDate())
+                + "T" + zeropad(now.getHours())
+                + ":" + zeropad(now.getMinutes())
+                + ":" + zeropad(now.getSeconds())
+                + "Z";
+            document.forms.extent.max_time.value = timestring;
 
             reloadWays();
         }
@@ -207,6 +224,8 @@ map. Additionally, all the way slices from <%= link_to "here",
 <tr><td>max_lat</td><td><input type="text" name="max_lat" value=""></td></tr>
 <tr><td>min_lon</td><td><input type="text" name="min_lon" value=""></td></tr>
 <tr><td>max_lon</td><td><input type="text" name="max_lon" value=""></td></tr>
+<tr><td>min_time</td><td><input type="text" name="min_time" value="2009-05-01T00:00:00Z"></td></tr>
+<tr><td>max_time</td><td><input type="text" name="max_time" value=""></td></tr>
 <tr><td colspan="2"><input type="button" value="Only Reload Ways" onClick="reloadWays()"> according to the coordinates above</td></tr>
 <tr><td colspan="2"><input type="button" value="Reload" onClick="updateExtent()"> everything (coordinates from map, and ways from coordinates)</td></tr>
 </table>
