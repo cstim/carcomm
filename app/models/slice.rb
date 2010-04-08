@@ -41,13 +41,14 @@ class Slice < ActiveRecord::Base
   def calc_heading_if_empty!
     if headingdeg.nil? and not (startlat.nil? or startlon.nil? or lat.nil? or lon.nil?)
       startlat_rad = startlat * DEG_TO_RAD
-      lat_rad = lat * DEG_TO_RAD
+      endlat_rad = lat * DEG_TO_RAD
       dLon = (lon - startlon) * DEG_TO_RAD
       y = Math::sin(dLon) * Math::cos(startlat_rad)
-      x = Math::cos(lat_rad) * Math::sin(startlat_rad) \
-          - Math::sin(lat_rad) * Math::cos(startlat_rad) * Math::cos(dLon)
+      x = Math::cos(endlat_rad) * Math::sin(startlat_rad) \
+          - Math::sin(endlat_rad) * Math::cos(startlat_rad) \
+          * Math::cos(dLon)
       bearing_rad = Math::atan2(y, x)
-      self.headingdeg = ((bearing_rad + Math::PI) * RAD_TO_DEG) % 360
+      self.headingdeg = ((-bearing_rad + Math::PI) * RAD_TO_DEG) % 360
     end
   end
 
