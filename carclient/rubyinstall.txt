@@ -1,0 +1,33 @@
+# How to install ruby on Windows
+# http://tom.paschenda.org/blog/?p=38
+# http://vision.eng.shu.ac.uk/mmvlwiki/index.php/Qt4-QtRuby_installer_for_Microsoft_Windows
+
+
+# 1. Ruby itself; Installer from here:
+http://rubyforge.org/projects/rubyinstaller/
+http://rubyforge.org/frs/download.php/29263/ruby186-26.exe
+(wohl nicht: http://rubyforge.org/frs/download.php/69034/rubyinstaller-1.8.7-p249-rc2.exe )
+
+gem install ruby-serialport
+
+# 2. Qt installieren
+
+gem install qtruby4
+
+# 3. 
+
+
+
+############
+# Linux
+sudo apt-get install libqt4-ruby1.8 libqt4-ruby1.8-dev libserialport-ruby1.8
+
+############
+# GPS-Logger
+http://wiki.openstreetmap.org/wiki/Making_Tracks_with_Homebrew-ware
+
+# Windows
+http://www.jcartier.net/gps/gpslog.zip
+
+# Linux
+apt-get install gpsd gpxlogger gpsbabel
