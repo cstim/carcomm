@@ -20,7 +20,7 @@ gem install qtruby4
 
 ############
 # Linux
-sudo apt-get install libqt4-ruby1.8 libqt4-ruby1.8-dev libserialport-ruby1.8
+sudo apt-get install libqt4-ruby1.8 libserialport-ruby1.8
 
 ############
 # GPS-Logger

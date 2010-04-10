@@ -2,19 +2,24 @@ RBUIC4 = rbuic4
 RBRCC = rbrcc
 
 SOURCES = carclient.rb
-#UI = main.ui
-#QRC = main.qrc
+UI = mainwindow.ui
+QRC = ressources.qrc
 
-ALL_FILES = $(UI:%.ui=%.rb) $(QRC:%.qrc=%.rb)
+GENERATEDFILES = $(UI:%.ui=%.ui.rb) $(QRC:%.qrc=%.qrc.rb)
+ALL_FILES = $(GENERATEDFILES)
 
 all: $(ALL_FILES)
 
+clean:
+	rm -f $(GENERATEDFILES)
+
 # General rules
 
-.ui.rb:
+.SUFFIXES: .ui .ui.rb .qrc .qrc.rb
+
+.ui.ui.rb:
 	$(RBUIC4) $< -o $@
 
-.qrc.rb:
+.qrc.qrc.rb:
 	$(RBRCC) $< -o $@
 
-.SUFFIXES = .rb .ui .qrc

@@ -1,0 +1,184 @@
+<html>
+<head>
+    <!-- bring in the OpenLayers javascript library
+         (here we bring it from the remote site, but you could
+         easily serve up this javascript yourself) -->
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+ 
+    <!-- bring in the OpenStreetMap OpenLayers layers.
+         Using this hosted file will make sure we are kept up
+         to date with any necessary changes -->
+    <script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+ 
+    <script type="text/javascript">
+ 
+        var map; //complex object of type OpenLayers.Map
+        var layerGpx;
+        var gpxStyleMap;
+
+        function zoomTo(lat, lon, zoom) {
+            var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+            map.setCenter (lonLat, zoom);
+            updateExtent();
+        }
+
+        function setLatLon(lat, lon) {
+            var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+            var currentZoom = map.getZoom();
+            map.setCenter (lonLat, currentZoom);
+        }
+
+        function zoomToHamburg() {
+            // Start position for the map (hardcoded here for simplicity)
+            zoomTo(53.5514, 9.99, 12);
+        }
+
+        function zoomToMuenchen() {
+            zoomTo(48.1361, 11.5376, 12);
+        }
+
+        //Initialise the 'map' object
+        function init() {
+ 
+            map = new OpenLayers.Map ("map", {
+                controls:[
+                    new OpenLayers.Control.Navigation(),
+                    new OpenLayers.Control.PanZoomBar(),
+                    new OpenLayers.Control.Attribution()],
+                maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+                maxResolution: 156543.0399,
+                numZoomLevels: 19,
+                units: 'm',
+                projection: new OpenLayers.Projection("EPSG:900913"),
+                displayProjection: new OpenLayers.Projection("EPSG:4326")
+            } );
+ 
+ 
+            // Define the map layer
+            // Other defined layers are OpenLayers.Layer.OSM.Mapnik, OpenLayers.Layer.OSM.Maplint and OpenLayers.Layer.OSM.CycleMap
+            layerMapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+            map.addLayer(layerMapnik);
+
+            // Create the style for the GPX traces
+            var gpxStyle = new OpenLayers.Style(
+                { //strokeColor: "green",
+                        strokeOpacity: 0.5,
+                        strokeWidth: 10 //'${avgvel}'
+                        });
+
+            var ruleStopping = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.LESS_THAN,
+                              property: "avgvel",
+                              value: 18 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "red" }
+                });
+            var ruleCitySlow = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.BETWEEN,
+                              property: "avgvel",
+                              lowerBoundary: 18 / 3.6,
+                              upperBoundary: 40 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "yellow" }
+                });
+            var ruleCityFast = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.BETWEEN,
+                              property: "avgvel",
+                              lowerBoundary: 40 / 3.6,
+                              upperBoundary: 65 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "green" }
+                });
+            var ruleHighwaySlow = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.BETWEEN,
+                              property: "avgvel",
+                              lowerBoundary: 65 / 3.6,
+                              upperBoundary: 95 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "cyan" }
+                });
+            var ruleHighwayFast = new OpenLayers.Rule({
+                  filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.GREATER_THAN,
+                              property: "avgvel",
+                              value: 95 / 3.6
+                              }),
+                  symbolizer: { strokeColor: "blue" }
+                });
+            gpxStyle.addRules([ruleStopping,
+                               ruleCitySlow,
+                               ruleCityFast,
+                               ruleHighwaySlow,
+                               ruleHighwayFast]);
+
+            gpxStyleMap = new OpenLayers.StyleMap({'default': gpxStyle});
+
+            // Choose Hamburg as center
+            zoomToHamburg();
+
+        }
+
+        function reloadWays() {
+            if (layerGpx) {
+                map.removeLayer(layerGpx);
+                layerGpx.destroy();
+            }
+
+//             var min_lat = document.forms.extent.min_lat.value;
+//             var max_lat = document.forms.extent.max_lat.value;
+//             var min_lon = document.forms.extent.min_lon.value;
+//             var max_lon = document.forms.extent.max_lon.value;
+
+//             var min_time = document.forms.extent.min_time.value;
+//             var max_time = document.forms.extent.max_time.value;
+
+            // Add the Layer with GPX Track
+            layerGpx = new OpenLayers.Layer.GML("GML",
+                         "slices.gpx?"
+                         + "min_lat=" + min_lat
+                         + "&max_lat=" + max_lat
+                         + "&min_lon=" + min_lon
+                         + "&max_lon=" + max_lon
+                         + "&min_time=" + min_time
+                         + "&max_time=" + max_time
+                         , {
+                         format: OpenLayers.Format.GPX,
+                         styleMap: gpxStyleMap,
+                         projection: new OpenLayers.Projection("EPSG:4326")
+                                                    });
+            map.addLayer(layerGpx);
+        }
+
+        function updateExtent() {
+            var lonLatUR = map.getLonLatFromPixel(new OpenLayers.Pixel(0,0))
+                .transform(map.getProjectionObject(),
+                           new OpenLayers.Projection("EPSG:4326"));
+
+            var mapSize = map.getSize();
+            var lonLatLL = map.getLonLatFromPixel(new OpenLayers.Pixel(mapSize.w, mapSize.h))
+                .transform(map.getProjectionObject(),
+                           new OpenLayers.Projection("EPSG:4326"));
+
+//             document.forms.extent.min_lat.value = lonLatLL.lat;
+//             document.forms.extent.max_lon.value = lonLatLL.lon;
+//             document.forms.extent.max_lat.value = lonLatUR.lat;
+//             document.forms.extent.min_lon.value = lonLatUR.lon;
+
+            //reloadWays();
+        }
+ 
+    </script>
+
+</head>
+
+<!-- body.onload is called once the page is loaded (call the 'init' function) -->
+<body onload="init();">
+<!-- define a DIV into which the map will appear. Make it take up 400 pixels -->
+<div id="map"></div>
+
+</body>
+</html>
