@@ -60,3 +60,94 @@ if (MINGW)
   SET_TARGET_PROPERTIES(carclient PROPERTIES
 	LINK_FLAGS -Wl,-enable-runtime-pseudo-reloc )
 endif (MINGW)
+
+
+# ############################################################
+# Package creation rules
+
+SET (CPACK_PACKAGE_NAME "Carclient")
+SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY "C2C Car Information Laptop Client")
+SET (CPACK_PACKAGE_VENDOR "Christian Stimming")
+SET (CPACK_PACKAGE_VERSION_MAJOR "0")
+SET (CPACK_PACKAGE_VERSION_MINOR "1")
+SET (CPACK_PACKAGE_VERSION_PATCH "0")
+SET (CPACK_SOURCE_IGNORE_FILES "/\\\\.svn/;/\\\\.git/;.*~;build.*;html;Debug;Release")
+SET (CPACK_STRIP_FILES "bin/carclient")
+#SET (CPACK_PACKAGE_EXECUTABLES "bin/carclient")
+IF(UNIX)
+  SET(CPACK_GENERATOR "TGZ")
+ELSE(UNIX)
+  SET(CPACK_GENERATOR "NSIS")
+ENDIF(UNIX)
+
+SET(__cpack_system_name ${CMAKE_SYSTEM_NAME})
+IF(${__cpack_system_name} MATCHES Windows)
+  IF(CMAKE_CL_64)
+    SET(__cpack_system_name win64)
+  ELSE(CMAKE_CL_64)
+    SET(__cpack_system_name win32)
+  ENDIF(CMAKE_CL_64)
+ENDIF(${__cpack_system_name} MATCHES Windows)
+IF (MSVC80)
+  SET (CPACK_SYSTEM_NAME "${__cpack_system_name}-msvc80")
+ENDIF (MSVC80)
+IF (MSVC90)
+  SET (CPACK_SYSTEM_NAME "${__cpack_system_name}-msvc90")
+  # Install also the Visual Studio Redistributable package
+  INSTALL (FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/vcredist_x86_9.0.21022_eng.exe DESTINATION .)
+  SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "ExecWait '\\\"$INSTDIR\\\\vcredist_x86_9.0.21022_eng.exe\\\" /q'")
+ENDIF (MSVC90)
+IF (MINGW)
+  SET (CPACK_SYSTEM_NAME "${__cpack_system_name}-mingw")
+ENDIF (MINGW)
+
+INCLUDE (CPack)
+
+# Also install the dependencies
+IF (WIN32)
+  # Make sure to have the DLLs instead of the LIBs.
+  # QtWebKit requires QtNetwork and phonon4 as well.
+  GET_FILENAME_COMPONENT (qtbindir ${QT_QMAKE_EXECUTABLE} PATH)
+
+  # The non-optional parts
+  FOREACH (_lib QtCore QtGui QtWebKit QtNetwork)
+    SET (_libdebug pkg_${_lib}d4_dll)
+    FIND_FILE (${_libdebug} "${_lib}d4.dll" ${qtbindir} NO_DEFAULT_PATH)
+    FIND_FILE (${_libdebug} "${_lib}d4.dll")
+	INSTALL (FILES ${${_libdebug}}
+			 DESTINATION bin
+			 CONFIGURATIONS Debug)
+
+    SET (_librel pkg_${_lib}4_dll)
+    FIND_FILE (${_librel} "${_lib}4.dll" ${qtbindir} NO_DEFAULT_PATH)
+    FIND_FILE (${_librel} "${_lib}4.dll")
+	INSTALL (FILES ${${_librel}}
+			 DESTINATION bin
+			 CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+  ENDFOREACH (_lib)
+
+  # And the qt >= 4.6.0 parts
+  IF (${QTVERSION} VERSION_GREATER 4.5.99)
+  FOREACH (_lib QtXmlPatterns phonon)
+    SET (_libdebug pkg_${_lib}d4_dll)
+    FIND_FILE (${_libdebug} "${_lib}d4.dll" ${qtbindir} NO_DEFAULT_PATH)
+    FIND_FILE (${_libdebug} "${_lib}d4.dll")
+	INSTALL (FILES ${${_libdebug}}
+			 DESTINATION bin
+			 CONFIGURATIONS Debug)
+
+    SET (_librel pkg_${_lib}4_dll)
+    FIND_FILE (${_librel} "${_lib}4.dll" ${qtbindir} NO_DEFAULT_PATH)
+    FIND_FILE (${_librel} "${_lib}4.dll")
+	INSTALL (FILES ${${_librel}}
+			 DESTINATION bin
+			 CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+  ENDFOREACH (_lib)
+  ENDIF (${QTVERSION} VERSION_GREATER 4.5.99)
+
+  IF (MINGW)
+    FIND_LIBRARY (mingwm10_dll NAMES mingwm10)
+    INSTALL (FILES ${mingwm10_dll} DESTINATION bin)
+    #INSTALL (FILES ${zlib1_dll} DESTINATION bin)
+  ENDIF (MINGW)
+ENDIF (WIN32)

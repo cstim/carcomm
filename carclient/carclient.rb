@@ -20,8 +20,8 @@ class MyMainWindow < Qt::MainWindow
 	ui.setupUi(self)
 
 	# Read the HTML page and write it into the webview widget
-	filename = ':res/test.html'
-	#filename = ':res/streetmap.html'
+	#filename = ':res/test.html'
+	filename = ':res/streetmap.html'
 	f = Qt::File.new(filename)
 	f.open(Qt::IODevice::ReadOnly)
 	ui.webView.setContent(f.readAll)

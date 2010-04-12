@@ -25,8 +25,8 @@ class CarMainWindow : public QMainWindow
         {
             ui->setupUi(this);
 
-            QString filename = ":res/test.html";
-            // ":res/streetmap.html";
+            //QString filename = ":res/test.html";
+            QString filename = ":res/streetmap.html";
             QFile f(filename);
             f.open(QIODevice::ReadOnly);
             ui->webView->setContent(f.readAll());
