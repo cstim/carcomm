@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
     <file>res/streetmap.html</file>
+    <file>res/test.html</file>
   </qresource>
 </RCC>

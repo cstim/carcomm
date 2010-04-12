@@ -9,9 +9,23 @@ require 'ressources.qrc'
 # My class for the main window
 class MyMainWindow < Qt::MainWindow
   attr_reader :ui
-  attr_writer :ui
 
   slots :on_buttonReloadMap_clicked
+
+  def initialize
+	super()
+
+	# Initialize the UI
+	@ui = Ui_MainWindow.new
+	ui.setupUi(self)
+
+	# Read the HTML page and write it into the webview widget
+	filename = ':res/test.html'
+	#filename = ':res/streetmap.html'
+	f = Qt::File.new(filename)
+	f.open(Qt::IODevice::ReadOnly)
+	ui.webView.setContent(f.readAll)
+  end
 
   def on_buttonReloadMap_clicked
     puts "We are in on_buttonReloadMap_clicked"
@@ -25,16 +39,8 @@ if $0 == __FILE__
   app = Qt::Application.new(ARGV)
 
   mainwindow = MyMainWindow.new
-  mainwindow.ui = Ui_MainWindow.new
-  mainwindow.ui.setupUi(mainwindow)
 
   mainwindow.show
-
-  # Read the HTML page and write it into the webview widget
-  f = Qt::File.new(':res/streetmap.html')
-  f.open(Qt::IODevice::ReadOnly)
-  x = f.readAll
-  mainwindow.ui.webView.setContent(x)
 
   app.exec
 end
