@@ -1,5 +1,5 @@
 <head>
-    <title>Car Comm Server Prototype, 2010-03-31</title>
+    <title>Car Comm Server Prototype, 2010-04-12</title>
 
     <!-- bring in the OpenLayers javascript library
          (here we bring it from the remote site, but you could
@@ -185,28 +185,31 @@
 <!-- body.onload is called once the page is loaded (call the 'init' function) -->
 <body onload="init();">
 
-<h1>Car Comm Server Prototype, 2010-03-31</h1>
+<h1>Car Comm Server Prototype, 2010-04-12</h1>
 
-<p>This is our prototype for the car communication server. I'm still
-heavily in the ruby-on-rails learning curve.</p>
+<p>This is our prototype for a traffic information system using a
+client-server architecture.</p>
 
 <p>Current Status: We can view and edit the table of travel report
 "slices". A "slice" is the smallest section of the travel reports from
 the mobile devices, and it can represent 60 seconds of travel (or
-maybe 20 or 90 seconds), represented by its starting and ending point
-in WGS84 coordinates and the average velocity in between. From this
-data, one can also calculate the distance covered by this travel slice
-and also the heading (also called bearing, orientation, or course
-angle) of the reporting vehicle, but these are redundant information
-because of start/end in WGS84. However, we don't know yet which data
-parts will eventually be transferred over GPRS/Internet and which
-others will be calculated when storing the slices in the database, so
-I left both in there.</p>
+maybe 20 or 90 seconds). The slice is represented by its starting and
+ending point in WGS84 coordinates (latitude and longitude), and the
+average velocity in between.</p>
 
-<p>Now go here to <%=
-link_to "view the table of reported slices", slices_path %></p>
+<p>You can <%=
+link_to "view the table of reported slices", slices_path %>.</p>
 
-<h1>Displaying the ways on a map</h1>
+<% form_tag('home/gpxUpload', :multipart => true ) do %>
+<label for="upload">You can upload a GPX file with GPS logs. Select
+File: </label>
+<%= file_field_tag 'upload' %>
+and <%= submit_tag "Upload GPX" %>
+<% end %>
+<p>(GPX upload will store way slices in a 30-second raster, not finer
+than that for now.)</p>
+
+<h2>Displaying the ways on a map</h2>
 
 <p>This display uses the <a
 href="http://www.openstreetmap.org">openstreetmap.org</a>
