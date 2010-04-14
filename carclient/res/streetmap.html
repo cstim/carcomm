@@ -16,16 +16,15 @@
         var layerGpx;
         var gpxStyleMap;
 
-        function zoomTo(lat, lon, zoom) {
-            var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
-            map.setCenter (lonLat, zoom);
-            updateExtent();
-        }
-
         function setLatLon(lat, lon) {
             var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
             var currentZoom = map.getZoom();
             map.setCenter (lonLat, currentZoom);
+        }
+
+        function zoomTo(lat, lon, zoom) {
+            var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+            map.setCenter (lonLat, zoom);
         }
 
         function zoomToHamburg() {
@@ -122,23 +121,29 @@
 
         }
 
-        function reloadWays() {
+        function loadWays(server, min_time, max_time) {
             if (layerGpx) {
                 map.removeLayer(layerGpx);
                 layerGpx.destroy();
             }
 
-//             var min_lat = document.forms.extent.min_lat.value;
-//             var max_lat = document.forms.extent.max_lat.value;
-//             var min_lon = document.forms.extent.min_lon.value;
-//             var max_lon = document.forms.extent.max_lon.value;
+            var lonLatUR = map.getLonLatFromPixel(new OpenLayers.Pixel(0,0))
+                .transform(map.getProjectionObject(),
+                           new OpenLayers.Projection("EPSG:4326"));
 
-//             var min_time = document.forms.extent.min_time.value;
-//             var max_time = document.forms.extent.max_time.value;
+            var mapSize = map.getSize();
+            var lonLatLL = map.getLonLatFromPixel(new OpenLayers.Pixel(mapSize.w, mapSize.h))
+                .transform(map.getProjectionObject(),
+                           new OpenLayers.Projection("EPSG:4326"));
+
+            var min_lat = lonLatLL.lat;
+            var max_lon = lonLatLL.lon;
+            var max_lat = lonLatUR.lat;
+            var min_lon = lonLatUR.lon;
 
             // Add the Layer with GPX Track
             layerGpx = new OpenLayers.Layer.GML("GML",
-                         "slices.gpx?"
+                         server + "/slices.gpx?"
                          + "min_lat=" + min_lat
                          + "&max_lat=" + max_lat
                          + "&min_lon=" + min_lon
@@ -151,24 +156,6 @@
                          projection: new OpenLayers.Projection("EPSG:4326")
                                                     });
             map.addLayer(layerGpx);
-        }
-
-        function updateExtent() {
-            var lonLatUR = map.getLonLatFromPixel(new OpenLayers.Pixel(0,0))
-                .transform(map.getProjectionObject(),
-                           new OpenLayers.Projection("EPSG:4326"));
-
-            var mapSize = map.getSize();
-            var lonLatLL = map.getLonLatFromPixel(new OpenLayers.Pixel(mapSize.w, mapSize.h))
-                .transform(map.getProjectionObject(),
-                           new OpenLayers.Projection("EPSG:4326"));
-
-//             document.forms.extent.min_lat.value = lonLatLL.lat;
-//             document.forms.extent.max_lon.value = lonLatLL.lon;
-//             document.forms.extent.max_lat.value = lonLatUR.lat;
-//             document.forms.extent.min_lon.value = lonLatUR.lon;
-
-            //reloadWays();
         }
  
     </script>
