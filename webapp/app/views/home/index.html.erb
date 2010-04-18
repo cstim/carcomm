@@ -16,6 +16,7 @@
         var map; //complex object of type OpenLayers.Map
         var layerGpx;
         var gpxStyleMap;
+        var serverUrl;
 
         function zoomTo(lat, lon, zoom) {
             var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
@@ -34,7 +35,8 @@
 
         //Initialise the 'map' object
         function init() {
- 
+
+            serverUrl = ""; // "http://carcomm.cstimming.de/";
             map = new OpenLayers.Map ("map", {
                 controls:[
                     new OpenLayers.Control.Navigation(),
@@ -117,6 +119,10 @@
 
         }
 
+        function setServerUrl(value) {
+          serverUrl = value;
+        }
+
         function reloadWays() {
             if (layerGpx) {
                 map.removeLayer(layerGpx);
@@ -133,7 +139,7 @@
 
             // Add the Layer with GPX Track
             layerGpx = new OpenLayers.Layer.GML("GML",
-                         "slices.gpx?"
+                         serverUrl + "slices.gpx?"
                          + "min_lat=" + min_lat
                          + "&max_lat=" + max_lat
                          + "&min_lon=" + min_lon
