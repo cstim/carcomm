@@ -28,6 +28,7 @@ class SlicesController < ApplicationController
       format.xml  { render :xml => @slices }
       format.gpx  # index.gpx.builder
     end
+    response.headers['Access-Control-Allow-Origin'] = '*'
   end
 
   # GET /slices/1
