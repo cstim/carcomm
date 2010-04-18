@@ -16,6 +16,7 @@
         var layerGpx;
         var gpxStyleMap;
         var serverUrl;
+        var initialized;
 
         function setLatLon(lat, lon) {
             var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
@@ -121,6 +122,7 @@
             // Choose Hamburg as center
             zoomToHamburg();
 
+            initialized = 1;
         }
 
         function setServerUrl(value) {

@@ -28,9 +28,6 @@ class MyMainWindow < Qt::MainWindow
     # @server = "http://carcomm.cstimming.de/"
     @server = "http://localhost:3000/"
 
-    # Read the HTML page and write it into the webview widget
-    on_actionResetMap_triggered
-
     # Set the date to now
     ui.dateTimeEdit.setDateTime(Qt::DateTime::currentDateTime)
 
@@ -43,6 +40,9 @@ class MyMainWindow < Qt::MainWindow
     comboBox.addItem("2 Hours", Qt::Variant.new(120))
     comboBox.addItem("15 Minutes", Qt::Variant.new(15))
     comboBox.addItem("5 Minutes", Qt::Variant.new(5))
+
+    # Read the HTML page and write it into the webview widget
+    on_actionResetMap_triggered
   end
 
   def sendDataMaybe
@@ -63,9 +63,17 @@ class MyMainWindow < Qt::MainWindow
     lat = ui.lineLatitude.text
     lon = ui.lineLongitude.text
     ui.webView.page.mainFrame.evaluateJavaScript("setLatLon(#{lat},#{lon});")
+    reloadMapMaybe
   end
 
   def on_buttonReload_clicked
+    isInited = ui.webView.page.mainFrame.evaluateJavaScript("initialized")
+    if (isInited.to_i == 0)
+      puts "HTML view not yet initialized - waiting 0.5 seconds."
+      Qt::Timer::singleShot(500, self, SLOT(:on_buttonReload_clicked))
+      return
+    end
+
     currentTime = ui.dateTimeEdit.dateTime
     interval = ui.comboBoxInterval.itemData(ui.comboBoxInterval.currentIndex).to_i
     min_time = qtDateTimeToString(currentTime.addSecs(-60 * interval))
@@ -88,6 +96,7 @@ class MyMainWindow < Qt::MainWindow
     #ui.webView.setContent(f.readAll)
     url = Qt::Url.new(server + "streetmap.html")
     ui.webView.setUrl(url)
+    on_buttonReload_clicked
   end
 end
 
