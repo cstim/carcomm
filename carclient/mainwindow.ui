@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>606</height>
+    <width>498</width>
+    <height>642</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -102,7 +102,7 @@
        <item row="4" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Display History</string>
+          <string>Map History</string>
          </property>
         </widget>
        </item>
@@ -186,7 +186,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>483</width>
+     <width>498</width>
      <height>25</height>
     </rect>
    </property>
@@ -204,6 +204,7 @@
      <string>&amp;Server</string>
     </property>
     <addaction name="actionTransmitPositionMessages"/>
+    <addaction name="actionAutoReloadMap"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
@@ -251,6 +252,17 @@
   <action name="actionResetMap">
    <property name="text">
     <string>Reset &amp;Map</string>
+   </property>
+  </action>
+  <action name="actionAutoReloadMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto-&amp;Reload Map</string>
    </property>
   </action>
  </widget>
@@ -322,6 +334,38 @@
     <hint type="sourcelabel">
      <x>323</x>
      <y>169</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAutoReloadMap</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>checkBoxAutoReload</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>303</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>329</x>
+     <y>552</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxAutoReload</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>actionAutoReloadMap</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>329</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

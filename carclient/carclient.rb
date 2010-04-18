@@ -35,13 +35,14 @@ class MyMainWindow < Qt::MainWindow
     ui.dateTimeEdit.setDateTime(Qt::DateTime::currentDateTime)
 
     # Fill the list of available time intervals
-    ui.comboBoxInterval.addItem("1 Year", Qt::Variant.new(525600))
-    ui.comboBoxInterval.addItem("6 Weeks", Qt::Variant.new(60480))
-    ui.comboBoxInterval.addItem("1 Week", Qt::Variant.new(10080))
-    ui.comboBoxInterval.addItem("1 Day", Qt::Variant.new(1440))
-    ui.comboBoxInterval.addItem("2 Hours", Qt::Variant.new(120))
-    ui.comboBoxInterval.addItem("15 Minutes", Qt::Variant.new(15))
-    ui.comboBoxInterval.addItem("5 Minutes", Qt::Variant.new(5))
+    comboBox = ui.comboBoxInterval
+    comboBox.addItem("1 Year", Qt::Variant.new(525600))
+    comboBox.addItem("6 Weeks", Qt::Variant.new(60480))
+    comboBox.addItem("1 Week", Qt::Variant.new(10080))
+    comboBox.addItem("1 Day", Qt::Variant.new(1440))
+    comboBox.addItem("2 Hours", Qt::Variant.new(120))
+    comboBox.addItem("15 Minutes", Qt::Variant.new(15))
+    comboBox.addItem("5 Minutes", Qt::Variant.new(5))
   end
 
   def sendDataMaybe
@@ -69,8 +70,9 @@ class MyMainWindow < Qt::MainWindow
     interval = ui.comboBoxInterval.itemData(ui.comboBoxInterval.currentIndex).to_i
     min_time = qtDateTimeToString(currentTime.addSecs(-60 * interval))
     max_time = qtDateTimeToString(currentTime)
-    puts "We are in on_buttonReload_clicked: loadWays(\"#{min_time}\", \"#{max_time}\");"
-    ui.webView.page.mainFrame.evaluateJavaScript("loadWays(\"#{min_time}\", \"#{max_time}\");")
+    cmdString = "loadWays(\"#{min_time}\", \"#{max_time}\");"
+    puts "We are in on_buttonReload_clicked: #{cmdString}"
+    ui.webView.page.mainFrame.evaluateJavaScript(cmdString)
   end
 
   def on_actionResetMap_triggered
