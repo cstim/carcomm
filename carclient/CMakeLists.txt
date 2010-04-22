@@ -1,5 +1,11 @@
+# Carclient project
+# Copyright (C) Christian Stimming, 2010
+
 PROJECT (carclient)   # The name of the Project
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
+
+# Extra cmake macros
+SET (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules;${CMAKE_MODULE_PATH}")
 
 SET (QT_USE_QTWEBKIT true) # enable QtWebKit, available in qt >= 4.4.0
 SET (QT_MIN_VERSION "4.5.0") # We need at least 4.5.0 (because only this is LGPL)
@@ -16,6 +22,7 @@ ENDIF (UNIX OR MINGW)
 
 SET (carclient_SOURCES
   main.cpp
+  NMEAParser.cpp
 )
 SET (carclient_QOBJECT_HEADERS
   carmainwindow.hpp
@@ -61,6 +68,47 @@ if (MINGW)
 	LINK_FLAGS -Wl,-enable-runtime-pseudo-reloc )
 endif (MINGW)
 
+# ############################################################
+# Boost
+
+if (MSVC)
+  # MSVC should not link against boost-regex and boost-date_time.
+  ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
+
+	# Use the boost libraries in static version, but only if this is
+	# purely a static build or we are on windows/msvc.
+	SET (Boost_USE_STATIC_LIBS ON)
+endif (MSVC)
+
+if (WIN32)
+  # Boost-1.37.0 needs a specific version here
+  ADD_DEFINITIONS (-D_WIN32_WINNT=0x0502)	# 0x0502 sets the minimum Windows Version to "Windows XP with SP2 / Windows Server 2003 with SP1"
+  ADD_DEFINITIONS (-DWIN32_LEAN_AND_MEAN)
+endif (WIN32)
+
+# Check for boost, using our local cmake_modules/FindBoost.cmake file.
+FIND_PACKAGE (Boost)
+INCLUDE_DIRECTORIES (${Boost_INCLUDE_DIRS})
+
+IF (BOOST_VERSION LESS 103600)
+  MESSAGE (SEND_ERROR "Boost is too old - boost 1.36.0 is needed, but ${BOOST_VERSION} was found")
+ENDIF (BOOST_VERSION LESS 103600)
+IF (NOT BOOST_THREAD_LIBRARY)
+  MESSAGE(SEND_ERROR "*** boost_thread not found, but is required.")
+ENDIF (NOT BOOST_THREAD_LIBRARY)
+
+SET (Boost_LIBRARIES ${BOOST_THREAD_LIBRARY} ${BOOST_SYSTEM_LIBRARY})
+
+TARGET_LINK_LIBRARIES(carclient ${Boost_LIBRARIES})
+
+IF (WIN32)
+  # Find the wsock2 DLL for Windows
+  #FIND_LIBRARY (WSOCK2_DLL ws2_32)
+  # I have no idea why the above doesn't work!?!
+  SET (WSOCK2_DLL "ws2_32")
+  SET (MSWSOCK_DLL "mswsock")
+  #TARGET_LINK_LIBRARIES(carclient ${WSOCK2_DLL} ${MSWSOCK_DLL})
+ENDIF (WIN32)
 
 # ############################################################
 # Package creation rules
@@ -69,7 +117,7 @@ SET (CPACK_PACKAGE_NAME "Carclient")
 SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY "C2C Car Information Laptop Client")
 SET (CPACK_PACKAGE_VENDOR "Christian Stimming")
 SET (CPACK_PACKAGE_VERSION_MAJOR "0")
-SET (CPACK_PACKAGE_VERSION_MINOR "1")
+SET (CPACK_PACKAGE_VERSION_MINOR "2")
 SET (CPACK_PACKAGE_VERSION_PATCH "0")
 SET (CPACK_SOURCE_IGNORE_FILES "/\\\\.svn/;/\\\\.git/;.*~;build.*;html;Debug;Release")
 SET (CPACK_STRIP_FILES "bin/carclient")
