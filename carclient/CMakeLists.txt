@@ -21,13 +21,18 @@ IF (UNIX OR MINGW)
 ENDIF (UNIX OR MINGW)
 
 SET (carclient_SOURCES
-  main.cpp
+  GPS_Serial.cpp
   NMEAParser.cpp
+  PositionWGS84.cpp
+  main.cpp
 )
 SET (carclient_QOBJECT_HEADERS
+  GPS_Serial.hpp
   carmainwindow.hpp
 )
 SET (carclient_HEADERS ${carclient_QOBJECT_HEADERS}
+  NMEAParser.hpp
+  PositionWGS84.hpp
 )
 SET (carclient_FORMS
   mainwindow.ui
