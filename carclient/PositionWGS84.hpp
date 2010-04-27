@@ -23,6 +23,12 @@ class PositionWGS84
 {
 public:
 
+    PositionWGS84()
+        : m_timestamp(boost::posix_time::not_a_date_time)
+        {}
+
+    bool isValid() const { return !m_timestamp.is_not_a_date_time(); }
+
     double getLatitudeRad() const { return m_latitude; }
     double getLongitudeRad() const { return m_longitude; }
     double getLatitudeDeg() const { return rad2deg(m_latitude); }
@@ -60,3 +66,9 @@ private:
 Q_DECLARE_METATYPE(PositionWGS84)
 
 #endif
+
+// Local Variables:
+// indent-tabs-mode:nil
+// c-basic-offset:4
+// tab-width:8
+// End:

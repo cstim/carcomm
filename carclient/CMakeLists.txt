@@ -24,6 +24,7 @@ SET (carclient_SOURCES
   GPS_Serial.cpp
   NMEAParser.cpp
   PositionWGS84.cpp
+  carmainwindow.cpp
   main.cpp
 )
 SET (carclient_QOBJECT_HEADERS

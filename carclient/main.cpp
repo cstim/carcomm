@@ -2,6 +2,7 @@
 
 #include <QtGui/QApplication>
 #include "carmainwindow.hpp"
+#include "PositionWGS84.hpp"
 
 
 // ////////////////////////////////////////////////////////////
@@ -9,6 +10,8 @@
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
+
+    qRegisterMetaType<PositionWGS84>();
 
     CarMainWindow mainwindow;
     mainwindow.show();
