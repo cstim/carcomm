@@ -8,6 +8,7 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 SET (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules;${CMAKE_MODULE_PATH}")
 
 SET (QT_USE_QTWEBKIT true) # enable QtWebKit, available in qt >= 4.4.0
+SET (QT_USE_QTNETWORK true) # enable QtNetwork, available in qt >= 4.4.0
 SET (QT_MIN_VERSION "4.5.0") # We need at least 4.5.0 (because only this is LGPL)
 find_package (Qt4 REQUIRED) # find and setup Qt4 for this project
 include_directories (${QT_INCLUDES})
@@ -95,6 +96,7 @@ endif (WIN32)
 # Check for boost, using our local cmake_modules/FindBoost.cmake file.
 FIND_PACKAGE (Boost)
 INCLUDE_DIRECTORIES (${Boost_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES (${BOOST_INCLUDE_DIR})
 
 IF (BOOST_VERSION LESS 103600)
   MESSAGE (SEND_ERROR "Boost is too old - boost 1.36.0 is needed, but ${BOOST_VERSION} was found")

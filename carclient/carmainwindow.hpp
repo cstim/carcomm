@@ -10,9 +10,11 @@
 #include <QtGui/QMainWindow>
 #include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebView>
+#include <QtNetwork/QNetworkAccessManager>
 
 class Ui_MainWindow;
 #include "PositionWGS84.hpp"
+#include "GPS_Serial.hpp"
 
 class CarMainWindow : public QMainWindow
 {
@@ -38,11 +40,19 @@ public slots:
 
     void on_actionResetMap_triggered();
 
+    void on_buttonConnect_clicked(bool checked);
+
+    void replyFinished(QNetworkReply*);
+
 private:
+    int getSendInterval() const;
+
     QSharedPointer<Ui_MainWindow> ui;
     QString m_server;
     PositionWGS84 m_currentPos;
     PositionWGS84 m_lastPos;
+    GPS_Serial m_gpsDevice;
+    QNetworkAccessManager m_manager;
 };
 
 

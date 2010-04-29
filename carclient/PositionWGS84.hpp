@@ -1,6 +1,7 @@
 #ifndef _API_POSITIONWGS84_HPP
 #define _API_POSITIONWGS84_HPP
 
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/cstdint.hpp>
@@ -12,20 +13,34 @@ typedef boost::  int8_t			  INT8;		///<  8 bit wide   signed integer
 typedef boost:: uint8_t			 UINT8;		///<  8 bit wide unsigned integer
 typedef boost:: int16_t			 INT16;		///< 16 bit wide   signed integer
 typedef boost::uint16_t			UINT16;		///< 16 bit wide unsigned integer
-#ifndef _BASETSD_H_		// avoid naming conflict with Windows <basetsd.h>
+#ifndef _MSC_VER // _BASETSD_H_		// avoid naming conflict with Windows <basetsd.h>
 typedef boost:: int32_t			 INT32;		///< 32 bit wide   signed integer
 typedef boost::uint32_t			UINT32;		///< 32 bit wide unsigned integer
 typedef boost:: int64_t			 INT64;		///< 64 bit wide   signed integer
 typedef boost::uint64_t			UINT64;		///< 64 bit wide unsigned integer
 #endif
 
+
+namespace cs
+{
+extern const float NaN;
+extern const double NaN_double;
+template<typename floatT>
+inline bool isNaN (floatT x)
+{
+    return (x != x);
+}
+
+} // END namespace cs
+
+
 class PositionWGS84
 {
 public:
 
     PositionWGS84()
-        : m_timestamp(boost::posix_time::not_a_date_time)
-        {}
+            : m_timestamp(boost::posix_time::not_a_date_time)
+    {}
 
     bool isValid() const { return !m_timestamp.is_not_a_date_time(); }
 

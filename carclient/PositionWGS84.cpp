@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "PositionWGS84.hpp"
 
 void PositionWGS84::setLatitudeInNMEA(double Dm, char H)

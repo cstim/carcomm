@@ -63,6 +63,14 @@ bool NMEAParser::parseNMEAString(const std::string &NMEAString, PositionWGS84& p
             pos = m_positionWGS84;
             return true;
         }
+        else
+        {
+            //std::cout << "parseNMEA: GPS is not yet complete" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "parseNMEA: String too short, \"" << NMEAString << "\"" << std::endl;
     }
 
     return false;
@@ -387,6 +395,8 @@ void NMEAParser::parseGGA(const std::string& GGAStr)
     m_positionWGS84.setLatitudeInNMEA(latitude, northSouth);
     m_positionWGS84.setLongitudeInNMEA(longitude, eastWest);
     m_positionWGS84.setAltitudeInMeterMSL(altitude);
+
+    m_GPSValid = true;
 }
 
 // Local Variables:

@@ -30,7 +30,7 @@
  * Currently only a NMEA-parsing will be performed.
  *
  */
-class GPS_Serial : QObject
+class GPS_Serial : public QObject
 {
     Q_OBJECT
 
@@ -53,25 +53,28 @@ public:
     /**
      * \brief Initializes the device.
      */
-    virtual bool init(const std::string& comPort, UINT32 baudRate);
+    bool init(const std::string& comPort, UINT32 baudRate);
+
+    /// Shuts down the device. The opposite of init().
+    bool shutdown();
 
     /**
      * \brief Starts the device so that it emits data of type PositionWGS84.
      */
-    virtual bool run();
+    bool run();
 
     /**
-     * \brief Stops the device from emitting data.
+     * \brief Stops the device from emitting data. Opposite of run().
      */
-    virtual bool stop();
+    bool stop();
 
     /**
      * \brief Inidicated if the device is running or not.
      */
-    virtual bool isRunning() { return m_running; } ;
+    bool isRunning() { return m_running; } ;
 
 signals:
-    void newPositionWGS84(PositionWGS84 pos);
+    void newPositionWGS84(const PositionWGS84& pos);
 
 // private functions
 private:

@@ -23,8 +23,18 @@ GPS_Serial::GPS_Serial()
 
 GPS_Serial::~GPS_Serial(void)
 {
+    // Stop the device
+    if (isRunning())
+        stop();
+
+    shutdown();
+}
+
+bool GPS_Serial::shutdown()
+{
     // close serial port
     m_portHandle.close();
+    return true;
 }
 
 bool GPS_Serial::init(const std::string& comPort, UINT32 baudRate)
@@ -45,7 +55,7 @@ bool GPS_Serial::init(const std::string& comPort, UINT32 baudRate)
     ec = m_portHandle.open(m_COMPort, ec);
     if (ec.value() != 0)
     {
-        std::cout << "Error: Could not open serial port." << std::endl;
+        std::cout << "Error: Could not open serial port " << m_COMPort << std::endl;
 
         return false;
     }
@@ -99,7 +109,7 @@ bool GPS_Serial::stop()
 {
     if (!isRunning())
     {
-        std::cout << "Duplicate STOP command: " << getLongName() << " is running already. Ignoring command." << std::endl;
+        std::cout << "Duplicate STOP command: " << getLongName() << " is stopped already. Ignoring command." << std::endl;
         return true;
     }
 

@@ -16,9 +16,60 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QGroupBox" name="groupBoxSerial">
+      <property name="title">
+       <string>GPS Device Settings</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QPushButton" name="buttonConnect">
+         <property name="text">
+          <string>Connect</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Serial Port</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>comboBoxPort</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBoxPort"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Baud Rate</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>comboBoxBaudrate</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBoxBaudrate"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <widget class="QGroupBox" name="groupBoxCurrentPos">
       <property name="title">
-       <string>Current Position</string>
+       <string>Current Coordinates</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
@@ -86,14 +137,17 @@
          <item>
           <widget class="QCheckBox" name="checkBoxAutoSend">
            <property name="text">
-            <string>Auto-Send</string>
+            <string>Auto-Send every 60 seconds</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="buttonSendData">
            <property name="text">
-            <string>Send Data</string>
+            <string>Send Now</string>
            </property>
           </widget>
          </item>
@@ -150,7 +204,7 @@
       <item>
        <widget class="QCheckBox" name="checkBoxAutoReload">
         <property name="text">
-         <string>Auto-Reload</string>
+         <string>Auto-Refresh Map</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -160,7 +214,7 @@
       <item>
        <widget class="QPushButton" name="buttonReload">
         <property name="text">
-         <string>Reload</string>
+         <string>Refresh Map</string>
         </property>
        </widget>
       </item>
@@ -187,7 +241,7 @@
      <x>0</x>
      <y>0</y>
      <width>498</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -210,6 +264,7 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <addaction name="actionShowGPSSettings"/>
     <addaction name="actionShowCurrentCoordinates"/>
    </widget>
    <addaction name="menu_File"/>
@@ -226,6 +281,9 @@
    </property>
   </action>
   <action name="actionOpenReplay">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>&amp;Open Replay File...</string>
    </property>
@@ -262,7 +320,18 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Auto-&amp;Reload Map</string>
+    <string>Auto-&amp;Refresh Map</string>
+   </property>
+  </action>
+  <action name="actionShowGPSSettings">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show GPS Device Settings</string>
    </property>
   </action>
  </widget>
@@ -273,6 +342,20 @@
    <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>buttonConnect</tabstop>
+  <tabstop>comboBoxPort</tabstop>
+  <tabstop>comboBoxBaudrate</tabstop>
+  <tabstop>lineLatitude</tabstop>
+  <tabstop>lineLongitude</tabstop>
+  <tabstop>dateTimeEdit</tabstop>
+  <tabstop>checkBoxAutoSend</tabstop>
+  <tabstop>buttonSendData</tabstop>
+  <tabstop>comboBoxInterval</tabstop>
+  <tabstop>checkBoxAutoReload</tabstop>
+  <tabstop>buttonReload</tabstop>
+  <tabstop>webView</tabstop>
+ </tabstops>
  <resources>
   <include location="ressources.qrc"/>
  </resources>
@@ -348,8 +431,8 @@
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>241</x>
-     <y>303</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>329</x>
@@ -370,6 +453,22 @@
     <hint type="destinationlabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionShowGPSSettings</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>groupBoxSerial</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>58</y>
     </hint>
    </hints>
   </connection>
