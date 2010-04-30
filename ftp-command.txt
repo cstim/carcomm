@@ -10,3 +10,5 @@ mirror -R -x .git -n .
 # -x REGEX  - to exclude REGEX from transfer
 # -n        - to transfer only newer files
 # -R        - Reverse mirror to transfer in upload direction
+
+ssh ssh-17573-cs@cstimming.de

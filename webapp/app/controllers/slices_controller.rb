@@ -20,13 +20,19 @@ class SlicesController < ApplicationController
     end
 
     # Run the query
-    @slices = Slice.all(:conditions => conds)
+    if request.format == Mime::HTML
+      # HTML gets only the reduces set of records
+      @slices = Slice.paginate :page => params[:page], :conditions => conds
+    else
+      # Non-HTML formats still get all records
+      @slices = Slice.all(:conditions => conds)
+    end
 
     # And choose the output format
     respond_to do |format|
       format.html # index.html.erb
-      format.xml  { render :xml => @slices }
       format.gpx  # index.gpx.builder
+      format.xml  { render :xml => @slices }
     end
     response.headers['Access-Control-Allow-Origin'] = '*'
   end

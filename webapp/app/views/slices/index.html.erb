@@ -1,5 +1,7 @@
 <h1>Listing slices</h1>
 
+<%= will_paginate @posts %>
+
 <table>
   <tr>
     <th>Time</th>
@@ -30,6 +32,10 @@
   </tr>
 <% end %>
 </table>
+
+<br />
+
+ <%= will_paginate @posts %>
 
 <br />
 

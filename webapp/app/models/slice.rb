@@ -9,6 +9,10 @@ class Slice < ActiveRecord::Base
   before_validation :calc_dist_if_empty!, :calc_heading_if_empty!,
     :calc_duration_from_avgvel!, :calc_avgvel_from_duration!
 
+  # Set the lines per page in pagination view
+  cattr_reader :per_page
+  @@per_page = 50
+
   DEG_TO_RAD = Math::PI / 180.0
   RAD_TO_DEG = 180.0 / Math::PI
 
