@@ -1,17 +1,6 @@
 #include "carmainwindow.hpp"
 #include "ui_carmainwindow.h"
-#include <QNetworkReply>
-#include <QNetworkRequest>
-
-namespace cs
-{
-
-inline QString qtDateTimeToString(const QDateTime& t)
-{
-    return t.toString("yyyy-MM-ddThh:mm:ssZ");
-}
-
-} // END namespace cs
+#include "slicesender.hpp"
 
 
 CarMainWindow::CarMainWindow()
@@ -20,6 +9,7 @@ CarMainWindow::CarMainWindow()
         , m_server("http://carcomm.cstimming.de/")
 //    , m_server("http://localhost:3000/")
         , m_gpsDevice()
+        , m_sliceSender(new SliceSender(m_server, this))
 {
     ui->setupUi(this);
 
@@ -65,21 +55,23 @@ CarMainWindow::CarMainWindow()
     // Read the HTML page and write it into the webview widget
     on_actionResetMap_triggered();
 
-    connect(&m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)), this, SLOT(setPositionWGS84(const PositionWGS84&)));
+    // Signal/slots of GPS Device
+    connect(&m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
+            this, SLOT(setPositionWGS84(const PositionWGS84&)));
 
-    connect(&m_manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(replyFinished(QNetworkReply*)));
+    // Signal/slots of SliceSender
+    connect(&m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
+            m_sliceSender, SLOT(setPositionWGS84(const PositionWGS84&)));
+    connect(m_sliceSender, SIGNAL(showMessage( const QString &, int)),
+            statusBar(), SLOT(showMessage( const QString &, int)));
+    connect(ui->actionTransmitPositionMessages, SIGNAL(triggered(bool)),
+            m_sliceSender, SLOT(setAutoSendData(bool)));
 
 }
 
 CarMainWindow::~CarMainWindow()
 {
     on_buttonConnect_clicked(false);
-}
-
-int CarMainWindow::getSendInterval() const
-{
-    return 60;
 }
 
 void CarMainWindow::on_buttonConnect_clicked(bool checked)
@@ -118,87 +110,9 @@ void CarMainWindow::on_buttonConnect_clicked(bool checked)
 
 void CarMainWindow::setPositionWGS84(const PositionWGS84& pos)
 {
-    if (!m_lastPos.isValid() || cs::isNaN(m_lastPos.getLatitudeDeg()))
-        m_lastPos = pos;
-    m_currentPos = pos;
-
     ui->lineLatitude->setText(cs::degToString(pos.getLatitudeDeg()));
     ui->lineLongitude->setText(cs::degToString(pos.getLongitudeDeg()));
     ui->dateTimeEdit->setDateTime(pos.getQTimestamp().toLocalTime());
-
-    sendDataMaybe();
-    // This also triggers reloadMapMaybe();
-}
-
-void CarMainWindow::sendDataMaybe()
-{
-    if (ui->checkBoxAutoSend->isChecked()
-        && m_currentPos.isValid()
-        && m_lastPos.isValid())
-    {
-        boost::posix_time::time_duration duration =
-            m_currentPos.getTimestamp() - m_lastPos.getTimestamp();
-        if (duration > boost::posix_time::seconds(getSendInterval()))
-            on_buttonSendData_clicked();
-    }
-}
-
-void CarMainWindow::on_buttonSendData_clicked()
-{
-    //qDebug() << "We are in on_buttonSendData_clicked";
-
-    if (m_currentPos.isValid()
-        && m_lastPos.isValid()
-        && !cs::isNaN(m_currentPos.getLatitudeDeg())
-        && !cs::isNaN(m_lastPos.getLatitudeDeg())
-        && !cs::isNaN(m_currentPos.getLongitudeDeg())
-        && !cs::isNaN(m_lastPos.getLongitudeDeg())
-       )
-    {
-        boost::posix_time::time_duration duration =
-            m_currentPos.getTimestamp() - m_lastPos.getTimestamp();
-        //if (duration > boost::posix_time::seconds(getSendInterval()))
-        {
-            // Actually send the data
-            QUrl url;
-            QString endLat = cs::degToString(m_currentPos.getLatitudeDeg());
-            QString startLat = cs::degToString(m_lastPos.getLatitudeDeg());
-            QString endLon = cs::degToString(m_currentPos.getLongitudeDeg());
-            QString startLon = cs::degToString(m_lastPos.getLongitudeDeg());
-            QString time = cs::qtDateTimeToString(m_currentPos.getQTimestamp().toUTC());
-            QString dur = QString::number(duration.total_milliseconds() * 1e-3);
-
-            QString form;
-            form += "slice[lat]=" + endLat
-                    + "&slice[lon]=" + endLon
-                    + "&slice[time]=" + time
-                    + "&slice[duration]=" + dur
-                    + "&slice[startlat]=" + startLat
-                    + "&slice[startlon]=" + startLon;
-
-            qDebug() << "Now we will send a POST request with"
-//                      << "endLat=" << endLat
-//                      << "startLat=" << startLat
-//                      << "endLon=" << endLon
-//                      << "startLon=" << startLon
-//                      << "time=" << time
-//                      << "duration=" << dur
-            << "form=" << form;
-
-            QNetworkRequest request;
-            request.setUrl(QUrl(m_server + "slices"));
-            request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-            m_manager.post(request, form.toLocal8Bit());
-
-            // And record the current position as last one
-            m_lastPos = m_currentPos;
-            m_currentPos.setTimestamp(boost::posix_time::not_a_date_time);
-        }
-    }
-    else
-    {
-        statusBar()->showMessage(tr("Cannot send position message - Latitude/Longitude not received."), 3000);
-    }
 
     // Also center the map
     QString lat = ui->lineLatitude->text();
@@ -210,18 +124,9 @@ void CarMainWindow::on_buttonSendData_clicked()
     }
 }
 
-void CarMainWindow::replyFinished(QNetworkReply*  reply)
+void CarMainWindow::on_buttonSendData_clicked()
 {
-    qDebug() << "Reply had this error:" << reply->errorString();
-    if (reply->error() == QNetworkReply::NoError)
-    {
-        statusBar()->showMessage(tr("Position message sent successfully."), 3000);
-    }
-    else
-    {
-        statusBar()->showMessage(tr("There was an error sending the position:") + reply->errorString(), 10000);
-    }
-    reply->deleteLater();
+    m_sliceSender->sendDataNow();
 }
 
 void CarMainWindow::reloadMapMaybe()

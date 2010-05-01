@@ -29,7 +29,7 @@ QDateTime ptime_to_qdatetime(const boost::posix_time::ptime& pt)
     return QDateTime(date, time, Qt::UTC);
 }
 
-}
+} // END namespace cs
 
 QDateTime PositionWGS84::getQTimestamp() const
 {

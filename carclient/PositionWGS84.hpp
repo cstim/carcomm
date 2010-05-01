@@ -26,6 +26,11 @@ inline QString degToString(double deg)
     return QString::number(deg, 'f', 8);
 }
 
+inline QString qtDateTimeToString(const QDateTime& t)
+{
+    return t.toString("yyyy-MM-ddThh:mm:ssZ");
+}
+
 } // END namespace cs
 
 

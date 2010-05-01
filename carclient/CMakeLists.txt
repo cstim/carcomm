@@ -27,10 +27,12 @@ SET (carclient_SOURCES
   PositionWGS84.cpp
   carmainwindow.cpp
   main.cpp
+  slicesender.cpp
   )
 SET (carclient_QOBJECT_HEADERS
   GPS_Serial.hpp
   carmainwindow.hpp
+  slicesender.hpp
   )
 SET (carclient_HEADERS ${carclient_QOBJECT_HEADERS}
   NMEAParser.hpp
