@@ -3,24 +3,16 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
+namespace cs
+{
+
 inline QString qtDateTimeToString(const QDateTime& t)
 {
     return t.toString("yyyy-MM-ddThh:mm:ssZ");
 }
 
-inline QDateTime ptime_to_qdatetime(const boost::posix_time::ptime& pt)
-{
-    QDate date(pt.date().year(), pt.date().month(), pt.date().day());
-    boost::posix_time::time_duration dur = pt.time_of_day();
-    QTime time(dur.hours(), dur.minutes(), dur.seconds());
-    //qDebug() << "Got date=" << date << " time=" << time << " fracsecs=" << dur.fractional_seconds();
-    return QDateTime(date, time, Qt::UTC);
-}
+} // END namespace cs
 
-QString degToString(double deg)
-{
-    return QString::number(deg, 'f', 8);
-}
 
 CarMainWindow::CarMainWindow()
         : base_class()
@@ -130,9 +122,9 @@ void CarMainWindow::setPositionWGS84(const PositionWGS84& pos)
         m_lastPos = pos;
     m_currentPos = pos;
 
-    ui->lineLatitude->setText(degToString(pos.getLatitudeDeg()));
-    ui->lineLongitude->setText(degToString(pos.getLongitudeDeg()));
-    ui->dateTimeEdit->setDateTime(ptime_to_qdatetime(pos.getTimestamp()).toLocalTime());
+    ui->lineLatitude->setText(cs::degToString(pos.getLatitudeDeg()));
+    ui->lineLongitude->setText(cs::degToString(pos.getLongitudeDeg()));
+    ui->dateTimeEdit->setDateTime(pos.getQTimestamp().toLocalTime());
 
     sendDataMaybe();
     // This also triggers reloadMapMaybe();
@@ -169,11 +161,11 @@ void CarMainWindow::on_buttonSendData_clicked()
         {
             // Actually send the data
             QUrl url;
-            QString endLat = degToString(m_currentPos.getLatitudeDeg());
-            QString startLat = degToString(m_lastPos.getLatitudeDeg());
-            QString endLon = degToString(m_currentPos.getLongitudeDeg());
-            QString startLon = degToString(m_lastPos.getLongitudeDeg());
-			QString time = qtDateTimeToString(ptime_to_qdatetime(m_currentPos.getTimestamp()).toUTC());
+            QString endLat = cs::degToString(m_currentPos.getLatitudeDeg());
+            QString startLat = cs::degToString(m_lastPos.getLatitudeDeg());
+            QString endLon = cs::degToString(m_currentPos.getLongitudeDeg());
+            QString startLon = cs::degToString(m_lastPos.getLongitudeDeg());
+            QString time = cs::qtDateTimeToString(m_currentPos.getQTimestamp().toUTC());
             QString dur = QString::number(duration.total_milliseconds() * 1e-3);
 
             QString form;
@@ -250,8 +242,8 @@ void CarMainWindow::on_buttonReload_clicked()
 
     QDateTime currentTime = ui->dateTimeEdit->dateTime();
     int retrieveInterval = ui->comboBoxInterval->itemData(ui->comboBoxInterval->currentIndex()).toInt();
-    QString min_time = qtDateTimeToString(currentTime.addSecs(-60 * retrieveInterval));
-    QString max_time = qtDateTimeToString(currentTime);
+    QString min_time = cs::qtDateTimeToString(currentTime.addSecs(-60 * retrieveInterval));
+    QString max_time = cs::qtDateTimeToString(currentTime);
     QString cmdString = QString("loadWays(\"%1\", \"%2\");").arg(min_time).arg(max_time);
     //qDebug() << "We are in on_buttonReload_clicked:" << cmdString;
     ui->webView->page()->mainFrame()->evaluateJavaScript(cmdString);

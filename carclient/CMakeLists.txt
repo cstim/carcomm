@@ -27,21 +27,21 @@ SET (carclient_SOURCES
   PositionWGS84.cpp
   carmainwindow.cpp
   main.cpp
-)
+  )
 SET (carclient_QOBJECT_HEADERS
   GPS_Serial.hpp
   carmainwindow.hpp
-)
+  )
 SET (carclient_HEADERS ${carclient_QOBJECT_HEADERS}
   NMEAParser.hpp
   PositionWGS84.hpp
-)
+  )
 SET (carclient_FORMS
   carmainwindow.ui
-)
+  )
 SET (carclient_RESOURCES
   ressources.qrc
-)
+  )
 
 # Generation of the ui source files
 QT4_WRAP_UI (carclient_FORMS_HEADERS ${carclient_FORMS})
@@ -72,7 +72,7 @@ ENDIF(MSVC)
 
 if (MINGW)
   SET_TARGET_PROPERTIES(carclient PROPERTIES
-	LINK_FLAGS -Wl,-enable-runtime-pseudo-reloc )
+    LINK_FLAGS -Wl,-enable-runtime-pseudo-reloc )
 endif (MINGW)
 
 # ############################################################
@@ -81,10 +81,11 @@ endif (MINGW)
 if (MSVC)
   # MSVC should not link against boost-regex and boost-date_time.
   ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
+  ADD_DEFINITIONS( -D_USE_MATH_DEFINES )
 
-	# Use the boost libraries in static version, but only if this is
-	# purely a static build or we are on windows/msvc.
-	SET (Boost_USE_STATIC_LIBS ON)
+  # Use the boost libraries in static version, but only if this is
+  # purely a static build or we are on windows/msvc.
+  SET (Boost_USE_STATIC_LIBS ON)
 endif (MSVC)
 
 if (WIN32)
@@ -170,46 +171,46 @@ IF (WIN32)
     SET (_libdebug pkg_${_lib}d4_dll)
     FIND_FILE (${_libdebug} "${_lib}d4.dll" ${qtbindir} NO_DEFAULT_PATH)
     FIND_FILE (${_libdebug} "${_lib}d4.dll")
-	INSTALL (FILES ${${_libdebug}}
-			 DESTINATION bin
-			 CONFIGURATIONS Debug)
+    INSTALL (FILES ${${_libdebug}}
+      DESTINATION bin
+      CONFIGURATIONS Debug)
 
     SET (_librel pkg_${_lib}4_dll)
     FIND_FILE (${_librel} "${_lib}4.dll" ${qtbindir} NO_DEFAULT_PATH)
     FIND_FILE (${_librel} "${_lib}4.dll")
-	INSTALL (FILES ${${_librel}}
-			 DESTINATION bin
-			 CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+    INSTALL (FILES ${${_librel}}
+      DESTINATION bin
+      CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
   ENDFOREACH (_lib)
 
   # And the qt >= 4.6.0 parts
   IF (${QTVERSION} VERSION_GREATER 4.5.99)
-  FOREACH (_lib QtXmlPatterns phonon)
-    SET (_libdebug pkg_${_lib}d4_dll)
-    FIND_FILE (${_libdebug} "${_lib}d4.dll" ${qtbindir} NO_DEFAULT_PATH)
-    FIND_FILE (${_libdebug} "${_lib}d4.dll")
-	INSTALL (FILES ${${_libdebug}}
-			 DESTINATION bin
-			 CONFIGURATIONS Debug)
+    FOREACH (_lib QtXmlPatterns phonon)
+      SET (_libdebug pkg_${_lib}d4_dll)
+      FIND_FILE (${_libdebug} "${_lib}d4.dll" ${qtbindir} NO_DEFAULT_PATH)
+      FIND_FILE (${_libdebug} "${_lib}d4.dll")
+      INSTALL (FILES ${${_libdebug}}
+	DESTINATION bin
+	CONFIGURATIONS Debug)
 
-    SET (_librel pkg_${_lib}4_dll)
-    FIND_FILE (${_librel} "${_lib}4.dll" ${qtbindir} NO_DEFAULT_PATH)
-    FIND_FILE (${_librel} "${_lib}4.dll")
-	INSTALL (FILES ${${_librel}}
-			 DESTINATION bin
-			 CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
-  ENDFOREACH (_lib)
+      SET (_librel pkg_${_lib}4_dll)
+      FIND_FILE (${_librel} "${_lib}4.dll" ${qtbindir} NO_DEFAULT_PATH)
+      FIND_FILE (${_librel} "${_lib}4.dll")
+      INSTALL (FILES ${${_librel}}
+	DESTINATION bin
+	CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+    ENDFOREACH (_lib)
   ENDIF (${QTVERSION} VERSION_GREATER 4.5.99)
 
   If (MSVC)
-		STRING (REPLACE ".lib" ".dll" install_bthread_dll "${BOOST_THREAD_LIBRARY_RELEASE}")
-		STRING (REPLACE ".LIB" ".DLL" install_bthread_dll "${install_bthread_dll}")
-		STRING (REPLACE "libboost" "boost" install_bthread_dll "${install_bthread_dll}")
-		STRING (REPLACE ".lib" ".dll" install_bsystem_dll "${BOOST_SYSTEM_LIBRARY_RELEASE}")
-		STRING (REPLACE ".LIB" ".DLL" install_bsystem_dll "${install_bsystem_dll}")
-		STRING (REPLACE "libboost" "boost" install_bsystem_dll "${install_bsystem_dll}")
-		INSTALL (FILES ${install_bthread_dll} ${install_bsystem_dll}
-				 DESTINATION bin)
+    STRING (REPLACE ".lib" ".dll" install_bthread_dll "${BOOST_THREAD_LIBRARY_RELEASE}")
+    STRING (REPLACE ".LIB" ".DLL" install_bthread_dll "${install_bthread_dll}")
+    STRING (REPLACE "libboost" "boost" install_bthread_dll "${install_bthread_dll}")
+    STRING (REPLACE ".lib" ".dll" install_bsystem_dll "${BOOST_SYSTEM_LIBRARY_RELEASE}")
+    STRING (REPLACE ".LIB" ".DLL" install_bsystem_dll "${install_bsystem_dll}")
+    STRING (REPLACE "libboost" "boost" install_bsystem_dll "${install_bsystem_dll}")
+    INSTALL (FILES ${install_bthread_dll} ${install_bsystem_dll}
+      DESTINATION bin)
   ENDIf (MSVC)
 
   IF (MINGW)

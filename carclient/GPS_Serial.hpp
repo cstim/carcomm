@@ -53,7 +53,7 @@ public:
     /**
      * \brief Initializes the device.
      */
-    bool init(const std::string& comPort, UINT32 baudRate);
+    bool init(const std::string& comPort, int baudRate);
 
     /// Shuts down the device. The opposite of init().
     bool shutdown();
@@ -91,7 +91,7 @@ private:
     boost::asio::serial_port m_portHandle;
 
     std::string m_COMPort;
-    UINT32 m_baudRate;
+    int m_baudRate;
 
     /// Reception and write thread pointers.
     boost::scoped_ptr<boost::thread> m_receptionThreadPtr;

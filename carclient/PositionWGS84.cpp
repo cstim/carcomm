@@ -1,6 +1,40 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include "PositionWGS84.hpp"
+#include <limits>
+#include <boost/static_assert.hpp>
+
+namespace cs
+{
+const float NaN = std::numeric_limits<float>::quiet_NaN();
+BOOST_STATIC_ASSERT	(std::numeric_limits<float>::is_iec559);
+BOOST_STATIC_ASSERT (std::numeric_limits<float>::has_quiet_NaN);
+
+/**
+ * NaN (Not-a-Number) is a special floating point value that is defined in the
+ * floating point standard IEC 559.
+ *
+ * \sa http://en.wikipedia.org/wiki/IEC_559
+ */
+const double NaN_double = std::numeric_limits<double>::quiet_NaN();
+BOOST_STATIC_ASSERT (std::numeric_limits<double>::is_iec559);
+BOOST_STATIC_ASSERT (std::numeric_limits<double>::has_quiet_NaN);
+
+QDateTime ptime_to_qdatetime(const boost::posix_time::ptime& pt)
+{
+    QDate date(pt.date().year(), pt.date().month(), pt.date().day());
+    boost::posix_time::time_duration dur = pt.time_of_day();
+    QTime time(dur.hours(), dur.minutes(), dur.seconds());
+    //qDebug() << "Got date=" << date << " time=" << time << " fracsecs=" << dur.fractional_seconds();
+    return QDateTime(date, time, Qt::UTC);
+}
+
+}
+
+QDateTime PositionWGS84::getQTimestamp() const
+{
+    return cs::ptime_to_qdatetime(m_timestamp);
+}
 
 void PositionWGS84::setLatitudeInNMEA(double Dm, char H)
 {
@@ -58,7 +92,7 @@ void PositionWGS84::setLongitudeInRad(double new_longitude)
 double PositionWGS84::NMEA2rad( double Dm )
 {
     // Check this website for more information: http://home.online.no/~sigurdhu/Deg_formats.htm
-    INT16 D = INT16(Dm / 100.0);
+    int D = int(Dm / 100.0);
     double m = Dm - 100.0 * D;
     return deg2rad(D + m / 60.0);
 }

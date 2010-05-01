@@ -4,27 +4,6 @@
 
 #include <QtCore>
 
-#include <cmath>
-#include <limits>
-#include <boost/static_assert.hpp>
-
-namespace cs
-{
-const float NaN = std::numeric_limits<float>::quiet_NaN();
-BOOST_STATIC_ASSERT	(std::numeric_limits<float>::is_iec559);
-BOOST_STATIC_ASSERT (std::numeric_limits<float>::has_quiet_NaN);
-
-/**
- * NaN (Not-a-Number) is a special floating point value that is defined in the
- * floating point standard IEC 559.
- *
- * \sa http://en.wikipedia.org/wiki/IEC_559
- */
-const double NaN_double = std::numeric_limits<double>::quiet_NaN();
-BOOST_STATIC_ASSERT (std::numeric_limits<double>::is_iec559);
-BOOST_STATIC_ASSERT (std::numeric_limits<double>::has_quiet_NaN);
-}
-
 NMEAParser::NMEAParser()
         : m_positionWGS84()
         , m_timeStr("")
@@ -81,10 +60,10 @@ boost::posix_time::ptime NMEAParser::createTimestamp(const std::string& timeStr,
     // create timestamp
     try
     {
-        const UINT16 hours(boost::lexical_cast<UINT16> (timeStr.substr(0, 2)));
-        const UINT16 minutes(boost::lexical_cast<UINT16> (timeStr.substr(2, 2)));
-        const UINT16 seconds(boost::lexical_cast<UINT16> (timeStr.substr(4, 2)));
-        const UINT16 milliseconds(boost::lexical_cast<UINT16> (timeStr.substr(7, 3)));
+        const int hours(boost::lexical_cast<int> (timeStr.substr(0, 2)));
+        const int minutes(boost::lexical_cast<int> (timeStr.substr(2, 2)));
+        const int seconds(boost::lexical_cast<int> (timeStr.substr(4, 2)));
+        const int milliseconds(boost::lexical_cast<int> (timeStr.substr(7, 3)));
 
         const boost::posix_time::time_duration time(boost::posix_time::hours(hours) +
                 boost::posix_time::minutes(minutes) +
@@ -95,9 +74,9 @@ boost::posix_time::ptime NMEAParser::createTimestamp(const std::string& timeStr,
 
         if (dateStr.size() == 6)
         {
-            const UINT16 day(boost::lexical_cast<UINT16> (dateStr.substr(0, 2)));
-            const UINT16 month(boost::lexical_cast<UINT16> (dateStr.substr(2, 2)));
-            const UINT16 year(2000 + boost::lexical_cast<UINT16> (dateStr.substr(4, 2)));
+            const int day(boost::lexical_cast<int> (dateStr.substr(0, 2)));
+            const int month(boost::lexical_cast<int> (dateStr.substr(2, 2)));
+            const int year(2000 + boost::lexical_cast<int> (dateStr.substr(4, 2)));
 
             date = boost::gregorian::date (year, month, day);
         }
@@ -150,7 +129,7 @@ void NMEAParser::parseRMC(const std::string& RMCStr)
     boost::tokenizer<boost::escaped_list_separator<char> > tokensOfGPSData (RMCStr);
     boost::tokenizer<boost::escaped_list_separator<char> >::const_iterator currentGPSData;
 
-    UINT8 counter(0);
+    int counter(0);
     for (currentGPSData = tokensOfGPSData.begin(); currentGPSData != tokensOfGPSData.end(); currentGPSData++)
     {
         if (*currentGPSData != "")
@@ -289,7 +268,7 @@ void NMEAParser::parseGGA(const std::string& GGAStr)
     boost::tokenizer<boost::escaped_list_separator<char> > tokensOfGPSData (GGAStr);
     boost::tokenizer<boost::escaped_list_separator<char> >::const_iterator currentGPSData;
 
-    UINT8 counter(0);
+    int counter(0);
     for (currentGPSData = tokensOfGPSData.begin(); currentGPSData != tokensOfGPSData.end(); currentGPSData++)
     {
         if (*currentGPSData != "")

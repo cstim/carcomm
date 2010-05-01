@@ -2,6 +2,7 @@
 #ifndef _API_NMEAPARSER_HPP
 #define _API_NMEAPARSER_HPP
 
+#include <string>
 #include "PositionWGS84.hpp"
 
 

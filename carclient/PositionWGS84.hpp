@@ -4,22 +4,10 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/static_assert.hpp>
 
 #include <QtCore/QMetaType>
-
-typedef boost::  int8_t			  INT8;		///<  8 bit wide   signed integer
-typedef boost:: uint8_t			 UINT8;		///<  8 bit wide unsigned integer
-typedef boost:: int16_t			 INT16;		///< 16 bit wide   signed integer
-typedef boost::uint16_t			UINT16;		///< 16 bit wide unsigned integer
-#ifndef _MSC_VER // _BASETSD_H_		// avoid naming conflict with Windows <basetsd.h>
-typedef boost:: int32_t			 INT32;		///< 32 bit wide   signed integer
-typedef boost::uint32_t			UINT32;		///< 32 bit wide unsigned integer
-typedef boost:: int64_t			 INT64;		///< 64 bit wide   signed integer
-typedef boost::uint64_t			UINT64;		///< 64 bit wide unsigned integer
-#endif
-
+#include <QtCore/QDateTime>
+#include <QtCore/QString>
 
 namespace cs
 {
@@ -29,6 +17,13 @@ template<typename floatT>
 inline bool isNaN (floatT x)
 {
     return (x != x);
+}
+
+QDateTime ptime_to_qdatetime(const boost::posix_time::ptime& pt);
+
+inline QString degToString(double deg)
+{
+    return QString::number(deg, 'f', 8);
 }
 
 } // END namespace cs
@@ -51,6 +46,7 @@ public:
 
     void setTimestamp(const boost::posix_time::ptime& v) { m_timestamp = v; }
     const boost::posix_time::ptime& getTimestamp() const { return m_timestamp; }
+    QDateTime getQTimestamp() const;
 
     void setLatitudeInNMEA(double Dm, char H);
 

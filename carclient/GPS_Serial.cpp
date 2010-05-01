@@ -37,7 +37,7 @@ bool GPS_Serial::shutdown()
     return true;
 }
 
-bool GPS_Serial::init(const std::string& comPort, UINT32 baudRate)
+bool GPS_Serial::init(const std::string& comPort, int baudRate)
 {
     m_COMPort = comPort;
     m_baudRate = baudRate;
