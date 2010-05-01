@@ -3,7 +3,7 @@
 
 require 'Qt'
 require 'qtwebkit'
-require 'mainwindow.ui'
+require 'carmainwindow.ui'
 require 'ressources.qrc'
 
 def qtDateTimeToString(dateTime)

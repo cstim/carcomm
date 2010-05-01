@@ -2,7 +2,7 @@ RBUIC4 = rbuic4
 RBRCC = rbrcc
 
 SOURCES = carclient.rb
-UI = mainwindow.ui
+UI = carmainwindow.ui
 QRC = ressources.qrc
 
 GENERATEDFILES = $(UI:%.ui=%.ui.rb) $(QRC:%.qrc=%.qrc.rb)

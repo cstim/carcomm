@@ -37,7 +37,7 @@ SET (carclient_HEADERS ${carclient_QOBJECT_HEADERS}
   PositionWGS84.hpp
 )
 SET (carclient_FORMS
-  mainwindow.ui
+  carmainwindow.ui
 )
 SET (carclient_RESOURCES
   ressources.qrc
