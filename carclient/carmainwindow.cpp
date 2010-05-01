@@ -1,17 +1,22 @@
+// Copyright (C) Christian Stimming, 2010
+
 #include "carmainwindow.hpp"
 #include "ui_carmainwindow.h"
 #include "slicesender.hpp"
-
+#include "mapviewer.hpp"
 
 CarMainWindow::CarMainWindow()
-        : base_class()
-        , ui(new Ui_MainWindow())
-        , m_server("http://carcomm.cstimming.de/")
+    : base_class()
+    , ui(new Ui_MainWindow())
+    , m_server("http://carcomm.cstimming.de/")
 //    , m_server("http://localhost:3000/")
-        , m_gpsDevice()
-        , m_sliceSender(new SliceSender(m_server, this))
+    , m_gpsDevice()
+    , m_sliceSender(new SliceSender(m_server, this))
+    , m_mapViewer(NULL) // must be initialized after setupUi()!
 {
     ui->setupUi(this);
+
+    m_mapViewer = new MapViewer(ui->webView, m_server, this);
 
     // Set the date to now
     ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
@@ -52,9 +57,6 @@ CarMainWindow::CarMainWindow()
     comboBox->addItem("115200", QVariant(115200));
     comboBox->setCurrentIndex(comboBox->findData(QVariant(38400)));
 
-    // Read the HTML page and write it into the webview widget
-    on_actionResetMap_triggered();
-
     // Signal/slots of GPS Device
     connect(&m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
             this, SLOT(setPositionWGS84(const PositionWGS84&)));
@@ -66,7 +68,21 @@ CarMainWindow::CarMainWindow()
             statusBar(), SLOT(showMessage( const QString &, int)));
     connect(ui->actionTransmitPositionMessages, SIGNAL(triggered(bool)),
             m_sliceSender, SLOT(setAutoSendData(bool)));
+    m_sliceSender->setAutoSendData(ui->actionTransmitPositionMessages->isChecked());
+    connect(ui->buttonSendData, SIGNAL(clicked()),
+            m_sliceSender, SLOT(sendDataNow()));
 
+    // Signal/slots of MapViewer
+    connect(&m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
+            m_mapViewer, SLOT(setCenter(const PositionWGS84&)));
+    connect(ui->actionAutoReloadMap, SIGNAL(triggered(bool)),
+            m_mapViewer, SLOT(setAutoReloadWays(bool)));
+    m_mapViewer->setAutoReloadWays(ui->actionAutoReloadMap->isChecked());
+    connect(ui->buttonReload, SIGNAL(clicked()),
+            m_mapViewer, SLOT(reloadWays()));
+    connect(ui->actionResetMap, SIGNAL(triggered()),
+            m_mapViewer, SLOT(reset()));
+    on_comboBoxInterval_currentIndexChanged(ui->comboBoxInterval->currentIndex());
 }
 
 CarMainWindow::~CarMainWindow()
@@ -86,7 +102,6 @@ void CarMainWindow::on_buttonConnect_clicked(bool checked)
         {
             statusBar()->showMessage(tr("Cannot connect to GPS device %1; check the command line message.").arg(comPort), 10000);
             ui->buttonConnect->setChecked(false);
-            m_gpsDevice.shutdown();
             return;
         }
         r = m_gpsDevice.run();
@@ -113,56 +128,14 @@ void CarMainWindow::setPositionWGS84(const PositionWGS84& pos)
     ui->lineLatitude->setText(cs::degToString(pos.getLatitudeDeg()));
     ui->lineLongitude->setText(cs::degToString(pos.getLongitudeDeg()));
     ui->dateTimeEdit->setDateTime(pos.getQTimestamp().toLocalTime());
-
-    // Also center the map
-    QString lat = ui->lineLatitude->text();
-    QString lon = ui->lineLongitude->text();
-    if (lat != "nan" && lon != "nan")
-    {
-        ui->webView->page()->mainFrame()->evaluateJavaScript(QString("setLatLon(%1, %2);").arg(lat).arg(lon));
-        reloadMapMaybe();
-    }
 }
 
-void CarMainWindow::on_buttonSendData_clicked()
+void CarMainWindow::on_comboBoxInterval_currentIndexChanged(int index)
 {
-    m_sliceSender->sendDataNow();
+    int retrieveInterval = ui->comboBoxInterval->itemData(index).toInt();
+    m_mapViewer->setRetrieveInterval(retrieveInterval);
 }
 
-void CarMainWindow::reloadMapMaybe()
-{
-    if (ui->checkBoxAutoReload->isChecked())
-        on_buttonReload_clicked();
-}
-
-void CarMainWindow::on_buttonReload_clicked()
-{
-    QVariant isInited = ui->webView->page()->mainFrame()->evaluateJavaScript("initialized;");
-    if (isInited.toInt() == 0)
-    {
-        qDebug() << "HTML view is not yet initialized - cannot reload the map; waiting 1 second.";
-        QTimer::singleShot(1000, this, SLOT(on_buttonReload_clicked()));
-        return;
-    }
-
-    QDateTime currentTime = ui->dateTimeEdit->dateTime();
-    int retrieveInterval = ui->comboBoxInterval->itemData(ui->comboBoxInterval->currentIndex()).toInt();
-    QString min_time = cs::qtDateTimeToString(currentTime.addSecs(-60 * retrieveInterval));
-    QString max_time = cs::qtDateTimeToString(currentTime);
-    QString cmdString = QString("loadWays(\"%1\", \"%2\");").arg(min_time).arg(max_time);
-    //qDebug() << "We are in on_buttonReload_clicked:" << cmdString;
-    ui->webView->page()->mainFrame()->evaluateJavaScript(cmdString);
-}
-
-void CarMainWindow::on_actionResetMap_triggered()
-{
-    //QString filename = ":res/test.html";
-    //QFile f(filename);
-    //f.open(QIODevice::ReadOnly);
-    //ui->webView->setContent(f.readAll());
-    ui->webView->setUrl(m_server + "streetmap.html");
-    on_buttonReload_clicked();
-}
 
 // Local Variables:
 // indent-tabs-mode:nil

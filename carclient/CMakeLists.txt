@@ -27,11 +27,13 @@ SET (carclient_SOURCES
   PositionWGS84.cpp
   carmainwindow.cpp
   main.cpp
+  mapviewer.cpp
   slicesender.cpp
   )
 SET (carclient_QOBJECT_HEADERS
   GPS_Serial.hpp
   carmainwindow.hpp
+  mapviewer.hpp
   slicesender.hpp
   )
 SET (carclient_HEADERS ${carclient_QOBJECT_HEADERS}

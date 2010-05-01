@@ -8,13 +8,12 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QTimer>
 #include <QtGui/QMainWindow>
-#include <QtWebKit/QWebFrame>
-#include <QtWebKit/QWebView>
 
 class Ui_MainWindow;
 #include "PositionWGS84.hpp"
 #include "GPS_Serial.hpp"
 class SliceSender;
+class MapViewer;
 
 class CarMainWindow : public QMainWindow
 {
@@ -30,15 +29,9 @@ public slots:
 
     void setPositionWGS84(const PositionWGS84& pos);
 
-    void reloadMapMaybe();
-
-    void on_buttonSendData_clicked();
-
-    void on_buttonReload_clicked();
-
-    void on_actionResetMap_triggered();
-
     void on_buttonConnect_clicked(bool checked);
+
+    void on_comboBoxInterval_currentIndexChanged(int index);
 
 private:
 
@@ -46,6 +39,7 @@ private:
     QString m_server;
     GPS_Serial m_gpsDevice;
     SliceSender* m_sliceSender;
+    MapViewer* m_mapViewer;
 };
 
 
