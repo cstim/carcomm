@@ -212,7 +212,15 @@ File: </label>
 <%= file_field_tag 'upload' %>
 and <%= submit_tag "Upload GPX" %>
 <% end %>
-<p>(GPX upload will store way slices in a 30-second raster, not finer
+
+<% form_tag('home/nmeaUpload', :multipart => true ) do %>
+<label for="upload">You can upload a NMEA file with GPS logs. Select
+File: </label>
+<%= file_field_tag 'upload' %>
+and <%= submit_tag "Upload NMEA" %>
+<% end %>
+
+<p>(File upload will store way slices in a 30-second raster, not finer
 than that for now.)</p>
 
 <h2>Displaying the ways on a map</h2>
