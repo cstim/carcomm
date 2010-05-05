@@ -11,7 +11,7 @@
 
 class Ui_MainWindow;
 #include "PositionWGS84.hpp"
-#include "GPS_Serial.hpp"
+#include "gpsreceiver.hpp"
 class SliceSender;
 class MapViewer;
 
@@ -33,11 +33,14 @@ public slots:
 
     void on_comboBoxInterval_currentIndexChanged(int index);
 
+protected:
+    void changeEvent(QEvent *e);
+
 private:
 
     QSharedPointer<Ui_MainWindow> ui;
     QString m_server;
-    GPS_Serial m_gpsDevice;
+    GPSReceiver *m_gpsDevice;
     SliceSender* m_sliceSender;
     MapViewer* m_mapViewer;
 };

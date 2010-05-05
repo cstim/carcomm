@@ -14,7 +14,11 @@ int main(int argc, char* argv[])
     qRegisterMetaType<PositionWGS84>();
 
     CarMainWindow mainwindow;
+#if defined(Q_WS_S60)
+    mainwindow.showMaximized();
+#else
     mainwindow.show();
+#endif
 
     return app.exec();
 }

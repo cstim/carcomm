@@ -10,7 +10,7 @@ CarMainWindow::CarMainWindow()
     , ui(new Ui_MainWindow())
     , m_server("http://carcomm.cstimming.de/")
 //    , m_server("http://localhost:3000/")
-    , m_gpsDevice()
+    , m_gpsDevice(NULL)
     , m_sliceSender(new SliceSender(m_server, this))
     , m_mapViewer(NULL) // must be initialized after setupUi()!
 {
@@ -57,13 +57,12 @@ CarMainWindow::CarMainWindow()
     comboBox->addItem("115200", QVariant(115200));
     comboBox->setCurrentIndex(comboBox->findData(QVariant(38400)));
 
-    // Signal/slots of GPS Device
-    connect(&m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
-            this, SLOT(setPositionWGS84(const PositionWGS84&)));
+#if 0 // 1 //defined(Q_WS_S60)
+    ui->groupBoxCurrentPos->setVisible(false);
+    ui->groupBoxSerial->setVisible(false);
+#endif
 
     // Signal/slots of SliceSender
-    connect(&m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
-            m_sliceSender, SLOT(setPositionWGS84(const PositionWGS84&)));
     connect(m_sliceSender, SIGNAL(showMessage( const QString &, int)),
             statusBar(), SLOT(showMessage( const QString &, int)));
     connect(ui->actionTransmitPositionMessages, SIGNAL(triggered(bool)),
@@ -73,8 +72,6 @@ CarMainWindow::CarMainWindow()
             m_sliceSender, SLOT(sendDataNow()));
 
     // Signal/slots of MapViewer
-    connect(&m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
-            m_mapViewer, SLOT(setCenter(const PositionWGS84&)));
     connect(ui->actionAutoReloadMap, SIGNAL(triggered(bool)),
             m_mapViewer, SLOT(setAutoReloadWays(bool)));
     m_mapViewer->setAutoReloadWays(ui->actionAutoReloadMap->isChecked());
@@ -90,6 +87,18 @@ CarMainWindow::~CarMainWindow()
     on_buttonConnect_clicked(false);
 }
 
+void CarMainWindow::changeEvent(QEvent *e)
+{
+    QMainWindow::changeEvent(e);
+    switch (e->type()) {
+    case QEvent::LanguageChange:
+        ui->retranslateUi(this);
+        break;
+    default:
+        break;
+    }
+}
+
 void CarMainWindow::on_buttonConnect_clicked(bool checked)
 {
     if (checked)
@@ -97,28 +106,25 @@ void CarMainWindow::on_buttonConnect_clicked(bool checked)
         // Open the device
         int baudRate = ui->comboBoxBaudrate->itemData(ui->comboBoxBaudrate->currentIndex()).toInt();
         QString comPort = ui->comboBoxPort->currentText();
-        bool r = m_gpsDevice.init(comPort.toStdString(), baudRate);
-        if (!r)
+        m_gpsDevice = GPSReceiver::createGPS_Serial(this, comPort, baudRate);
+        if (!m_gpsDevice)
         {
-            statusBar()->showMessage(tr("Cannot connect to GPS device %1; check the command line message.").arg(comPort), 10000);
             ui->buttonConnect->setChecked(false);
             return;
         }
-        r = m_gpsDevice.run();
-        if (!r)
-        {
-            statusBar()->showMessage(tr("Cannot receive data from the GPS device %1; check the command line message.").arg(comPort), 10000);
-            ui->buttonConnect->setChecked(false);
-            m_gpsDevice.shutdown();
-        }
+
+        // Signal/slots of GPS Device
+        connect(m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
+                this, SLOT(setPositionWGS84(const PositionWGS84&)));
+
         statusBar()->showMessage(tr("Connected to GPS device %1").arg(comPort), 3000);
     }
     else
     {
         // Close the device
-        if (m_gpsDevice.isRunning())
-            m_gpsDevice.stop();
-        m_gpsDevice.shutdown();
+        if (m_gpsDevice)
+            delete m_gpsDevice;
+        m_gpsDevice = NULL;
         statusBar()->showMessage(tr("Disconnected the GPS device"), 3000);
     }
 }
@@ -128,6 +134,9 @@ void CarMainWindow::setPositionWGS84(const PositionWGS84& pos)
     ui->lineLatitude->setText(cs::degToString(pos.getLatitudeDeg()));
     ui->lineLongitude->setText(cs::degToString(pos.getLongitudeDeg()));
     ui->dateTimeEdit->setDateTime(pos.getQTimestamp().toLocalTime());
+
+    m_sliceSender->setPositionWGS84(pos);
+    m_mapViewer->setCenter(pos);
 }
 
 void CarMainWindow::on_comboBoxInterval_currentIndexChanged(int index)

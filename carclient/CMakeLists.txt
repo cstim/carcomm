@@ -26,6 +26,7 @@ SET (carclient_SOURCES
   NMEAParser.cpp
   PositionWGS84.cpp
   carmainwindow.cpp
+  gpsreceiver.cpp
   main.cpp
   mapviewer.cpp
   slicesender.cpp
@@ -33,6 +34,7 @@ SET (carclient_SOURCES
 SET (carclient_QOBJECT_HEADERS
   GPS_Serial.hpp
   carmainwindow.hpp
+  gpsreceiver.hpp
   mapviewer.hpp
   slicesender.hpp
   )

@@ -1,3 +1,4 @@
 *.ui.rb
 *.qrc.rb
 build*
+carclient-build*

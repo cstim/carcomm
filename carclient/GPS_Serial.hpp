@@ -4,6 +4,7 @@
 
 #include "PositionWGS84.hpp"
 #include "NMEAParser.hpp"
+#include "gpsreceiver.hpp"
 
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
@@ -30,7 +31,7 @@
  * Currently only a NMEA-parsing will be performed.
  *
  */
-class GPS_Serial : public QObject
+class GPS_Serial : public GPSReceiver
 {
     Q_OBJECT
 
@@ -47,7 +48,7 @@ public:
      *				 The owner is responsible to create, initialize, and clean-up
      *				 its devices.
      */
-    GPS_Serial();
+    GPS_Serial(QObject *parent);
     ~GPS_Serial();
 
     /**
@@ -72,9 +73,6 @@ public:
      * \brief Inidicated if the device is running or not.
      */
     bool isRunning() { return m_running; } ;
-
-signals:
-    void newPositionWGS84(const PositionWGS84& pos);
 
 // private functions
 private:

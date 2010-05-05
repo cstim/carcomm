@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>498</width>
-    <height>642</height>
+    <width>360</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,7 @@
        <item>
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Serial Port</string>
+          <string>Port</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -50,7 +50,7 @@
        <item>
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Baud Rate</string>
+          <string>Baud</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -240,7 +240,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>498</width>
+     <width>360</width>
      <height>23</height>
     </rect>
    </property>
@@ -356,9 +356,7 @@
   <tabstop>buttonReload</tabstop>
   <tabstop>webView</tabstop>
  </tabstops>
- <resources>
-  <include location="ressources.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>actionExit</sender>

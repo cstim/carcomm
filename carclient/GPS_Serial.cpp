@@ -6,8 +6,9 @@
 # include <boost/asio/read_until.hpp>
 
 
-GPS_Serial::GPS_Serial()
-        : m_running(false)
+GPS_Serial::GPS_Serial(QObject *parent)
+        : GPSReceiver(parent)
+        , m_running(false)
         , m_serialIoService()
         , m_portHandle(m_serialIoService)
         , m_COMPort()
