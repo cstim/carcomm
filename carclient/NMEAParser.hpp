@@ -18,6 +18,8 @@ public:
 
     bool parseNMEAString(const std::string &NMEAString, PositionWGS84& pos);
 
+    void setIsLive(bool v) { m_isLive = v; }
+
 // private members
 private:
     PositionWGS84 m_positionWGS84;
@@ -25,6 +27,8 @@ private:
     std::string m_dateStr;
 
     bool m_GPSValid;
+
+    bool m_isLive;
 
 // private functions
 private:

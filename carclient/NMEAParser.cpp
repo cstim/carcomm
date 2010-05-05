@@ -9,6 +9,7 @@ NMEAParser::NMEAParser()
         , m_timeStr("")
         , m_dateStr("")
         , m_GPSValid(false)
+        , m_isLive(true)
 {
 }
 
@@ -82,7 +83,10 @@ boost::posix_time::ptime NMEAParser::createTimestamp(const std::string& timeStr,
         }
         else
         {
-            date = boost::gregorian::day_clock::universal_day();
+            if (m_isLive)
+                date = boost::gregorian::day_clock::universal_day();
+            else
+                return boost::posix_time::ptime();
         }
 
         const boost::posix_time::ptime timestamp(boost::posix_time::ptime(date) + time);

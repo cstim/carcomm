@@ -6,7 +6,9 @@
 
 NMEAReplay::NMEAReplay(QObject* parent)
     : GPSReceiver(parent)
-{}
+{
+    m_NMEAParser.setIsLive(false);
+}
 NMEAReplay::~NMEAReplay()
 {}
 
