@@ -1,4 +1,3 @@
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include "PositionWGS84.hpp"
 #include <limits>

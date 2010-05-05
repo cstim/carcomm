@@ -1,7 +1,6 @@
 #ifndef _API_POSITIONWGS84_HPP
 #define _API_POSITIONWGS84_HPP
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <boost/date_time/posix_time/posix_time.hpp>
 

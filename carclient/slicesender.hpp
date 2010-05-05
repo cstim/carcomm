@@ -1,6 +1,7 @@
 // Copyright (C) Christian Stimming, 2010
 
 #ifndef _SLICESENDER_HPP
+#define _SLICESENDER_HPP
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
