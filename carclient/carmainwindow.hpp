@@ -33,6 +33,8 @@ public slots:
 
     void on_comboBoxInterval_currentIndexChanged(int index);
 
+    void on_actionOpenReplay_triggered();
+
 protected:
     void changeEvent(QEvent *e);
 

@@ -56,7 +56,11 @@ void SliceSender::sendDataNow()
        )
     {
         int duration_secs = m_lastPos.getQTimestamp().secsTo(m_currentPos.getQTimestamp());
-        //if (secs >= getSendInterval())
+        if (duration_secs <= 0)
+        {
+            qDebug() << "Oops, ignoring negative time duration" << duration_secs;
+        }
+        else
         {
             // Actually send the data
             QUrl url;

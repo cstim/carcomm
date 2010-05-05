@@ -4,6 +4,8 @@
 #include "ui_carmainwindow.h"
 #include "slicesender.hpp"
 #include "mapviewer.hpp"
+#include <QtGui/QFileDialog>
+#include <QtCore/QFileInfo>
 
 CarMainWindow::CarMainWindow()
     : base_class()
@@ -99,10 +101,36 @@ void CarMainWindow::changeEvent(QEvent *e)
     }
 }
 
+void CarMainWindow::on_actionOpenReplay_triggered()
+{
+    delete m_gpsDevice;
+    m_gpsDevice = NULL;
+
+    QString filename = QFileDialog::getOpenFileName(this, tr("Select NMEA replay file"));
+    if (!filename.isEmpty() && QFileInfo(filename).exists())
+    {
+        m_gpsDevice = GPSReceiver::createReplay(this, filename);
+
+        if (m_gpsDevice)
+        {
+            // Signal/slots of GPS Device
+            connect(m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
+                    this, SLOT(setPositionWGS84(const PositionWGS84&)));
+            connect(m_gpsDevice, SIGNAL(showMessage( const QString &, int)),
+                    statusBar(), SLOT(showMessage( const QString &, int)));
+
+            statusBar()->showMessage(tr("Opened GPS log file %1").arg(filename), 2000);
+        }
+    }
+}
+
 void CarMainWindow::on_buttonConnect_clicked(bool checked)
 {
     if (checked)
     {
+        delete m_gpsDevice;
+        m_gpsDevice = NULL;
+
         // Open the device
         int baudRate = ui->comboBoxBaudrate->itemData(ui->comboBoxBaudrate->currentIndex()).toInt();
         QString comPort = ui->comboBoxPort->currentText();
@@ -116,6 +144,8 @@ void CarMainWindow::on_buttonConnect_clicked(bool checked)
         // Signal/slots of GPS Device
         connect(m_gpsDevice, SIGNAL(newPositionWGS84(const PositionWGS84&)),
                 this, SLOT(setPositionWGS84(const PositionWGS84&)));
+        connect(m_gpsDevice, SIGNAL(showMessage( const QString &, int)),
+                statusBar(), SLOT(showMessage( const QString &, int)));
 
         statusBar()->showMessage(tr("Connected to GPS device %1").arg(comPort), 3000);
     }
@@ -131,9 +161,13 @@ void CarMainWindow::on_buttonConnect_clicked(bool checked)
 
 void CarMainWindow::setPositionWGS84(const PositionWGS84& pos)
 {
-    ui->lineLatitude->setText(cs::degToString(pos.getLatitudeDeg()));
+    double latDeg = pos.getLatitudeDeg();
+    ui->lineLatitude->setText(cs::degToString(latDeg));
     ui->lineLongitude->setText(cs::degToString(pos.getLongitudeDeg()));
     ui->dateTimeEdit->setDateTime(pos.getQTimestamp().toLocalTime());
+
+    if (cs::isNaN(latDeg))
+        statusBar()->showMessage(tr("GPS without valid position"), 700);
 
     m_sliceSender->setPositionWGS84(pos);
     m_mapViewer->setCenter(pos);

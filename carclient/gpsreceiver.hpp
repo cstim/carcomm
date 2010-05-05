@@ -15,6 +15,7 @@ public:
     virtual ~GPSReceiver();
 
     static GPSReceiver *createGPS_Serial(QObject *parent, const QString& comPort, int baudRate);
+    static GPSReceiver *createReplay(QObject *parent, const QString& filename);
 
 signals:
     void newPositionWGS84(const PositionWGS84& pos);

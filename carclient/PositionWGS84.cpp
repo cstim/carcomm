@@ -24,6 +24,7 @@ QDateTime ptime_to_qdatetime(const boost::posix_time::ptime& pt)
     QDate date(pt.date().year(), pt.date().month(), pt.date().day());
     boost::posix_time::time_duration dur = pt.time_of_day();
     QTime time(dur.hours(), dur.minutes(), dur.seconds());
+    // FIXME: Do something with the milliseconds here!
     //qDebug() << "Got date=" << date << " time=" << time << " fracsecs=" << dur.fractional_seconds();
     return QDateTime(date, time, Qt::UTC);
 }

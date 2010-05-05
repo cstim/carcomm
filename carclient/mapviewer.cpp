@@ -37,7 +37,7 @@ void MapViewer::setCenter(const PositionWGS84& pos)
     // Center the map
     QString lat = cs::degToString(pos.getLatitudeDeg());
     QString lon = cs::degToString(pos.getLongitudeDeg());
-    if (lat != "nan" && lon != "nan")
+    if (lat != "nan" && lon != "nan" && isInitialized())
     {
         m_webView->page()->mainFrame()->evaluateJavaScript(QString("setLatLon(%1, %2);").arg(lat).arg(lon));
         reloadWaysMaybe();
