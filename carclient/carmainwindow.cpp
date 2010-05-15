@@ -161,16 +161,26 @@ void CarMainWindow::on_buttonConnect_clicked(bool checked)
 
 void CarMainWindow::setPositionWGS84(const PositionWGS84& pos)
 {
-    double latDeg = pos.getLatitudeDeg();
-    ui->lineLatitude->setText(cs::degToString(latDeg));
-    ui->lineLongitude->setText(cs::degToString(pos.getLongitudeDeg()));
-    ui->dateTimeEdit->setDateTime(pos.getQTimestamp().toLocalTime());
+    QDateTime time = pos.getQTimestamp().toLocalTime();
+    if (time > ui->dateTimeEdit->dateTime())
+    {
+        qDebug() << "GPS gave us new Pos" << pos.toString();
+        double latDeg = pos.getLatitudeDeg();
+        double lonDeg = pos.getLongitudeDeg();
+        ui->lineLatitude->setText(cs::degToString(latDeg));
+        ui->lineLongitude->setText(cs::degToString(lonDeg));
+        ui->dateTimeEdit->setDateTime(time);
 
-    if (cs::isNaN(latDeg))
-        statusBar()->showMessage(tr("GPS without valid position"), 700);
+        if (cs::isNaN(latDeg))
+            statusBar()->showMessage(tr("GPS without valid position"), 700);
 
-    m_sliceSender->setPositionWGS84(pos);
-    m_mapViewer->setCenter(pos);
+        m_sliceSender->setPositionWGS84(pos);
+        m_mapViewer->setCenter(pos);
+    }
+    else
+    {
+        //qDebug() << "Ignoring second Pos with identical timestamp";
+    }
 }
 
 void CarMainWindow::on_comboBoxInterval_currentIndexChanged(int index)

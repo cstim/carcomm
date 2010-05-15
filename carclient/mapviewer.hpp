@@ -5,6 +5,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtCore/QTime>
 class QWebView;
 class PositionWGS84;
 
@@ -32,6 +33,7 @@ private:
     QString m_serverUrl;
     bool m_autoReloadWays;
     int m_retrieveInterval;
+    QTime m_lastLoadTime;
 };
 
 #endif

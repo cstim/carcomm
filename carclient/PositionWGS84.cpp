@@ -31,6 +31,12 @@ QDateTime ptime_to_qdatetime(const boost::posix_time::ptime& pt)
 
 } // END namespace cs
 
+QString PositionWGS84::toString() const
+{
+    return QString("(%1,%2)").arg(getLatitudeDeg())
+        .arg(getLongitudeDeg());
+}
+
 QDateTime PositionWGS84::getQTimestamp() const
 {
     return cs::ptime_to_qdatetime(m_timestamp);

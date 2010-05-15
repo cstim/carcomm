@@ -28,7 +28,10 @@ void MapViewer::setRetrieveInterval(int value)
     {
         m_retrieveInterval = value;
         if (isInitialized())
+        {
+            m_lastLoadTime.addSecs(-100);
             reloadWays();
+        }
     }
 }
 
@@ -51,6 +54,7 @@ void MapViewer::reset()
     //f.open(QIODevice::ReadOnly);
     //ui->webView->setContent(f.readAll());
     m_webView->setUrl(m_serverUrl + "streetmap.html");
+    m_lastLoadTime.addSecs(-100);
     reloadWays();
 }
 
@@ -69,12 +73,23 @@ void MapViewer::reloadWays()
         return;
     }
 
-    QDateTime currentTime = QDateTime::currentDateTime();
-    QString min_time = cs::qtDateTimeToString(currentTime.addSecs(-60 * m_retrieveInterval));
-    QString max_time = cs::qtDateTimeToString(currentTime);
-    QString cmdString = QString("loadWays(\"%1\", \"%2\");").arg(min_time).arg(max_time);
-    //qDebug() << "We are in on_buttonReload_clicked:" << cmdString;
-    m_webView->page()->mainFrame()->evaluateJavaScript(cmdString);
+    // FIXME: We must check not (only) for enough elapsed time since
+    // last retrieval, but also whether we actually changed position,
+    // i.e. we must keep a "dirty" state of the map.
+    if (m_lastLoadTime.elapsed() < 3000)
+    {
+        qDebug() << "Not yet reloading ways";
+    }
+    else
+    {
+        QDateTime currentTime = QDateTime::currentDateTime();
+        QString min_time = cs::qtDateTimeToString(currentTime.addSecs(-60 * m_retrieveInterval));
+        QString max_time = cs::qtDateTimeToString(currentTime);
+        QString cmdString = QString("loadWays(\"%1\", \"%2\");").arg(min_time).arg(max_time);
+        qDebug() << "MapViewer::reloadWays:" << cmdString;
+        m_webView->page()->mainFrame()->evaluateJavaScript(cmdString);
+        m_lastLoadTime.start();
+    }
 }
 
 

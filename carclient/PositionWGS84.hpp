@@ -68,6 +68,7 @@ public:
     static double rad2deg (double rad) { return rad * 180.0 / M_PI; }
 
     static double NMEA2rad( double Dm );
+    QString toString() const;
 
 private:
     double m_latitude;

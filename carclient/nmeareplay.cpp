@@ -16,6 +16,7 @@ void NMEAReplay::nextData()
 {
     if (m_nextPos.isValid())
     {
+        //qDebug() << "Replaying new GPS pos" << m_nextPos.toString();
         emit newPositionWGS84(m_nextPos);
     }
     PositionWGS84 next = findNext(m_stream);
