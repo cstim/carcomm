@@ -30,6 +30,7 @@ public slots:
 
 signals:
     void showMessage ( const QString & message, int timeout);
+    void showStatus(cs::Status status);
 
 private:
     QString m_serverUrl;

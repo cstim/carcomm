@@ -17,6 +17,7 @@ CarMainWindow::CarMainWindow()
     , m_mapViewer(NULL) // must be initialized after setupUi()!
 {
     ui->setupUi(this);
+    setGpsReceiverStatus(cs::BAD);
 
     m_mapViewer = new MapViewer(ui->webView, m_server, this);
 
@@ -72,6 +73,8 @@ CarMainWindow::CarMainWindow()
     m_sliceSender->setAutoSendData(ui->actionTransmitPositionMessages->isChecked());
     connect(ui->buttonSendData, SIGNAL(clicked()),
             m_sliceSender, SLOT(sendDataNow()));
+    connect(m_sliceSender, SIGNAL(showStatus(cs::Status)),
+            this, SLOT(setSliceSenderStatus(cs::Status)));
 
     // Signal/slots of MapViewer
     connect(ui->actionAutoReloadMap, SIGNAL(triggered(bool)),
@@ -82,6 +85,8 @@ CarMainWindow::CarMainWindow()
     connect(ui->actionResetMap, SIGNAL(triggered()),
             m_mapViewer, SLOT(reset()));
     on_comboBoxInterval_currentIndexChanged(ui->comboBoxInterval->currentIndex());
+    connect(m_mapViewer, SIGNAL(showStatus(cs::Status)),
+            this, SLOT(setMapViewerStatus(cs::Status)));
 }
 
 CarMainWindow::~CarMainWindow()
@@ -118,6 +123,8 @@ void CarMainWindow::on_actionOpenReplay_triggered()
                     this, SLOT(setPositionWGS84(const PositionWGS84&)));
             connect(m_gpsDevice, SIGNAL(showMessage( const QString &, int)),
                     statusBar(), SLOT(showMessage( const QString &, int)));
+            connect(m_gpsDevice, SIGNAL(showStatus(cs::Status)),
+                    this, SLOT(setGpsReceiverStatus(cs::Status)));
 
             statusBar()->showMessage(tr("Opened GPS log file %1").arg(filename), 2000);
         }
@@ -148,6 +155,7 @@ void CarMainWindow::on_buttonConnect_clicked(bool checked)
                 statusBar(), SLOT(showMessage( const QString &, int)));
 
         statusBar()->showMessage(tr("Connected to GPS device %1").arg(comPort), 3000);
+        setGpsReceiverStatus(cs::GOOD);
     }
     else
     {
@@ -156,6 +164,7 @@ void CarMainWindow::on_buttonConnect_clicked(bool checked)
             delete m_gpsDevice;
         m_gpsDevice = NULL;
         statusBar()->showMessage(tr("Disconnected the GPS device"), 3000);
+        setGpsReceiverStatus(cs::UNKNOWN);
     }
 }
 
@@ -166,6 +175,7 @@ void CarMainWindow::setPositionWGS84(const PositionWGS84& pos)
     {
         //qDebug() << "Received new position from GPS:" << pos.toString();
         statusBar()->showMessage(tr("Received valid GPS %1").arg(pos.toString()), 1000);
+        setGpsReceiverStatus(cs::GOOD);
         double latDeg = pos.getLatitudeDeg();
         double lonDeg = pos.getLongitudeDeg();
         ui->lineLatitude->setText(cs::degToString(latDeg));
@@ -173,7 +183,10 @@ void CarMainWindow::setPositionWGS84(const PositionWGS84& pos)
         ui->dateTimeEdit->setDateTime(time);
 
         if (cs::isNaN(latDeg))
+        {
             statusBar()->showMessage(tr("GPS without valid position"), 700);
+            setGpsReceiverStatus(cs::BAD);
+        }
 
         m_sliceSender->setPositionWGS84(pos);
         m_mapViewer->setCenter(pos);
@@ -188,6 +201,37 @@ void CarMainWindow::on_comboBoxInterval_currentIndexChanged(int index)
 {
     int retrieveInterval = ui->comboBoxInterval->itemData(index).toInt();
     m_mapViewer->setRetrieveInterval(retrieveInterval);
+}
+
+void setQLabel(QLabel* label, cs::Status status)
+{
+    QString name;
+    switch(status)
+    {
+        case cs::GOOD:
+            name = "limegreen";
+            break;
+        case cs::BAD:
+            name = "red";
+            break;
+        default:
+        case cs::UNKNOWN:
+            name = "none";
+            break;
+    }
+    label->setStyleSheet(QString("QLabel { background: %1 }").arg(name));
+}
+void CarMainWindow::setGpsReceiverStatus(cs::Status status)
+{
+    setQLabel(ui->labelGpsStatus, status);
+}
+void CarMainWindow::setSliceSenderStatus(cs::Status status)
+{
+    setQLabel(ui->labelSendingStatus, status);
+}
+void CarMainWindow::setMapViewerStatus(cs::Status status)
+{
+    setQLabel(ui->labelMapStatus, status);
 }
 
 

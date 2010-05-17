@@ -101,6 +101,7 @@ void SliceSender::sendDataNow()
     else
     {
         emit showMessage(tr("Cannot send position message - Latitude/Longitude not received."), 3000);
+        emit showStatus(cs::BAD);
     }
 }
 
@@ -108,13 +109,15 @@ void SliceSender::replyFinished(QNetworkReply* reply)
 {
     if (reply->error() == QNetworkReply::NoError)
     {
-        qDebug() << "The POST request got a successful reply";
+        //qDebug() << "The POST request got a successful reply";
         emit showMessage(tr("Position message sent successfully."), 3000);
+        emit showStatus(cs::GOOD);
     }
     else
     {
-        qDebug() << "The POST request got a reply with this error:" << reply->errorString();
+        qDebug() << "There was an error sending the position:" << reply->errorString();
         emit showMessage(tr("There was an error sending the position:") + reply->errorString(), 10000);
+        emit showStatus(cs::BAD);
     }
     reply->deleteLater();
 }

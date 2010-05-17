@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
 
     qRegisterMetaType<PositionWGS84>();
+    qRegisterMetaType<cs::Status>();
 
     CarMainWindow mainwindow;
 #if defined(Q_WS_S60)

@@ -9,6 +9,8 @@
 class QWebView;
 class PositionWGS84;
 
+#include "PositionWGS84.hpp"
+
 class MapViewer : public QObject
 {
     Q_OBJECT
@@ -27,6 +29,9 @@ public slots:
     void setAutoReloadWays(bool checked) { m_autoReloadWays = checked; }
     void setRetrieveInterval(int value);
     //void setServer(const QString& server) { m_serverUrl = server; }
+
+signals:
+    void showStatus(cs::Status status);
 
 private:
     QWebView * m_webView;

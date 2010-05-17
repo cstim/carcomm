@@ -69,6 +69,7 @@ void MapViewer::reloadWays()
     if (!isInitialized())
     {
         qDebug() << "HTML window is not yet initialized - cannot reload the map; waiting 1 second.";
+        emit showStatus(cs::BAD);
         QTimer::singleShot(1000, this, SLOT(reloadWays()));
         return;
     }
@@ -89,6 +90,7 @@ void MapViewer::reloadWays()
         //qDebug() << "Now triggering ReloadWays with javascript-command:" << cmdString;
         m_webView->page()->mainFrame()->evaluateJavaScript(cmdString);
         m_lastLoadTime.start();
+        emit showStatus(cs::GOOD);
     }
 }
 

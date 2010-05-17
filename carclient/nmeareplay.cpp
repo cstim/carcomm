@@ -34,6 +34,7 @@ void NMEAReplay::nextData()
     else
     {
         emit showMessage(tr("GPS log reached the end of file."), 3000);
+        emit showStatus(cs::BAD);
         qDebug() << "GPS log reached the end of file.";
     }
 }

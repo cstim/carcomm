@@ -30,6 +30,11 @@ inline QString qtDateTimeToString(const QDateTime& t)
     return t.toString("yyyy-MM-ddThh:mm:ssZ");
 }
 
+enum Status
+{
+    UNKNOWN, GOOD, BAD
+};
+
 } // END namespace cs
 
 
@@ -80,6 +85,7 @@ private:
 };
 
 Q_DECLARE_METATYPE(PositionWGS84)
+Q_DECLARE_METATYPE(cs::Status)
 
 #endif
 

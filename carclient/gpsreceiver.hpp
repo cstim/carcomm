@@ -6,6 +6,8 @@
 #include <QtCore/QObject>
 class PositionWGS84;
 
+#include "PositionWGS84.hpp"
+
 class GPSReceiver : public QObject
 {
     Q_OBJECT
@@ -21,6 +23,8 @@ signals:
     void newPositionWGS84(const PositionWGS84& pos);
 
     void showMessage ( const QString & message, int timeout);
+    void showStatus(cs::Status status);
+
 };
 
 

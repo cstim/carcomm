@@ -35,6 +35,10 @@ public slots:
 
     void on_actionOpenReplay_triggered();
 
+    void setGpsReceiverStatus(cs::Status status);
+    void setSliceSenderStatus(cs::Status status);
+    void setMapViewerStatus(cs::Status status);
+
 protected:
     void changeEvent(QEvent *e);
 
