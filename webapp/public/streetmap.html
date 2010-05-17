@@ -13,7 +13,9 @@
     <script type="text/javascript">
  
         var map; //complex object of type OpenLayers.Map
-        var layerGpx;
+        var layerGpx1;
+        var layerGpx2;
+        var useLayerGpx1;
         var gpxStyleMap;
         var serverUrl;
         var initialized;
@@ -42,6 +44,7 @@
         function init() {
  
             serverUrl = "";
+	    useLayerGpx1 = true;
             map = new OpenLayers.Map ("map", {
                 controls:[
                     new OpenLayers.Control.Navigation(),
@@ -130,11 +133,34 @@
         }
 
         function loadWays(min_time, max_time) {
-            if (layerGpx) {
-                map.removeLayer(layerGpx);
-                layerGpx.destroy();
-            }
+	    if (useLayerGpx1) {
+		if (layerGpx2) {
+                    layerGpx2.visibility = true;
+		}
+                if (layerGpx1) {
+                    map.removeLayer(layerGpx1);
+                    layerGpx1.destroy();
+                }
+		layerGpx1 = loadWaysLayer(min_time, max_time);
+                map.addLayer(layerGpx1);
+                layerGpx1.visibility = false;
+		useLayerGpx1 = false;
+	    } else {
+		if (layerGpx1) {
+                    layerGpx1.visibility = true;
+		}
+                if (layerGpx2) {
+                    map.removeLayer(layerGpx2);
+                    layerGpx2.destroy();
+                }
+		layerGpx2 = loadWaysLayer(min_time, max_time);
+                map.addLayer(layerGpx2);
+                layerGpx2.visibility = false;
+		useLayerGpx1 = true;
+	    }
+        }
 
+        function loadWaysLayer(min_time, max_time) {
             var lonLatUR = map.getLonLatFromPixel(new OpenLayers.Pixel(0,0))
                 .transform(map.getProjectionObject(),
                            new OpenLayers.Projection("EPSG:4326"));
@@ -150,7 +176,7 @@
             var min_lon = lonLatUR.lon;
 
             // Add the Layer with GPX Track
-            layerGpx = new OpenLayers.Layer.GML("GML",
+            var layerGpx = new OpenLayers.Layer.GML("GML",
                          serverUrl + "slices.gpx?"
                          + "min_lat=" + min_lat
                          + "&max_lat=" + max_lat
@@ -163,7 +189,7 @@
                          styleMap: gpxStyleMap,
                          projection: new OpenLayers.Projection("EPSG:4326")
                                                     });
-            map.addLayer(layerGpx);
+            return layerGpx;
         }
  
     </script>
