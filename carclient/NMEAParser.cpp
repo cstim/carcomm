@@ -50,7 +50,7 @@ bool NMEAParser::parseNMEAString(const std::string &NMEAString, PositionWGS84& p
     }
     else
     {
-        std::cout << "parseNMEA: String too short, \"" << NMEAString << "\"" << std::endl;
+        std::cout << "parseNMEA: Ignoring too short string, \"" << NMEAString << "\"" << std::endl;
     }
 
     return false;

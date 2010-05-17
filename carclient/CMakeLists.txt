@@ -9,7 +9,7 @@ SET (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules;${CMAKE_MODULE_PATH}
 
 SET (QT_USE_QTWEBKIT true) # enable QtWebKit, available in qt >= 4.4.0
 SET (QT_USE_QTNETWORK true) # enable QtNetwork, available in qt >= 4.4.0
-SET (QT_MIN_VERSION "4.6.0") # We need at least 4.6.0 (because only this has Symbian)
+SET (QT_MIN_VERSION "4.5.2") # We need at least 4.6.0 (because only this has Symbian)
 find_package (Qt4 REQUIRED) # find and setup Qt4 for this project
 include_directories (${QT_INCLUDES})
 include_directories (${CMAKE_CURRENT_BINARY_DIR})

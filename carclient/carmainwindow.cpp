@@ -164,7 +164,8 @@ void CarMainWindow::setPositionWGS84(const PositionWGS84& pos)
     QDateTime time = pos.getQTimestamp().toLocalTime();
     if (time > ui->dateTimeEdit->dateTime())
     {
-        qDebug() << "GPS gave us new Pos" << pos.toString();
+        //qDebug() << "Received new position from GPS:" << pos.toString();
+        statusBar()->showMessage(tr("Received valid GPS %1").arg(pos.toString()), 1000);
         double latDeg = pos.getLatitudeDeg();
         double lonDeg = pos.getLongitudeDeg();
         ui->lineLatitude->setText(cs::degToString(latDeg));

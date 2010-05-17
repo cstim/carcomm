@@ -45,7 +45,7 @@ void SliceSender::sendDataMaybe()
 
 void SliceSender::sendDataNow()
 {
-    qDebug() << "We are in sendDataNow";
+    //qDebug() << "We are in sendDataNow";
 
     if (m_currentPos.isValid()
         && m_lastPos.isValid()
@@ -58,7 +58,7 @@ void SliceSender::sendDataNow()
         int duration_secs = m_lastPos.getQTimestamp().secsTo(m_currentPos.getQTimestamp());
         if (duration_secs <= 0)
         {
-            qDebug() << "Oops, ignoring negative time duration" << duration_secs;
+            qDebug() << "SliceSender::sendDataNow: Oops, ignoring negative time duration" << duration_secs;
         }
         else
         {
@@ -79,14 +79,14 @@ void SliceSender::sendDataNow()
                     + "&slice[startlat]=" + startLat
                     + "&slice[startlon]=" + startLon;
 
-            qDebug() << "Now we will send a POST request with"
+            qDebug() << "Now the position will be sent as POST request with"
 //                      << "endLat=" << endLat
 //                      << "startLat=" << startLat
 //                      << "endLon=" << endLon
 //                      << "startLon=" << startLon
 //                      << "time=" << time
 //                      << "duration=" << dur
-                     << "form=" << form;
+                     << " arguments: " << form;
 
             QNetworkRequest request;
             request.setUrl(QUrl(m_serverUrl + "slices"));
@@ -106,13 +106,14 @@ void SliceSender::sendDataNow()
 
 void SliceSender::replyFinished(QNetworkReply* reply)
 {
-    qDebug() << "Reply had this error:" << reply->errorString();
     if (reply->error() == QNetworkReply::NoError)
     {
+        qDebug() << "The POST request got a successful reply";
         emit showMessage(tr("Position message sent successfully."), 3000);
     }
     else
     {
+        qDebug() << "The POST request got a reply with this error:" << reply->errorString();
         emit showMessage(tr("There was an error sending the position:") + reply->errorString(), 10000);
     }
     reply->deleteLater();

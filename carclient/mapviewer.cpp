@@ -68,7 +68,7 @@ void MapViewer::reloadWays()
 {
     if (!isInitialized())
     {
-        qDebug() << "HTML view is not yet initialized - cannot reload the map; waiting 1 second.";
+        qDebug() << "HTML window is not yet initialized - cannot reload the map; waiting 1 second.";
         QTimer::singleShot(1000, this, SLOT(reloadWays()));
         return;
     }
@@ -76,9 +76,9 @@ void MapViewer::reloadWays()
     // FIXME: We must check not (only) for enough elapsed time since
     // last retrieval, but also whether we actually changed position,
     // i.e. we must keep a "dirty" state of the map.
-    if (m_lastLoadTime.elapsed() < 3000)
+    if (m_lastLoadTime.elapsed() < 5000)
     {
-        qDebug() << "Not yet reloading ways";
+        //qDebug() << QString("Last ReloadWays was triggered too shortly ago (%1 s); not yet reloading ways").arg(m_lastLoadTime.elapsed() * 1e-3);
     }
     else
     {
@@ -86,7 +86,7 @@ void MapViewer::reloadWays()
         QString min_time = cs::qtDateTimeToString(currentTime.addSecs(-60 * m_retrieveInterval));
         QString max_time = cs::qtDateTimeToString(currentTime);
         QString cmdString = QString("loadWays(\"%1\", \"%2\");").arg(min_time).arg(max_time);
-        qDebug() << "MapViewer::reloadWays:" << cmdString;
+        //qDebug() << "Now triggering ReloadWays with javascript-command:" << cmdString;
         m_webView->page()->mainFrame()->evaluateJavaScript(cmdString);
         m_lastLoadTime.start();
     }
