@@ -96,19 +96,31 @@ function csCreateLayerGpx(serverUrl, min_lat, max_lat,
                           min_lon, max_lon,
                           min_time, max_time) {
     var layerGpx =
-        new OpenLayers.Layer.GML("GML",
-                                 serverUrl + "slices.gpx?"
-                                 + "min_lat=" + min_lat
-                                 + "&max_lat=" + max_lat
-                                 + "&min_lon=" + min_lon
-                                 + "&max_lon=" + max_lon
-                                 + "&min_time=" + min_time
-                                 + "&max_time=" + max_time
-                                 , {
-                                   format: OpenLayers.Format.GPX,
-                                         styleMap: gpxStyleMap,
-                                         projection: new OpenLayers.Projection("EPSG:4326")
-                                         });
+        new OpenLayers.Layer.GML
+        ("GML",
+         serverUrl + "slices.gpx?"
+         + "min_lat=" + min_lat
+         + "&max_lat=" + max_lat
+         + "&min_lon=" + min_lon
+         + "&max_lon=" + max_lon
+         + "&min_time=" + min_time
+         + "&max_time=" + max_time
+         , {
+          format:
+            OpenLayers.Format.GPX,
+                styleMap:
+            gpxStyleMap,
+                projection:
+            new OpenLayers.Projection("EPSG:4326"),
+//                requestFailure:
+//            function(request) {
+//                window.onerror("Cannot load GML file from url " + this.url);
+//            },
+//                requestSuccess:
+//            function(request) {
+//                window.onerror("Yepp, GML worked fine");
+//            }
+        });
     return layerGpx;
 }
 

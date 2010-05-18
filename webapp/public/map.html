@@ -1,0 +1,183 @@
+<html>
+<head>
+    <!-- bring in the OpenLayers javascript library
+         (here we bring it from the remote site, but you could
+         easily serve up this javascript yourself) -->
+    <script src="OpenLayers.js"></script>
+    <!--script src="http://www.openlayers.org/api/OpenLayers.js"></script-->
+ 
+    <!-- bring in the OpenStreetMap OpenLayers layers.
+         Using this hosted file will make sure we are kept up
+         to date with any necessary changes -->
+    <script src="OpenStreetMap.js"></script>
+    <!--script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script-->
+
+    <!-- The personal functions from CS -->
+    <script src="csfuncs.js"></script>
+
+    <script type="text/javascript">
+
+function csErrorHandler (msg, file, line) {
+	var fullMsg = "General Error: " + msg + " in file: " + file + ":" + line;
+	setStatus("GeneralStatus", "General: " + fullMsg, "red");
+	return true;
+};
+
+OpenLayers.Util.onImageLoadError = function() {
+	setStatus("MapStatus", "Map: Cannot load images", "red");
+};
+ 
+// Complex object of type OpenLayers.Map
+var map;
+var layerGpx1;
+var layerGpx2;
+var useLayerGpx1;
+var gpxStyleMap;
+var serverUrl;
+var initialized;
+
+// Global error handler
+window.onerror = csErrorHandler;
+
+
+function setLatLon(lat, lon) {
+	var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+	var currentZoom = map.getZoom();
+	map.setCenter (lonLat, currentZoom);
+}
+
+function zoomTo(lat, lon, zoom) {
+	var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+	map.setCenter (lonLat, zoom);
+}
+
+function zoomToHamburg() {
+	// Start position for the map (hardcoded here for simplicity)
+	zoomTo(53.5514, 9.99, 12);
+}
+
+function zoomToMuenchen() {
+	zoomTo(48.1361, 11.5376, 12);
+}
+
+//Initialise the 'map' object
+function init() {
+ 
+	serverUrl = "";
+	useLayerGpx1 = true;
+
+	// Did we get our auxiliary files? Then switch General to green
+	if (OpenLayers && csCreateMap) {
+		setStatus("GeneralStatus", null, "lightgreen");
+	}
+
+	// Define the map layer
+	map = csCreateMap();
+
+	// Define the styles for the way slices
+	gpxStyleMap = csCreateGpxStyleMap();
+
+	// Choose Hamburg as center
+	zoomToHamburg();
+
+	initialized = 1;
+	loadWays(1, 2);
+}
+
+function setServerUrl(value) {
+	serverUrl = value;
+}
+
+function loadWays(min_time, max_time) {
+	if (useLayerGpx1) {
+		if (layerGpx2) {
+			layerGpx2.visibility = true;
+		}
+		if (layerGpx1) {
+			map.removeLayer(layerGpx1);
+			layerGpx1.destroy();
+		}
+		layerGpx1 = loadWaysLayer(min_time, max_time);
+		map.addLayer(layerGpx1);
+		layerGpx1.visibility = false;
+
+		useLayerGpx1 = false;
+	} else {
+		if (layerGpx1) {
+			layerGpx1.visibility = true;
+		}
+		if (layerGpx2) {
+			map.removeLayer(layerGpx2);
+			layerGpx2.destroy();
+		}
+		layerGpx2 = loadWaysLayer(min_time, max_time);
+		map.addLayer(layerGpx2);
+		layerGpx2.visibility = false;
+
+		useLayerGpx1 = true;
+	}
+}
+
+function loadWaysLayer(min_time, max_time) {
+	var lonLatUR = map.getLonLatFromPixel(new OpenLayers.Pixel(0,0))
+		.transform(map.getProjectionObject(),
+				   new OpenLayers.Projection("EPSG:4326"));
+
+	var mapSize = map.getSize();
+	var lonLatLL = map.getLonLatFromPixel(new OpenLayers.Pixel(mapSize.w, mapSize.h))
+		.transform(map.getProjectionObject(),
+				   new OpenLayers.Projection("EPSG:4326"));
+
+	var min_lat = lonLatLL.lat;
+	var max_lon = lonLatLL.lon;
+	var max_lat = lonLatUR.lat;
+	var min_lon = lonLatUR.lon;
+
+	// Add the Layer with GPX Track
+	var layerGpx = csCreateLayerGpx(serverUrl,
+									min_lat, max_lat,
+									min_lon, max_lon,
+									min_time, max_time);
+
+	return layerGpx;
+}
+
+function setStatus(id, text, bgcolor) {
+	var td = document.getElementById(id);
+	if (td) {
+		if (text)
+			td.firstChild.nodeValue = text;
+		if (bgcolor)
+			td.setAttribute("bgcolor", bgcolor);
+	} else {
+		window.onerror ("Function setStatus() was called with non-existing ID of html element, \"" + id + "\"");
+	}
+}
+
+    </script>
+
+</head>
+
+<!-- body.onload is called once the page is loaded (call the 'init' function) -->
+<body onload="init();">
+
+<table border="1" width="100%"><tr>
+	<td align="center" id="GeneralStatus" bgcolor="yellow">General</td>
+	<td align="center" id="GPSStatus" bgcolor="lightyellow">GPS Receiver</td>
+	<td align="center" id="MapStatus" bgcolor="yellow">Map Status</td>
+	<td align="center" id="SliceStatus" bgcolor="lightyellow">Way Lines</td>
+	<td align="center" id="SendStatus">Sending to Server</td>
+</tr></table>
+
+<!-- define a DIV into which the map will appear. Make it take up 400 pixels -->
+<div id="map"></div>
+
+</body>
+</html>
+
+<!-- Local Variables: -->
+<!-- mode: javascript -->
+<!-- indent-tabs-mode:nil -->
+<!-- c-basic-offset:4 -->
+<!-- tab-width:8 -->
+<!-- End: -->
