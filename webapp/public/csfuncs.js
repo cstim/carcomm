@@ -116,15 +116,7 @@ function csCreateLayerGpx(serverUrl, min_lat, max_lat,
                 styleMap:
             gpxStyleMap,
                 projection:
-            new OpenLayers.Projection("EPSG:4326"),
-//                requestFailure:
-//            function(request) {
-//                window.onerror("Cannot load GML file from url " + this.url);
-//            },
-//                requestSuccess:
-//            function(request) {
-//                window.onerror("Yepp, GML worked fine");
-//            }
+            new OpenLayers.Projection("EPSG:4326")
         });
 
 //     layerGpx.requestSuccess = function (request) {
