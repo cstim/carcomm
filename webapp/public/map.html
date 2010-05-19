@@ -39,6 +39,9 @@ var useLayerGpx1;
 var gpxStyleMap;
 var serverUrl;
 var initialized;
+var lastPos;
+var currentPos;
+var sendInterval;
 
 // Global error handler
 window.onerror = csErrorHandler;
@@ -71,11 +74,100 @@ function on_geo_error(p) {
 function on_geo_success(p) {
     setStatus("GPSStatus", "GPS received", "lightgreen");
     setLatLon(p.coords.latitude, p.coords.longitude);
+    currentPos = p;
+    sendDataMaybe();
+    loadWays(1, dateToString(new Date()));
+}
+
+function on_interval() {
+    if (currentPos) {
+        var now = new Date();
+        var diffmsec = now.getTime() - currentPos.timestamp;
+        var diffsec = diffmsec / 1000;
+        var diffstr = diffsec.toFixed(1);
+        setStatus("GPSStatus",
+                  "GPS received: " + diffstr + "s old",
+                  "lightgreen");
+        if (diffsec >= sendInterval) {
+            currentPos.timestamp = now.getTime();
+            sendDataMaybe();
+        }
+    }
+}
+
+function sendDataMaybe() {
+    if (currentPos) {
+        if (!lastPos)
+            lastPos = currentPos;
+        var diffmsec = currentPos.timestamp - lastPos.timestamp;
+        var diffsec = diffmsec / 1000;
+        if (diffsec >= sendInterval) {
+            sendDataNow();
+        }
+    }
+}
+
+function sendDataNow() {
+    if (!currentPos) {
+        setStatus("SendStatus", "No Valid Positions to send", "red");
+        return;
+    }
+    if (!lastPos) {
+        lastPos = currentPos;
+    }
+    var endTimestamp = currentPos.timestamp;
+    var diffsec = (endTimestamp - lastPos.timestamp) / 1000;
+    if (diffsec == 0) {
+        endTimestamp = (new Date()).getTime();
+        diffsec = (endTimestamp - lastPos.timestamp) / 1000;
+    }
+    var endLat = currentPos.coords.latitude.toFixed(6);
+    var endLon = currentPos.coords.longitude.toFixed(6);
+    var startLat = lastPos.coords.latitude.toFixed(6);
+    var startLon = lastPos.coords.longitude.toFixed(6);
+    var time = dateToString(new Date(endTimestamp));
+    if (diffsec == 0) {
+        setStatus("SendStatus", "Oops, diffsec = 0", "red");
+        alert("currentPos.timestamp=" + currentPos.timestamp + " lastPos.timestamp=" + lastPos.timestamp + " date=" + (new Date()).getTime());
+        return;
+    }
+    var dur = diffsec.toFixed(2);
+
+    var url = serverUrl + "slices";
+    var params = "slice[lat]=" + endLat
+        + "&slice[lon]=" + endLon
+        + "&slice[time]=" + time
+        + "&slice[duration]=" + dur
+        + "&slice[startlat]=" + startLat
+        + "&slice[startlon]=" + startLon;
+
+    var http = new XMLHttpRequest();
+    http.open("POST", url, true);
+    //Send the proper header information along with the request
+    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    http.setRequestHeader("Content-length", params.length);
+    http.setRequestHeader("Connection", "close");
+
+    http.onreadystatechange = function() { //Call a function when the state changes.
+	if (http.readyState) {
+            if (http.status == 200) {
+                setStatus("SendStatus", "Position sent (200)", "lightgreen");
+                //alert(http.responseText);
+            } else {
+                setStatus("SendStatus", "Position not sent (" + http.status + ")", "yellow");
+                //alert(http.responseText);
+            }
+	}
+    }
+    http.send(params);
+
+    //alert("Will send: " + url + "?" + params);
 }
 
 //Initialise the 'map' object
 function init() {
  
+        sendInterval = 60;
 	serverUrl = "";
 	useLayerGpx1 = true;
 
@@ -93,11 +185,11 @@ function init() {
 
         //determine if the handset has client side geo location capabilities
         if (geo_position_js.init()) {
-            geo_position_js.watchPosition(on_geo_success, on_geo_error,
-                                          {enableHighAccuracy : true,
-                                                  timeout : 1000, // milliseconds
-                                                  maximumAge : 10000 // milliseconds
-                                                  });
+            geo_position_js.watchPosition(on_geo_success, on_geo_error);
+//                                           {enableHighAccuracy : true,
+//                                                   timeout : 1000, // milliseconds
+//                                                   maximumAge : 10000 // milliseconds
+//                                                   });
         }
         else{
             on_geo_error({message: "No GPS available"});
@@ -109,6 +201,8 @@ function init() {
 	initialized = 1;
 
 	loadWays(1, dateToString(new Date()));
+
+        setInterval(on_interval, 1000);
 }
 
 function setServerUrl(value) {
@@ -186,9 +280,9 @@ function loadWaysLayer(min_time, max_time) {
 
 	// Add the Layer with GPX Track
 	var layerGpx = csCreateLayerGpx(serverUrl,
-									min_lat, max_lat,
-									min_lon, max_lon,
-									min_time, max_time);
+                                        min_lat, max_lat,
+                                        min_lon, max_lon,
+                                        min_time, max_time);
 
         layerGpx.events.register("loadend", layerGpx, on_gpx_loadend);
         layerGpx.events.register("loadstart", layerGpx, on_gpx_loadstart);
@@ -220,7 +314,7 @@ function setStatus(id, text, bgcolor) {
 	<td align="center" id="GPSStatus" bgcolor="lightyellow">GPS Receiver</td>
 	<td align="center" id="MapStatus" bgcolor="yellow">Map Status</td>
 	<td align="center" id="SliceStatus" bgcolor="lightyellow">Way Lines</td>
-	<td align="center" id="SendStatus">Sending to Server</td>
+	<td align="center" id="SendStatus" onclick="sendDataNow();">Sending to Server</td>
 </tr></table>
 
 <!-- define a DIV into which the map will appear. Make it take up 400 pixels -->
