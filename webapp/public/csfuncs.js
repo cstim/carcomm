@@ -126,6 +126,12 @@ function csCreateLayerGpx(serverUrl, min_lat, max_lat,
 //                window.onerror("Yepp, GML worked fine");
 //            }
         });
+
+//     layerGpx.requestSuccess = function (request) {
+//         window.onerror("Yepp, GML worked fine");
+//         this.prototype.requestSuccess(request);
+//     }
+
     return layerGpx;
 }
 

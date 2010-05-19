@@ -3,17 +3,21 @@
     <!-- bring in the OpenLayers javascript library
          (here we bring it from the remote site, but you could
          easily serve up this javascript yourself) -->
-    <script src="OpenLayers.js"></script>
+    <script src="OpenLayers.js" type="text/javascript"></script>
     <!--script src="http://www.openlayers.org/api/OpenLayers.js"></script-->
  
     <!-- bring in the OpenStreetMap OpenLayers layers.
          Using this hosted file will make sure we are kept up
          to date with any necessary changes -->
-    <script src="OpenStreetMap.js"></script>
+    <script src="OpenStreetMap.js" type="text/javascript"></script>
     <!--script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script-->
 
+    <!-- The geo-location-javascript code -->
+    <script src="http://code.google.com/apis/gears/gears_init.js" type="text/javascript"></script>
+    <script src="geo.js" type="text/javascript"></script>
+
     <!-- The personal functions from CS -->
-    <script src="csfuncs.js"></script>
+    <script src="csfuncs.js" type="text/javascript"></script>
 
     <script type="text/javascript">
 
@@ -60,6 +64,15 @@ function zoomToMuenchen() {
 	zoomTo(48.1361, 11.5376, 12);
 }
 
+function on_geo_error(p) {
+    setStatus("GPSStatus", "GPS Error: " + p.message, "red");
+}
+
+function on_geo_success(p) {
+    setStatus("GPSStatus", "GPS received", "lightgreen");
+    setLatLon(p.coords.latitude, p.coords.longitude);
+}
+
 //Initialise the 'map' object
 function init() {
  
@@ -76,6 +89,19 @@ function init() {
 
 	// Define the styles for the way slices
 	gpxStyleMap = csCreateGpxStyleMap();
+
+
+        //determine if the handset has client side geo location capabilities
+        if (geo_position_js.init()) {
+            geo_position_js.watchPosition(on_geo_success, on_geo_error,
+                                          {enableHighAccuracy : true,
+                                                  timeout : 1000, // milliseconds
+                                                  maximumAge : 10000 // milliseconds
+                                                  });
+        }
+        else{
+            on_geo_error({message: "No GPS available"});
+        }
 
 	// Choose Hamburg as center
 	zoomToHamburg();
