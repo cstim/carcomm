@@ -81,7 +81,8 @@ function init() {
 	zoomToHamburg();
 
 	initialized = 1;
-	loadWays(1, 2);
+
+	loadWays(1, dateToString(new Date()));
 }
 
 function setServerUrl(value) {
@@ -118,6 +119,30 @@ function loadWays(min_time, max_time) {
 	}
 }
 
+function on_gpx_loadstart() {
+    setStatus("SliceStatus", "Loading ways... " + this.features.length, "lightyellow");
+}
+
+function on_gpx_loadend() {
+    var numWays = this.features.length;
+    if (numWays > 0)
+        setStatus("SliceStatus", "Way Lines: Received " + numWays + " lines", "lightgreen");
+    else
+        setStatus("SliceStatus", "Way Lines: No lines received", "yellow");
+}
+
+function on_osm_loadstart() {
+    setStatus("MapStatus", "Loading Map...", "yellow");
+}
+
+function on_osm_tileloaded() {
+    var numRemainingTiles = this.numLoadingTiles;
+    if (numRemainingTiles > 0)
+        setStatus("MapStatus", "Loading map; " + this.numLoadingTiles + " images remaining", "lightgreen");
+    else
+        setStatus("MapStatus", "Map Loaded", "lightgreen");
+}
+
 function loadWaysLayer(min_time, max_time) {
 	var lonLatUR = map.getLonLatFromPixel(new OpenLayers.Pixel(0,0))
 		.transform(map.getProjectionObject(),
@@ -138,6 +163,9 @@ function loadWaysLayer(min_time, max_time) {
 									min_lat, max_lat,
 									min_lon, max_lon,
 									min_time, max_time);
+
+        layerGpx.events.register("loadend", layerGpx, on_gpx_loadend);
+        layerGpx.events.register("loadstart", layerGpx, on_gpx_loadstart);
 
 	return layerGpx;
 }

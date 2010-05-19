@@ -24,6 +24,11 @@ function csCreateMap() {
     // Define the map layer
     // Other defined layers are OpenLayers.Layer.OSM.Mapnik, OpenLayers.Layer.OSM.Maplint and OpenLayers.Layer.OSM.CycleMap
     var layerMapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+    //layerMapnik.attribution = "";
+    if (on_osm_tileloaded)
+        layerMapnik.events.register("tileloaded", layerMapnik, on_osm_tileloaded);
+    if (on_osm_loadstart)
+        layerMapnik.events.register("loadstart", layerMapnik, on_osm_loadstart);
     map.addLayer(layerMapnik);
 
     return map;
@@ -122,6 +127,19 @@ function csCreateLayerGpx(serverUrl, min_lat, max_lat,
 //            }
         });
     return layerGpx;
+}
+
+function dateToString(date) {
+    var zeropad = function (num) { return ((num < 10) ? '0' : '') + num; }
+    // 2009-05-01T00:00:00Z
+    var timestring = String(date.getFullYear())
+        + "-" + zeropad(date.getMonth() + 1)
+        + "-" + zeropad(date.getDate())
+        + "T" + zeropad(date.getHours())
+        + ":" + zeropad(date.getMinutes())
+        + ":" + zeropad(date.getSeconds())
+        + "Z";
+    return timestring;
 }
 
 // Local Variables:

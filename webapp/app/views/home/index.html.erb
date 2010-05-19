@@ -94,17 +94,7 @@
             document.forms.extent.max_lat.value = lonLatUR.lat;
             document.forms.extent.min_lon.value = lonLatUR.lon;
 
-            var zeropad = function (num) { return ((num < 10) ? '0' : '') + num; }
-            var now = new Date();
-            // 2009-05-01T00:00:00Z
-            var timestring = String(now.getFullYear())
-                + "-" + zeropad(now.getMonth() + 1)
-                + "-" + zeropad(now.getDate())
-                + "T" + zeropad(now.getHours())
-                + ":" + zeropad(now.getMinutes())
-                + ":" + zeropad(now.getSeconds())
-                + "Z";
-            document.forms.extent.max_time.value = timestring;
+            document.forms.extent.max_time.value = dateToString(new Date());
 
             reloadWays();
         }
