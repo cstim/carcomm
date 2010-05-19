@@ -25,9 +25,9 @@ function csCreateMap() {
     // Other defined layers are OpenLayers.Layer.OSM.Mapnik, OpenLayers.Layer.OSM.Maplint and OpenLayers.Layer.OSM.CycleMap
     var layerMapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
     //layerMapnik.attribution = "";
-    if (on_osm_tileloaded)
+    if (typeof(on_osm_tileloaded) != "undefined")
         layerMapnik.events.register("tileloaded", layerMapnik, on_osm_tileloaded);
-    if (on_osm_loadstart)
+    if (typeof(on_osm_loadstart) != "undefined")
         layerMapnik.events.register("loadstart", layerMapnik, on_osm_loadstart);
     map.addLayer(layerMapnik);
 
