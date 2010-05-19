@@ -1,5 +1,7 @@
 <html>
 <head>
+    <title>Car Communication App</title>
+
     <!-- bring in the OpenLayers javascript library
          (here we bring it from the remote site, but you could
          easily serve up this javascript yourself) -->
@@ -89,7 +91,12 @@ function on_interval() {
                   "GPS received: " + diffstr + "s old",
                   "lightgreen");
         if (diffsec >= sendInterval) {
-            currentPos.timestamp = now.getTime();
+            // Uh, we need to create a new object here
+            currentPos = { timestamp: now.getTime(),
+                           coords : {
+                    latitude : currentPos.coords.latitude,
+                    longitude : currentPos.coords.longitude
+                }};
             sendDataMaybe();
         }
     }
