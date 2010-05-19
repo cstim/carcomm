@@ -56,6 +56,12 @@
           serverUrl = value;
         }
 
+function on_osm_loadstart() {
+}
+
+function on_osm_tileloaded() {
+}
+
         function reloadWays() {
             if (layerGpx) {
                 map.removeLayer(layerGpx);
