@@ -1,6 +1,10 @@
 <html>
 <head>
+<meta name="viewport" content="width = device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;">
+
     <title>Car Communication App</title>
+
+    <script src="http://code.google.com/apis/gears/gears_init.js"></script>
 
     <!-- bring in the OpenLayers javascript library
          (here we bring it from the remote site, but you could
@@ -15,7 +19,6 @@
     <!--script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script-->
 
     <!-- The geo-location-javascript code -->
-    <script src="http://code.google.com/apis/gears/gears_init.js"></script>
     <script src="geo.js"></script>
 
     <!-- The personal functions from CS -->
@@ -25,7 +28,7 @@
 
 function csErrorHandler (msg, file, line) {
 	var fullMsg = "General Error: " + msg + " in file: " + file + ":" + line;
-	setStatus("GeneralStatus", "General: " + fullMsg, "red");
+	setStatus("GPSStatus", "General: " + fullMsg, "red");
 	return true;
 };
 
@@ -81,6 +84,19 @@ function on_geo_success(p) {
     loadWays(1, dateToString(new Date()));
 }
 
+function requestPos() {
+    setStatus("GPSStatus", "Requesting GPS...", "lightyellow");
+    geo_position_js.getCurrentPosition(on_geo_success, on_geo_error,
+                                       {enableHighAccuracy : true,
+                                               timeout : 10000,
+                                               maximumAge : 20000});
+    //{enableHighAccuracy : true});
+//                                                   timeout : 1000, // milliseconds
+//                                                   maximumAge : 10000 // milliseconds
+//                                                   });
+    //setStatus("MapStatus", "Map: 3b", "yellow");
+}
+
 function on_interval() {
     if (currentPos) {
         var now = new Date();
@@ -90,6 +106,8 @@ function on_interval() {
         setStatus("GPSStatus",
                   "GPS received: " + diffstr + "s old",
                   "lightgreen");
+        if (diffsec > 7)
+            requestPos();
         if (diffsec >= sendInterval) {
             // Uh, we need to create a new object here
             currentPos = { timestamp: now.getTime(),
@@ -99,6 +117,11 @@ function on_interval() {
                 }};
             sendDataMaybe();
         }
+    } else {
+        setStatus("SendStatus",
+                  "Still Trying GPS",
+                  "yellow");
+        requestPos();
     }
 }
 
@@ -158,7 +181,7 @@ function sendDataNow() {
     http.onreadystatechange = function() { //Call a function when the state changes.
 	if (http.readyState) {
             if (http.status == 200) {
-                setStatus("SendStatus", "Position sent (200)", "lightgreen");
+                setStatus("SendStatus", "Position sent", "lightgreen");
                 //alert(http.responseText);
             } else {
                 setStatus("SendStatus", "Position not sent (" + http.status + ")", "yellow");
@@ -180,36 +203,39 @@ function init() {
 
 	// Did we get our auxiliary files? Then switch General to green
 	if (OpenLayers && csCreateMap) {
-		setStatus("GeneralStatus", null, "lightgreen");
+            //setStatus("GeneralStatus", null, "lightgreen");
 	}
 
         if (typeof(window.google) != "undefined" && typeof(window.google.gears) != "undefined"){
-            setStatus("GPSStatus", "GPS: Google Gears available", "lightyellow");
+            setStatus("GPSStatus", "GPS: Google Gears", "lightyellow");
         } else if (typeof(navigator.geolocation) != "undefined") {
             setStatus("GPSStatus", "GPS: Mozilla Navigator available", "lightyellow");
         } else {
             setStatus("GPSStatus", "GPS: Please install Google Gears, http://gears.google.com", "yellow");
         }
 
+        setStatus("MapStatus", "Map: 1", "yellow");
 	// Define the map layer
 	map = csCreateMap();
 
+        setStatus("MapStatus", "Map: 2", "yellow");
 	// Define the styles for the way slices
 	gpxStyleMap = csCreateGpxStyleMap();
 
+        setStatus("MapStatus", "Map: 3", "yellow");
 
         //determine if the handset has client side geo location capabilities
         if (geo_position_js.init()) {
-            geo_position_js.watchPosition(on_geo_success, on_geo_error);
-//                                           {enableHighAccuracy : true,
-//                                                   timeout : 1000, // milliseconds
-//                                                   maximumAge : 10000 // milliseconds
-//                                                   });
+            setStatus("MapStatus", "Map: 3a", "yellow");
+            requestPos();
+            setStatus("MapStatus", "Map: 3b", "yellow");
         }
         else{
+            setStatus("MapStatus", "Map: 3c", "yellow");
             on_geo_error({message: "No GPS available"});
         }
 
+        setStatus("MapStatus", "Map: 4", "yellow");
 	// Choose Hamburg as center
 	zoomToHamburg();
 
@@ -218,6 +244,13 @@ function init() {
 	loadWays(1, dateToString(new Date()));
 
         setInterval(on_interval, 1000);
+
+        if (geo_position_js.init()) {
+            requestPos();
+        } else {
+            on_geo_error({message: "No GPS available"});
+        }
+
 }
 
 function setServerUrl(value) {
@@ -261,13 +294,14 @@ function on_gpx_loadstart() {
 function on_gpx_loadend() {
     var numWays = this.features.length;
     if (numWays > 0)
-        setStatus("SliceStatus", "Way Lines: Received " + numWays + " lines", "lightgreen");
+        setStatus("SliceStatus", "Ways: Received " + numWays + " lines", "lightgreen");
     else
-        setStatus("SliceStatus", "Way Lines: No lines received", "yellow");
+        setStatus("SliceStatus", "Ways: No lines received", "yellow");
 }
 
 function on_osm_loadstart() {
     setStatus("MapStatus", "Loading Map...", "yellow");
+    setStatus("SendStatus", "", "lightyellow");
 }
 
 function on_osm_tileloaded() {
@@ -325,11 +359,10 @@ function setStatus(id, text, bgcolor) {
 <body onload="init();">
 
 <table border="1" width="100%"><tr>
-	<td align="center" id="GeneralStatus" bgcolor="yellow">General</td>
-	<td align="center" id="GPSStatus" bgcolor="lightyellow">GPS Receiver</td>
-	<td align="center" id="MapStatus" bgcolor="yellow">Map Status</td>
-	<td align="center" id="SliceStatus" bgcolor="lightyellow">Way Lines</td>
-	<td align="center" id="SendStatus" onclick="sendDataNow();">Sending to Server</td>
+	<td align="center" id="GPSStatus" bgcolor="lightyellow" onclick="requestPos();">GPS</td>
+	<td align="center" id="MapStatus" bgcolor="yellow">Map</td>
+	<td align="center" id="SliceStatus" bgcolor="lightyellow">Ways</td>
+	<td align="center" id="SendStatus" onclick="sendDataNow();">Sending</td>
 </tr></table>
 
 <!-- define a DIV into which the map will appear. Make it take up 400 pixels -->
