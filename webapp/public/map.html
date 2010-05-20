@@ -183,6 +183,14 @@ function init() {
 		setStatus("GeneralStatus", null, "lightgreen");
 	}
 
+        if (typeof(window.google) != "undefined" && typeof(window.google.gears) != "undefined"){
+            setStatus("GPSStatus", "GPS: Google Gears available", "lightyellow");
+        } else if (typeof(navigator.geolocation) != "undefined") {
+            setStatus("GPSStatus", "GPS: Mozilla Navigator available", "lightyellow");
+        } else {
+            setStatus("GPSStatus", "GPS: Please install Google Gears, http://gears.google.com", "yellow");
+        }
+
 	// Define the map layer
 	map = csCreateMap();
 
