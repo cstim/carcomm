@@ -104,7 +104,7 @@ class SlicesController < ApplicationController
     @slice.destroy
 
     respond_to do |format|
-      format.html { redirect_to(slices_url) }
+      format.html { redirect_to(:back) }
       format.xml  { head :ok }
     end
   end
