@@ -9,8 +9,8 @@
     <!-- bring in the OpenLayers javascript library
          (here we bring it from the remote site, but you could
          easily serve up this javascript yourself) -->
-    <script src="OpenLayers.js"></script>
-    <!--script src="http://www.openlayers.org/api/OpenLayers.js"></script-->
+    <!--script src="OpenLayers.js"></script-->
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
  
     <!-- bring in the OpenStreetMap OpenLayers layers.
          Using this hosted file will make sure we are kept up
@@ -29,6 +29,11 @@
 function csErrorHandler (msg, file, line) {
 	var fullMsg = "General Error: " + msg + " in file: " + file + ":" + line;
 	setStatus("GPSStatus", "General: " + fullMsg, "red");
+
+        var span2 = document.getElementById("GeneralError");
+	if (span2) {
+            span2.firstChild.nodeValue = fullMsg;
+	}
 	return true;
 };
 
@@ -81,10 +86,13 @@ function on_geo_success(p) {
     setLatLon(p.coords.latitude, p.coords.longitude);
     currentPos = p;
     sendDataMaybe();
-    loadWays(1, dateToString(new Date()));
+    loadWaysInterval();
 }
 
 function requestPos() {
+    if (!document.forms.checkboxes.elements.GPSCheck.checked) {
+        setStatus("GPSStatus", "GPS disabled", "yellow");
+    } else {
     setStatus("GPSStatus", "Requesting GPS...", "lightyellow");
     geo_position_js.getCurrentPosition(on_geo_success, on_geo_error,
                                        {enableHighAccuracy : true,
@@ -95,9 +103,15 @@ function requestPos() {
 //                                                   maximumAge : 10000 // milliseconds
 //                                                   });
     //setStatus("MapStatus", "Map: 3b", "yellow");
+    }
 }
 
 function on_interval() {
+    if (!document.forms.checkboxes.elements.GPSCheck.checked) {
+        //setStatus("GPSStatus", "GPS disabled", "yellow");
+        return;
+    }
+
     if (currentPos) {
         var now = new Date();
         var diffmsec = now.getTime() - currentPos.timestamp;
@@ -138,6 +152,10 @@ function sendDataMaybe() {
 }
 
 function sendDataNow() {
+    if (!document.forms.checkboxes.elements.SendCheck.checked) {
+        setStatus("SendStatus", "Sending disabled", "yellow");
+        return;
+    }
     if (!currentPos) {
         setStatus("SendStatus", "No Valid Positions to send", "red");
         return;
@@ -242,9 +260,9 @@ function init() {
 
 	initialized = 1;
 
-	loadWays(1, dateToString(new Date()));
+	loadWaysInterval();
 
-        setInterval(on_interval, 1000);
+        setInterval(on_interval, 2500); // milliseconds
 
         if (geo_position_js.init()) {
             requestPos();
@@ -256,6 +274,16 @@ function init() {
 
 function setServerUrl(value) {
 	serverUrl = value;
+}
+
+function loadWaysInterval() {
+    if (!document.forms.checkboxes.elements.SliceCheck.checked) {
+        setStatus("SliceStatus", "Ways disabled", "yellow");
+        return;
+    }
+
+    // FIXME: Calculate correct date interval here
+    loadWays(1, dateToString(new Date()));
 }
 
 function loadWays(min_time, max_time) {
@@ -341,10 +369,11 @@ function loadWaysLayer(min_time, max_time) {
 }
 
 function setStatus(id, text, bgcolor) {
-	var td = document.getElementById(id);
-	if (td) {
+      var td = document.getElementById(id);
+      var div = document.getElementById(id + "Text");
+	if (td && div) {
 		if (text)
-			td.firstChild.nodeValue = text;
+			div.firstChild.nodeValue = text;
 		if (bgcolor)
 			td.setAttribute("bgcolor", bgcolor);
 	} else {
@@ -359,15 +388,30 @@ function setStatus(id, text, bgcolor) {
 <!-- body.onload is called once the page is loaded (call the 'init' function) -->
 <body onload="init();">
 
-<table border="1" width="100%"><tr>
-	<td align="center" id="GPSStatus" bgcolor="lightyellow" onclick="requestPos();">GPS</td>
-	<td align="center" id="MapStatus" bgcolor="yellow">Map</td>
-	<td align="center" id="SliceStatus" bgcolor="lightyellow">Ways</td>
-	<td align="center" id="SendStatus" onclick="sendDataNow();">Sending</td>
-</tr></table>
+<form name="checkboxes" action="">
+      <table border="1" width="100%"><tr>
+          <td align="center" id="GPSStatus" bgcolor="lightyellow">
+            <input type="checkbox" name="GPSCheck" value="1" checked="checked" onchange="requestPos();">
+            <span id="GPSStatusText" onclick="requestPos();">GPS</span>
+          </td>
+          <td align="center" id="MapStatus" bgcolor="yellow">
+            <span id="MapStatusText">Map</span>
+          </td>
+          <td align="center" id="SliceStatus" bgcolor="lightyellow">
+            <input type="checkbox" name="SliceCheck" value="1" checked="checked" onchange="loadWaysInterval();">
+            <span id="SliceStatusText" onclick="loadWaysInterval();">Ways</span>
+          </td>
+          <td align="center" id="SendStatus">
+            <input type="checkbox" name="SendCheck" value="1" checked="checked" onchange="sendDataNow();">
+            <span id="SendStatusText" onclick="sendDataNow();">Sending</span>
+          </td>
+        </tr>
+      </table>
+</form>
 
 <!-- define a DIV into which the map will appear. Make it take up 400 pixels -->
 <div id="map"></div>
+<span name="GeneralError"></span>
 
 </body>
 </html>
