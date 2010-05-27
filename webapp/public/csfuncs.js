@@ -130,12 +130,12 @@ function csCreateLayerGpx(serverUrl, min_lat, max_lat,
 function dateToString(date) {
     var zeropad = function (num) { return ((num < 10) ? '0' : '') + num; }
     // 2009-05-01T00:00:00Z
-    var timestring = String(date.getFullYear())
-        + "-" + zeropad(date.getMonth() + 1)
-        + "-" + zeropad(date.getDate())
-        + "T" + zeropad(date.getHours())
-        + ":" + zeropad(date.getMinutes())
-        + ":" + zeropad(date.getSeconds())
+    var timestring = String(date.getUTCFullYear())
+        + "-" + zeropad(date.getUTCMonth() + 1)
+        + "-" + zeropad(date.getUTCDate())
+        + "T" + zeropad(date.getUTCHours())
+        + ":" + zeropad(date.getUTCMinutes())
+        + ":" + zeropad(date.getUTCSeconds())
         + "Z";
     return timestring;
 }
