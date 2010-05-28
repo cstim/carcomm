@@ -73,27 +73,23 @@ function zoomToHamburg() {
 	zoomTo(53.5514, 9.99, 12);
 }
 
-function zoomToMuenchen() {
-	zoomTo(48.1361, 11.5376, 12);
-}
-
 function on_geo_error(p) {
     setStatus("GPSStatus", "GPS Error: " + p.message, "red");
 }
 
 function on_geo_success(p) {
-    setStatus("GPSStatus", "GPS received", "lightgreen");
+    setStatus("GPSStatus", "GPS ok", "lightgreen");
     setLatLon(p.coords.latitude, p.coords.longitude);
     currentPos = p;
     sendDataMaybe();
-    loadWaysInterval();
+    loadWaysDefault();
 }
 
 function requestPos() {
     if (!document.forms.checkboxes.elements.GPSCheck.checked) {
         setStatus("GPSStatus", "GPS disabled", "yellow");
     } else {
-    setStatus("GPSStatus", "Requesting GPS...", "lightyellow");
+    setStatus("GPSStatus", "Request GPS...", "lightgreen");
     geo_position_js.getCurrentPosition(on_geo_success, on_geo_error,
                                        {enableHighAccuracy : true,
                                                timeout : 10000,
@@ -118,7 +114,7 @@ function on_interval() {
         var diffsec = diffmsec / 1000;
         var diffstr = diffsec.toFixed(1);
         setStatus("GPSStatus",
-                  "GPS received: " + diffstr + "s old",
+                  "GPS ok; " + diffstr + "s old",
                   "lightgreen");
         if (diffsec > 7)
             requestPos();
@@ -133,7 +129,7 @@ function on_interval() {
         }
     } else {
         setStatus("SendStatus",
-                  "Still Trying GPS",
+                  "Waiting for GPS",
                   "yellow");
         requestPos();
     }
@@ -163,6 +159,8 @@ function sendDataNow() {
     if (!lastPos) {
         lastPos = currentPos;
     }
+    setStatus("SendStatus", "Sending...", "lightgreen");
+
     var endTimestamp = currentPos.timestamp;
     var diffsec = (endTimestamp - lastPos.timestamp) / 1000;
     if (diffsec == 0) {
@@ -233,34 +231,34 @@ function init() {
             setStatus("GPSStatus", "GPS: Please install Google Gears, http://gears.google.com", "yellow");
         }
 
-        setStatus("MapStatus", "Map: 1", "yellow");
+        //setStatus("MapStatus", "Map: 1", "yellow");
 	// Define the map layer
 	map = csCreateMap();
 
-        setStatus("MapStatus", "Map: 2", "yellow");
+        //setStatus("MapStatus", "Map: 2", "yellow");
 	// Define the styles for the way slices
 	gpxStyleMap = csCreateGpxStyleMap();
 
-        setStatus("MapStatus", "Map: 3", "yellow");
+        //setStatus("MapStatus", "Map: 3", "yellow");
 
         //determine if the handset has client side geo location capabilities
         if (geo_position_js.init()) {
-            setStatus("MapStatus", "Map: 3a", "yellow");
+            //setStatus("MapStatus", "Map: 3a", "yellow");
             requestPos();
-            setStatus("MapStatus", "Map: 3b", "yellow");
+            //setStatus("MapStatus", "Map: 3b", "yellow");
         }
         else{
-            setStatus("MapStatus", "Map: 3c", "yellow");
+            //setStatus("MapStatus", "Map: 3c", "yellow");
             on_geo_error({message: "No GPS available"});
         }
 
-        setStatus("MapStatus", "Map: 4", "yellow");
+        //setStatus("MapStatus", "Map: 4", "yellow");
 	// Choose Hamburg as center
 	zoomToHamburg();
 
 	initialized = 1;
 
-	loadWaysInterval();
+	loadWaysDefault();
 
         setInterval(on_interval, 2500); // milliseconds
 
@@ -276,14 +274,16 @@ function setServerUrl(value) {
 	serverUrl = value;
 }
 
-function loadWaysInterval() {
+function loadWaysDefault() {
     if (!document.forms.checkboxes.elements.SliceCheck.checked) {
         setStatus("SliceStatus", "Ways disabled", "yellow");
         return;
     }
 
-    // FIXME: Calculate correct date interval here
-    loadWays(1, dateToString(new Date()));
+    var num_minutes = 20220; // 2 weeks + 1 hour
+    var max_time = new Date();
+    var min_time = new Date(max_time.getDate() - num_minutes * 60 * 1000);
+    loadWays(dateToString(min_time), dateToString(max_time));
 }
 
 function loadWays(min_time, max_time) {
@@ -317,28 +317,29 @@ function loadWays(min_time, max_time) {
 }
 
 function on_gpx_loadstart() {
-    setStatus("SliceStatus", "Loading ways... " + this.features.length, "lightyellow");
+    var numWays = this.features.length;
+    setStatus("SliceStatus", "Loading... " + numWays, "lightyellow");
 }
 
 function on_gpx_loadend() {
     var numWays = this.features.length;
     if (numWays > 0)
-        setStatus("SliceStatus", "Ways: Received " + numWays + " lines", "lightgreen");
+        setStatus("SliceStatus", "Ways ok: " + numWays + " lines", "lightgreen");
     else
-        setStatus("SliceStatus", "Ways: No lines received", "yellow");
+        setStatus("SliceStatus", "No Ways received", "yellow");
 }
 
 function on_osm_loadstart() {
-    setStatus("MapStatus", "Loading Map...", "yellow");
+    setStatus("MapStatus", "Loading...", "yellow");
     setStatus("SendStatus", "", "lightyellow");
 }
 
 function on_osm_tileloaded() {
     var numRemainingTiles = this.numLoadingTiles;
     if (numRemainingTiles > 0)
-        setStatus("MapStatus", "Loading map; " + this.numLoadingTiles + " images remaining", "lightgreen");
+        setStatus("MapStatus", "Loading; " + this.numLoadingTiles + " images remaining", "lightgreen");
     else
-        setStatus("MapStatus", "Map Loaded", "lightgreen");
+        setStatus("MapStatus", "Loaded", "lightgreen");
 }
 
 function loadWaysLayer(min_time, max_time) {
@@ -398,8 +399,8 @@ function setStatus(id, text, bgcolor) {
             <span id="MapStatusText">Map</span>
           </td>
           <td align="center" id="SliceStatus" bgcolor="lightyellow">
-            <input type="checkbox" name="SliceCheck" value="1" checked="checked" onchange="loadWaysInterval();">
-            <span id="SliceStatusText" onclick="loadWaysInterval();">Ways</span>
+            <input type="checkbox" name="SliceCheck" value="1" checked="checked" onchange="loadWaysDefault();">
+            <span id="SliceStatusText" onclick="loadWaysDefault();">Ways</span>
           </td>
           <td align="center" id="SendStatus">
             <input type="checkbox" name="SendCheck" value="1" checked="checked" onchange="sendDataNow();">
