@@ -287,33 +287,21 @@ function loadWaysDefault() {
 }
 
 function loadWays(min_time, max_time) {
-	if (useLayerGpx1) {
-		if (layerGpx2) {
-			layerGpx2.visibility = true;
-		}
-		if (layerGpx1) {
-			map.removeLayer(layerGpx1);
-			layerGpx1.destroy();
-		}
-		layerGpx1 = loadWaysLayer(min_time, max_time);
-		map.addLayer(layerGpx1);
-		layerGpx1.visibility = false;
-
-		useLayerGpx1 = false;
-	} else {
-		if (layerGpx1) {
-			layerGpx1.visibility = true;
-		}
-		if (layerGpx2) {
-			map.removeLayer(layerGpx2);
-			layerGpx2.destroy();
-		}
-		layerGpx2 = loadWaysLayer(min_time, max_time);
-		map.addLayer(layerGpx2);
-		layerGpx2.visibility = false;
-
-		useLayerGpx1 = true;
-	}
+    if (useLayerGpx1) {
+        useLayerGpx1 = false;
+        if (layerGpx1) {
+            layerGpx1.destroy();
+        }
+        layerGpx1 = loadWaysLayer(min_time, max_time);
+        map.addLayer(layerGpx1);
+    } else {
+        useLayerGpx1 = true;
+        if (layerGpx2) {
+            layerGpx2.destroy();
+        }
+        layerGpx2 = loadWaysLayer(min_time, max_time);
+        map.addLayer(layerGpx2);
+    }
 }
 
 function on_gpx_loadstart() {
@@ -327,6 +315,16 @@ function on_gpx_loadend() {
         setStatus("SliceStatus", "Ways ok: " + numWays + " lines", "lightgreen");
     else
         setStatus("SliceStatus", "No Ways received", "yellow");
+
+    if (useLayerGpx1) {
+        if (layerGpx1) {
+            layerGpx1.destroy();
+        }
+    } else {
+        if (layerGpx2) {
+            layerGpx2.destroy();
+        }
+    }
 }
 
 function on_osm_loadstart() {
