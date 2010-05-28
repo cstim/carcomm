@@ -24,21 +24,37 @@
     <!-- The personal functions from CS -->
     <script src="csfuncs.js"></script>
 
+    <!-- ------------------------------------------------------ -->
     <script type="text/javascript">
 
-function csErrorHandler (msg, file, line) {
-	var fullMsg = "General Error: " + msg + " in file: " + file + ":" + line;
-	setStatus("GPSStatus", "General: " + fullMsg, "red");
+function setStatus(id, text, bgcolor) {
+    var td = document.getElementById(id);
+    var div = document.getElementById(id + "Text");
+    if (td && div) {
+        if (text) {
+            div.firstChild.nodeValue = text;
+        }
+        if (bgcolor) {
+            td.setAttribute("bgcolor", bgcolor);
+        }
+    } else {
+        window.onerror ("Function setStatus() was called with non-existing ID of html element, \"" + id + "\"");
+    }
+}
 
-        var span2 = document.getElementById("GeneralError");
-	if (span2) {
-            span2.firstChild.nodeValue = fullMsg;
-	}
-	return true;
-};
+function csErrorHandler (msg, file, line) {
+    var fullMsg = "General Error: " + msg + " in file: " + file + ":" + line;
+    setStatus("GPSStatus", "General: " + fullMsg, "red");
+
+    var span2 = document.getElementById("GeneralError");
+    if (span2) {
+        span2.firstChild.nodeValue = fullMsg;
+    }
+    return true;
+}
 
 OpenLayers.Util.onImageLoadError = function() {
-	setStatus("MapStatus", "Map: Cannot load images", "red");
+    setStatus("MapStatus", "Map: Cannot load images", "red");
 };
  
 // Complex object of type OpenLayers.Map
@@ -58,93 +74,100 @@ window.onerror = csErrorHandler;
 
 
 function setLatLon(lat, lon) {
-	var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
-	var currentZoom = map.getZoom();
-	map.setCenter (lonLat, currentZoom);
+    var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+    var currentZoom = map.getZoom();
+    map.setCenter (lonLat, currentZoom);
 }
 
 function zoomTo(lat, lon, zoom) {
-	var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
-	map.setCenter (lonLat, zoom);
+    var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+    map.setCenter (lonLat, zoom);
 }
 
 function zoomToHamburg() {
-	// Start position for the map (hardcoded here for simplicity)
-	zoomTo(53.5514, 9.99, 12);
+    // Start position for the map (hardcoded here for simplicity)
+    zoomTo(53.5514, 9.99, 12);
 }
 
-function on_geo_error(p) {
-    setStatus("GPSStatus", "GPS Error: " + p.message, "red");
+function on_gpx_loadstart() {
+    var numWays = this.features.length;
+    setStatus("SliceStatus", "Loading... " + numWays, "lightyellow");
 }
 
-function on_geo_success(p) {
-    setStatus("GPSStatus", "GPS ok", "lightgreen");
-    setLatLon(p.coords.latitude, p.coords.longitude);
-    currentPos = p;
-    sendDataMaybe();
-    loadWaysDefault();
-}
-
-function requestPos() {
-    if (!document.forms.checkboxes.elements.GPSCheck.checked) {
-        setStatus("GPSStatus", "GPS disabled", "yellow");
+function on_gpx_loadend() {
+    var numWays = this.features.length;
+    if (numWays > 0) {
+        setStatus("SliceStatus", "Ways ok: " + numWays + " lines", "lightgreen");
     } else {
-    setStatus("GPSStatus", "Request GPS...", "lightgreen");
-    geo_position_js.getCurrentPosition(on_geo_success, on_geo_error,
-                                       {enableHighAccuracy : true,
-                                               timeout : 10000,
-                                               maximumAge : 20000});
-    //{enableHighAccuracy : true});
-//                                                   timeout : 1000, // milliseconds
-//                                                   maximumAge : 10000 // milliseconds
-//                                                   });
-    //setStatus("MapStatus", "Map: 3b", "yellow");
+        setStatus("SliceStatus", "No Ways received", "yellow");
+    }
+
+    if (useLayerGpx1) {
+        if (layerGpx1) {
+            layerGpx1.destroy();
+        }
+    } else {
+        if (layerGpx2) {
+            layerGpx2.destroy();
+        }
     }
 }
 
-function on_interval() {
-    if (!document.forms.checkboxes.elements.GPSCheck.checked) {
-        //setStatus("GPSStatus", "GPS disabled", "yellow");
+function loadWaysLayer(min_time, max_time) {
+    var lonLatUR = map.getLonLatFromPixel(new OpenLayers.Pixel(0,0))
+        .transform(map.getProjectionObject(),
+                   new OpenLayers.Projection("EPSG:4326"));
+
+    var mapSize = map.getSize();
+    var lonLatLL = map.getLonLatFromPixel(new OpenLayers.Pixel(mapSize.w, mapSize.h))
+        .transform(map.getProjectionObject(),
+                   new OpenLayers.Projection("EPSG:4326"));
+
+    var min_lat = lonLatLL.lat;
+    var max_lon = lonLatLL.lon;
+    var max_lat = lonLatUR.lat;
+    var min_lon = lonLatUR.lon;
+
+    // Add the Layer with GPX Track
+    var layerGpx = csCreateLayerGpx(serverUrl,
+                                    min_lat, max_lat,
+                                    min_lon, max_lon,
+                                    min_time, max_time);
+
+    layerGpx.events.register("loadend", layerGpx, on_gpx_loadend);
+    layerGpx.events.register("loadstart", layerGpx, on_gpx_loadstart);
+
+    return layerGpx;
+}
+
+function loadWays(min_time, max_time) {
+    if (useLayerGpx1) {
+        useLayerGpx1 = false;
+        if (layerGpx1) {
+            layerGpx1.destroy();
+        }
+        layerGpx1 = loadWaysLayer(min_time, max_time);
+        map.addLayer(layerGpx1);
+    } else {
+        useLayerGpx1 = true;
+        if (layerGpx2) {
+            layerGpx2.destroy();
+        }
+        layerGpx2 = loadWaysLayer(min_time, max_time);
+        map.addLayer(layerGpx2);
+    }
+}
+
+function loadWaysDefault() {
+    if (!document.forms.checkboxes.elements.SliceCheck.checked) {
+        setStatus("SliceStatus", "Ways disabled", "yellow");
         return;
     }
 
-    if (currentPos) {
-        var now = new Date();
-        var diffmsec = now.getTime() - currentPos.timestamp;
-        var diffsec = diffmsec / 1000;
-        var diffstr = diffsec.toFixed(1);
-        setStatus("GPSStatus",
-                  "GPS ok; " + diffstr + "s old",
-                  "lightgreen");
-        if (diffsec > 7)
-            requestPos();
-        if (diffsec >= sendInterval) {
-            // Uh, we need to create a new object here
-            currentPos = { timestamp: now.getTime(),
-                           coords : {
-                    latitude : currentPos.coords.latitude,
-                    longitude : currentPos.coords.longitude
-                }};
-            sendDataMaybe();
-        }
-    } else {
-        setStatus("SendStatus",
-                  "Waiting for GPS",
-                  "yellow");
-        requestPos();
-    }
-}
-
-function sendDataMaybe() {
-    if (currentPos) {
-        if (!lastPos)
-            lastPos = currentPos;
-        var diffmsec = currentPos.timestamp - lastPos.timestamp;
-        var diffsec = diffmsec / 1000;
-        if (diffsec >= sendInterval) {
-            sendDataNow();
-        }
-    }
+    var num_minutes = 20220; // 2 weeks + 1 hour
+    var max_time = new Date();
+    var min_time = new Date(max_time.getDate() - num_minutes * 60 * 1000);
+    loadWays(dateToString(min_time), dateToString(max_time));
 }
 
 function sendDataNow() {
@@ -204,127 +227,150 @@ function sendDataNow() {
                 //alert(http.responseText);
             }
 	}
-    }
+    };
     http.send(params);
 
     //alert("Will send: " + url + "?" + params);
     lastPos = currentPos;
 }
 
+function sendDataMaybe() {
+    if (currentPos) {
+        if (!lastPos) {
+            lastPos = currentPos;
+        }
+        var diffmsec = currentPos.timestamp - lastPos.timestamp;
+        var diffsec = diffmsec / 1000;
+        if (diffsec >= sendInterval) {
+            sendDataNow();
+        }
+    }
+}
+
+function on_geo_error(p) {
+    setStatus("GPSStatus", "GPS Error: " + p.message, "red");
+}
+
+function on_geo_success(p) {
+    setStatus("GPSStatus", "GPS ok", "lightgreen");
+    setLatLon(p.coords.latitude, p.coords.longitude);
+    currentPos = p;
+    sendDataMaybe();
+    loadWaysDefault();
+}
+
+function requestPos() {
+    if (!document.forms.checkboxes.elements.GPSCheck.checked) {
+        setStatus("GPSStatus", "GPS disabled", "yellow");
+    } else {
+    setStatus("GPSStatus", "Request GPS...", "lightgreen");
+    geo_position_js.getCurrentPosition(on_geo_success, on_geo_error,
+                                       {enableHighAccuracy : true,
+                                               timeout : 15000,
+                                               maximumAge : 30000});
+    //{enableHighAccuracy : true});
+//                                                   timeout : 1000, // milliseconds
+//                                                   maximumAge : 10000 // milliseconds
+//                                                   });
+    //setStatus("MapStatus", "Map: 3b", "yellow");
+    }
+}
+
+function on_interval() {
+    if (!document.forms.checkboxes.elements.GPSCheck.checked) {
+        //setStatus("GPSStatus", "GPS disabled", "yellow");
+        return;
+    }
+
+    if (currentPos) {
+        var now = new Date();
+        var diffmsec = now.getTime() - currentPos.timestamp;
+        var diffsec = diffmsec / 1000;
+        var diffstr = diffsec.toFixed(1);
+        setStatus("GPSStatus",
+                  "GPS ok; " + diffstr + "s old",
+                  "lightgreen");
+        if (diffsec > 7) {
+            requestPos();
+        }
+        if (diffsec >= sendInterval) {
+            // Uh, we need to create a new object here
+            currentPos = { timestamp: now.getTime(),
+                           coords : {
+                    latitude : currentPos.coords.latitude,
+                    longitude : currentPos.coords.longitude
+                }};
+            sendDataMaybe();
+        }
+    } else {
+        setStatus("SendStatus",
+                  "Waiting for GPS",
+                  "yellow");
+        requestPos();
+    }
+}
+
 //Initialise the 'map' object
 function init() {
  
-        sendInterval = 60;
-	serverUrl = "";
-	useLayerGpx1 = true;
+    sendInterval = 60;
+    serverUrl = "";
+    useLayerGpx1 = true;
 
-	// Did we get our auxiliary files? Then switch General to green
-	if (OpenLayers && csCreateMap) {
-            //setStatus("GeneralStatus", null, "lightgreen");
-	}
+    // Did we get our auxiliary files? Then switch General to green
+    if (OpenLayers && csCreateMap) {
+        //setStatus("GeneralStatus", null, "lightgreen");
+    }
 
-        if (typeof(window.google) != "undefined" && typeof(window.google.gears) != "undefined"){
-            setStatus("GPSStatus", "GPS: Google Gears", "lightyellow");
-        } else if (typeof(navigator.geolocation) != "undefined") {
-            setStatus("GPSStatus", "GPS: Mozilla Navigator available", "lightyellow");
-        } else {
-            setStatus("GPSStatus", "GPS: Please install Google Gears, http://gears.google.com", "yellow");
-        }
+    if (typeof(window.google) != "undefined" && typeof(window.google.gears) != "undefined"){
+        setStatus("GPSStatus", "GPS: Google Gears", "lightyellow");
+    } else if (typeof(navigator.geolocation) != "undefined") {
+        setStatus("GPSStatus", "GPS: Mozilla Navigator available", "lightyellow");
+    } else {
+        setStatus("GPSStatus", "GPS: Please install Google Gears, http://gears.google.com", "yellow");
+    }
 
-        //setStatus("MapStatus", "Map: 1", "yellow");
-	// Define the map layer
-	map = csCreateMap();
+    //setStatus("MapStatus", "Map: 1", "yellow");
+    // Define the map layer
+    map = csCreateMap();
 
-        //setStatus("MapStatus", "Map: 2", "yellow");
-	// Define the styles for the way slices
-	gpxStyleMap = csCreateGpxStyleMap();
+    //setStatus("MapStatus", "Map: 2", "yellow");
+    // Define the styles for the way slices
+    gpxStyleMap = csCreateGpxStyleMap();
 
-        //setStatus("MapStatus", "Map: 3", "yellow");
+    //setStatus("MapStatus", "Map: 3", "yellow");
 
-        //determine if the handset has client side geo location capabilities
-        if (geo_position_js.init()) {
-            //setStatus("MapStatus", "Map: 3a", "yellow");
-            requestPos();
-            //setStatus("MapStatus", "Map: 3b", "yellow");
-        }
-        else{
-            //setStatus("MapStatus", "Map: 3c", "yellow");
-            on_geo_error({message: "No GPS available"});
-        }
+    //determine if the handset has client side geo location capabilities
+    if (geo_position_js.init()) {
+        //setStatus("MapStatus", "Map: 3a", "yellow");
+        requestPos();
+        //setStatus("MapStatus", "Map: 3b", "yellow");
+    }
+    else{
+        //setStatus("MapStatus", "Map: 3c", "yellow");
+        on_geo_error({message: "No GPS available"});
+    }
 
-        //setStatus("MapStatus", "Map: 4", "yellow");
-	// Choose Hamburg as center
-	zoomToHamburg();
+    //setStatus("MapStatus", "Map: 4", "yellow");
+    // Choose Hamburg as center
+    zoomToHamburg();
 
-	initialized = 1;
+    initialized = 1;
 
-	loadWaysDefault();
+    loadWaysDefault();
 
-        setInterval(on_interval, 2500); // milliseconds
+    setInterval(on_interval, 2500); // milliseconds
 
-        if (geo_position_js.init()) {
-            requestPos();
-        } else {
-            on_geo_error({message: "No GPS available"});
-        }
+    if (geo_position_js.init()) {
+        requestPos();
+    } else {
+        on_geo_error({message: "No GPS available"});
+    }
 
 }
 
 function setServerUrl(value) {
-	serverUrl = value;
-}
-
-function loadWaysDefault() {
-    if (!document.forms.checkboxes.elements.SliceCheck.checked) {
-        setStatus("SliceStatus", "Ways disabled", "yellow");
-        return;
-    }
-
-    var num_minutes = 20220; // 2 weeks + 1 hour
-    var max_time = new Date();
-    var min_time = new Date(max_time.getDate() - num_minutes * 60 * 1000);
-    loadWays(dateToString(min_time), dateToString(max_time));
-}
-
-function loadWays(min_time, max_time) {
-    if (useLayerGpx1) {
-        useLayerGpx1 = false;
-        if (layerGpx1) {
-            layerGpx1.destroy();
-        }
-        layerGpx1 = loadWaysLayer(min_time, max_time);
-        map.addLayer(layerGpx1);
-    } else {
-        useLayerGpx1 = true;
-        if (layerGpx2) {
-            layerGpx2.destroy();
-        }
-        layerGpx2 = loadWaysLayer(min_time, max_time);
-        map.addLayer(layerGpx2);
-    }
-}
-
-function on_gpx_loadstart() {
-    var numWays = this.features.length;
-    setStatus("SliceStatus", "Loading... " + numWays, "lightyellow");
-}
-
-function on_gpx_loadend() {
-    var numWays = this.features.length;
-    if (numWays > 0)
-        setStatus("SliceStatus", "Ways ok: " + numWays + " lines", "lightgreen");
-    else
-        setStatus("SliceStatus", "No Ways received", "yellow");
-
-    if (useLayerGpx1) {
-        if (layerGpx1) {
-            layerGpx1.destroy();
-        }
-    } else {
-        if (layerGpx2) {
-            layerGpx2.destroy();
-        }
-    }
+    serverUrl = value;
 }
 
 function on_osm_loadstart() {
@@ -334,53 +380,16 @@ function on_osm_loadstart() {
 
 function on_osm_tileloaded() {
     var numRemainingTiles = this.numLoadingTiles;
-    if (numRemainingTiles > 0)
+    if (numRemainingTiles > 0) {
         setStatus("MapStatus", "Loading; " + this.numLoadingTiles + " images remaining", "lightgreen");
-    else
+    }
+    else {
         setStatus("MapStatus", "Loaded", "lightgreen");
-}
-
-function loadWaysLayer(min_time, max_time) {
-	var lonLatUR = map.getLonLatFromPixel(new OpenLayers.Pixel(0,0))
-		.transform(map.getProjectionObject(),
-				   new OpenLayers.Projection("EPSG:4326"));
-
-	var mapSize = map.getSize();
-	var lonLatLL = map.getLonLatFromPixel(new OpenLayers.Pixel(mapSize.w, mapSize.h))
-		.transform(map.getProjectionObject(),
-				   new OpenLayers.Projection("EPSG:4326"));
-
-	var min_lat = lonLatLL.lat;
-	var max_lon = lonLatLL.lon;
-	var max_lat = lonLatUR.lat;
-	var min_lon = lonLatUR.lon;
-
-	// Add the Layer with GPX Track
-	var layerGpx = csCreateLayerGpx(serverUrl,
-                                        min_lat, max_lat,
-                                        min_lon, max_lon,
-                                        min_time, max_time);
-
-        layerGpx.events.register("loadend", layerGpx, on_gpx_loadend);
-        layerGpx.events.register("loadstart", layerGpx, on_gpx_loadstart);
-
-	return layerGpx;
-}
-
-function setStatus(id, text, bgcolor) {
-      var td = document.getElementById(id);
-      var div = document.getElementById(id + "Text");
-	if (td && div) {
-		if (text)
-			div.firstChild.nodeValue = text;
-		if (bgcolor)
-			td.setAttribute("bgcolor", bgcolor);
-	} else {
-		window.onerror ("Function setStatus() was called with non-existing ID of html element, \"" + id + "\"");
-	}
+    }
 }
 
     </script>
+    <!-- ------------------------------------------------------ -->
 
 </head>
 
