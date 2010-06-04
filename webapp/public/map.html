@@ -44,7 +44,7 @@ function setStatus(id, text, bgcolor) {
 
 function csErrorHandler (msg, file, line) {
     var fullMsg = "General Error: " + msg + " in file: " + file + ":" + line;
-    setStatus("GPSStatus", "General: " + fullMsg, "red");
+    setStatus("GPSStatus", "General", "red");
 
     var span2 = document.getElementById("GeneralError");
     if (span2) {
@@ -248,7 +248,7 @@ function sendDataMaybe() {
 }
 
 function on_geo_error(p) {
-    setStatus("GPSStatus", "GPS Error: " + p.message, "red");
+    setStatus("GPSStatus", "GPS Error", "red");
 }
 
 function on_geo_success(p) {
@@ -288,7 +288,7 @@ function on_interval() {
         var diffsec = diffmsec / 1000;
         var diffstr = diffsec.toFixed(1);
         setStatus("GPSStatus",
-                  "GPS ok; " + diffstr + "s old",
+                  "GPS ok", //; " + diffstr + "s old",
                   "lightgreen");
         if (diffsec > 7) {
             requestPos();
@@ -388,6 +388,12 @@ function on_osm_tileloaded() {
     }
 }
 
+function toggleCheckBox(cbox) {
+    if (cbox) {
+        cbox.checked = !cbox.checked;
+    }
+}
+
     </script>
     <!-- ------------------------------------------------------ -->
 
@@ -398,20 +404,20 @@ function on_osm_tileloaded() {
 
 <form name="checkboxes" action="">
       <table border="1" width="100%"><tr>
-          <td align="center" id="GPSStatus" bgcolor="lightyellow">
+          <td align="center" id="GPSStatus" bgcolor="lightyellow" onclick="toggleCheckBox(document.forms.checkboxes.elements.GPSCheck);">
             <input type="checkbox" name="GPSCheck" value="1" checked="checked" onchange="requestPos();">
-            <span id="GPSStatusText" onclick="requestPos();">GPS</span>
+            <span id="GPSStatusText">GPS</span>
           </td>
           <td align="center" id="MapStatus" bgcolor="yellow">
             <span id="MapStatusText">Map</span>
           </td>
-          <td align="center" id="SliceStatus" bgcolor="lightyellow">
+          <td align="center" id="SliceStatus" bgcolor="lightyellow" onclick="toggleCheckBox(document.forms.checkboxes.elements.SliceCheck);">
             <input type="checkbox" name="SliceCheck" value="1" checked="checked" onchange="loadWaysDefault();">
-            <span id="SliceStatusText" onclick="loadWaysDefault();">Ways</span>
+            <span id="SliceStatusText">Ways</span>
           </td>
-          <td align="center" id="SendStatus">
+          <td align="center" id="SendStatus" onclick="toggleCheckBox(document.forms.checkboxes.elements.SendCheck);">
             <input type="checkbox" name="SendCheck" value="1" checked="checked" onchange="sendDataNow();">
-            <span id="SendStatusText" onclick="sendDataNow();">Sending</span>
+            <span id="SendStatusText">Sending</span>
           </td>
         </tr>
       </table>
