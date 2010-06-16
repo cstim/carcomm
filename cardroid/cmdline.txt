@@ -32,3 +32,7 @@ cd $ANDROIDROOT/tools
 # emulator in one step
 cd $PROJDIR
 ant install
+
+
+# Compile with the java libraries
+CLASSPATH=lib/httpmime-4.0-beta1.jar:lib/apache-mime4j-0.4.jar  ant debug
