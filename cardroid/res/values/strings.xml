@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My CarinfoActivity</string>
+    <string name="app_name">CarDroid Prototype</string>
 <string name="hello">Hello World, CarinfoActivity</string>
 
 <string name="app_name_itemizedoverlay">OSMViewer ItemizedOverlay</string>

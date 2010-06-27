@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Meine CarinfoActivity</string>
+    <string name="app_name">CarDroid Prototyp</string>
 <string name="hello">Hallo Welt, CarinfoActivity</string>
 
 <string name="map_mode">Kartenmodus</string>
