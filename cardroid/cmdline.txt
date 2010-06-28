@@ -3,6 +3,7 @@
 
 # Creating the project:
 ANDROIDROOT=$HOME/android-sdk-linux_86
+PATH=$PATH:$ANDROIDROOT/tools
 cd $ANDROIDROOT/tools
 ./android list targets
 ./android create project \
