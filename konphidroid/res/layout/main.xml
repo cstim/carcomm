@@ -7,29 +7,43 @@
 
 	<ToggleButton android:id="@+id/togglebutton"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:textOn="GPS switched on" android:textOff="GPS switched off" />
+		android:textOn="GPS" android:textOff="GPS" />
 
 	<TableLayout android:id="@+id/TableLayout01"
 		android:layout_width="fill_parent" android:layout_height="wrap_content">
 		<TableRow android:id="@+id/TableRow03" android:layout_width="fill_parent"
 			android:layout_height="wrap_content">
-			<TextView android:text="Provider:" android:id="@+id/TextView02"
+			<TextView android:text="GPS Time:" android:id="@+id/TextView02"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewGPSAge"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
 		<TableRow android:id="@+id/TableRow01" android:layout_width="fill_parent"
 			android:layout_height="wrap_content">
-			<TextView android:text="Latitude:" android:id="@+id/TextView01"
+			<TextView android:text="Latitude [deg]:" android:id="@+id/TextView01"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewLat"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
 		<TableRow android:id="@+id/TableRow02" android:layout_width="fill_parent"
 			android:layout_height="wrap_content">
-			<TextView android:text="Longitude:" android:id="@+id/TextView03"
+			<TextView android:text="Longitude [deg]:" android:id="@+id/TextView03"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewLon"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+		</TableRow>
+		<TableRow android:id="@+id/TableRow04" android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:text="Accuracy [m]]:" android:id="@+id/TextView04"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<TextView android:text="..." android:id="@+id/TextViewAcc"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+		</TableRow>
+		<TableRow android:id="@+id/TableRow05" android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:text="Dist to previous [m]]:" android:id="@+id/TextView05"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<TextView android:text="..." android:id="@+id/TextViewDist"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
 	</TableLayout>
