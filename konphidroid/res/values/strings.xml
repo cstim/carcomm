@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">This is the initial Android test app for the KonPhiDroid game. We start by receiving the GPS positing and sending them to the server regularly.</string>
+    <string name="app_name">KonphiDroid</string>
+</resources>
