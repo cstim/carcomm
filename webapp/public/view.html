@@ -171,67 +171,6 @@ function loadWaysDefault() {
 }
 
 function sendDataNow() {
-    if (!document.forms.checkboxes.elements.SendCheck.checked) {
-        setStatus("SendStatus", "Sending disabled", "yellow");
-        return;
-    }
-    if (!currentPos) {
-        setStatus("SendStatus", "No Valid Positions to send", "red");
-        return;
-    }
-    if (!lastPos) {
-        lastPos = currentPos;
-    }
-    setStatus("SendStatus", "Sending...", "lightgreen");
-
-    var endTimestamp = currentPos.timestamp;
-    var diffsec = (endTimestamp - lastPos.timestamp) / 1000;
-    if (diffsec == 0) {
-        endTimestamp = (new Date()).getTime();
-        diffsec = (endTimestamp - lastPos.timestamp) / 1000;
-    }
-    var endLat = currentPos.coords.latitude.toFixed(6);
-    var endLon = currentPos.coords.longitude.toFixed(6);
-    var startLat = lastPos.coords.latitude.toFixed(6);
-    var startLon = lastPos.coords.longitude.toFixed(6);
-    var time = dateToString(new Date(endTimestamp));
-    if (diffsec == 0) {
-        setStatus("SendStatus", "Oops, diffsec = 0", "red");
-        alert("currentPos.timestamp=" + currentPos.timestamp + " lastPos.timestamp=" + lastPos.timestamp + " date=" + (new Date()).getTime());
-        return;
-    }
-    var dur = diffsec.toFixed(2);
-
-    var url = serverUrl + "slices";
-    var params = "slice[lat]=" + endLat
-        + "&slice[lon]=" + endLon
-        + "&slice[time]=" + time
-        + "&slice[duration]=" + dur
-        + "&slice[startlat]=" + startLat
-        + "&slice[startlon]=" + startLon;
-
-    var http = new XMLHttpRequest();
-    http.open("POST", url, true);
-    //Send the proper header information along with the request
-    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    http.setRequestHeader("Content-length", params.length);
-    http.setRequestHeader("Connection", "close");
-
-    http.onreadystatechange = function() { //Call a function when the state changes.
-	if (http.readyState) {
-            if (http.status >= 200 && http.status <= 210) {
-                setStatus("SendStatus", "Sent", "lightgreen");
-                //alert(http.responseText);
-            } else {
-                setStatus("SendStatus", "Position not sent (" + http.status + ")", "yellow");
-                //alert(http.responseText);
-            }
-	}
-    };
-    http.send(params);
-
-    //alert("Will send: " + url + "?" + params);
-    lastPos = currentPos;
 }
 
 function sendDataMaybe() {
@@ -350,7 +289,7 @@ function init() {
 
     loadWaysDefault();
 
-    setInterval(on_interval, 2500); // milliseconds
+    setInterval(on_interval, 5000); // milliseconds
 
     //determine if the handset has client side geo location capabilities
     if (geo_position_js.init()) {
@@ -406,10 +345,6 @@ function toggleCheckBox(cbox) {
           <td align="center" id="SliceStatus" bgcolor="lightyellow" onclick="toggleCheckBox(document.forms.checkboxes.elements.SliceCheck);">
             <input type="checkbox" name="SliceCheck" value="1" checked="checked">
             <span id="SliceStatusText">Ways</span>
-          </td>
-          <td align="center" id="SendStatus" onclick="toggleCheckBox(document.forms.checkboxes.elements.SendCheck);">
-            <input type="checkbox" name="SendCheck" value="1" checked="checked">
-            <span id="SendStatusText">Sending</span>
           </td>
         </tr>
       </table>
