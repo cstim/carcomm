@@ -10,11 +10,11 @@
 
 		<ToggleButton android:id="@+id/togglebuttonGps"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:textOn="GPS" android:textOff="GPS" />
+			android:textOn="@string/gpsbutton" android:textOff="@string/gpsbutton" />
 
 		<ToggleButton android:id="@+id/togglebuttonSender"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:textOn="Transmission" android:textOff="No Transmission"
+			android:textOn="@string/transmission_on" android:textOff="@string/transmission_off"
 			android:checked="true" />
 
 	</LinearLayout>
@@ -23,7 +23,7 @@
 		android:layout_height="wrap_content">
 		<TableRow android:layout_width="fill_parent"
 			android:layout_height="wrap_content">
-			<TextView android:text="GPS Timestamp:"
+			<TextView android:text="@string/gps_timestamp"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewGPSAge"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
@@ -63,14 +63,19 @@
 			<TextView android:text="..." android:id="@+id/TextViewSecs"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
-		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content">
-			<TextView android:text="Sending result:" android:id="@+id/TextLabelSender"
+		<TableRow android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:text="@string/labelsender_on" android:id="@+id/TextLabelSender"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewSender"
 				android:scrollHorizontally="true" android:layout_width="fill_parent"
 				android:layout_height="wrap_content" />
 		</TableRow>
 	</TableLayout>
+
+	<TextView android:text="@string/bottom_url_text" android:id="@+id/TextViewBottom"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:autoLink="web" />
 
 	<LinearLayout android:id="@+id/LayoutWebview"
 		android:layout_width="fill_parent" android:layout_height="fill_parent"></LinearLayout>

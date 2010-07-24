@@ -33,8 +33,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.webkit.WebView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -53,7 +51,7 @@ public class KonPhiActivity extends Activity implements LocationListener {
 	private long m_senderIntervalSecs;
 	private String m_server = "http://carcomm.cstimming.de/";
 
-	private WebView m_webview;
+	//private WebView m_webview;
 	private TextView m_labelSender;
 
 	private static final int DIALOG_GPSWARNING = 1;
@@ -72,14 +70,15 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		m_togglebuttonSender = (ToggleButton) findViewById(R.id.togglebuttonSender);
 		m_labelSender = (TextView) findViewById(R.id.TextLabelSender);
 
-		final LinearLayout ell = (LinearLayout) findViewById(R.id.LayoutWebview);
-		m_webview = new WebView(this);
-		ell.addView(m_webview);
+		//final LinearLayout ell = (LinearLayout) findViewById(R.id.LayoutWebview);
+		//m_webview = new WebView(this);
+		//ell.addView(m_webview);
 
-		final LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(
-				Context.LOCATION_SERVICE);
+		final LocationManager locationManager = (LocationManager) getApplicationContext()
+		.getSystemService(Context.LOCATION_SERVICE);
 
-		m_togglebuttonGps.setChecked(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+		m_togglebuttonGps.setChecked(locationManager
+				.isProviderEnabled(LocationManager.GPS_PROVIDER));
 
 		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 			showDialog(DIALOG_GPSWARNING);
@@ -88,26 +87,45 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		m_togglebuttonGps.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				// Perform action on clicks
-				final Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				final Intent i = new Intent(
+						Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 				i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
 				startActivity(i);
-				m_togglebuttonGps.setChecked(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+				m_togglebuttonGps.setChecked(locationManager
+						.isProviderEnabled(LocationManager.GPS_PROVIDER));
 			}
 		});
 		m_togglebuttonSender.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
 				if (m_togglebuttonSender.isChecked()) {
-					Toast.makeText(KonPhiActivity.this, "Sending movement to server", Toast.LENGTH_SHORT).show();
-					m_labelSender.setText("Sending Result:");
+					m_labelSender.setText(R.string.labelsender_on);
+					final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
+					m_labelSender.setTextColor(viewSecs.getTextColors());
+					if (locationManager
+							.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+						// Show the toast only if GPS is already on, but not if
+						// we open the dialog as this would interfere visually
+						// with the toast.
+						Toast.makeText(KonPhiActivity.this,
+								R.string.transmission_on_toast,
+								Toast.LENGTH_SHORT).show();
+					} else {
+						showDialog(DIALOG_GPSWARNING);
+					}
 				} else {
-					Toast.makeText(KonPhiActivity.this, "No movement is sent to server", Toast.LENGTH_SHORT).show();
-					m_labelSender.setText("Paused; Last:");
+					Toast.makeText(KonPhiActivity.this,
+							R.string.transmission_off_toast, Toast.LENGTH_SHORT)
+							.show();
+					m_labelSender.setText(R.string.labelsender_off);
+					m_labelSender.setTextColor(ColorStateList.valueOf(Color.RED));
+					resultview.setTextColor(ColorStateList.valueOf(Color.GRAY));
 				}
 			}
 		});
 
 		long minTime = 1000 * m_senderIntervalSecs; // [milliseconds]
-		float minDistance = 0; //10; // [meters]
+		float minDistance = 0; // 10; // [meters]
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
 				minTime, minDistance, this);
 	}
@@ -117,17 +135,22 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		switch (d) {
 		case DIALOG_GPSWARNING:
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("The GPS receiver is not active. Do you want to activate it now?")
+			builder.setMessage(R.string.ask_activate_gps_settings)
 			.setCancelable(false)
-			.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					final Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+			.setPositiveButton(R.string.yes,
+					new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,
+						int id) {
+					final Intent i = new Intent(
+							Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 					i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
 					startActivity(i);
 				}
 			})
-			.setNegativeButton("No", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
+			.setNegativeButton(R.string.no,
+					new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,
+						int id) {
 					dialog.cancel();
 				}
 			});
@@ -141,7 +164,8 @@ public class KonPhiActivity extends Activity implements LocationListener {
 
 	@Override
 	public void onLocationChanged(Location loc) {
-		//Toast.makeText(KonPhiActivity.this, "Received location from " + loc.getProvider(), Toast.LENGTH_SHORT).show();
+		// Toast.makeText(KonPhiActivity.this, "Received location from " +
+		// loc.getProvider(), Toast.LENGTH_SHORT).show();
 
 		printLocInfo(loc);
 
@@ -151,7 +175,8 @@ public class KonPhiActivity extends Activity implements LocationListener {
 				sendPairNow(m_lastLocation, loc);
 				m_lastLocation = loc;
 			}
-			// Note: We don't set the m_lastLocation if we are smaller than m_senderIntervalSecs.
+			// Note: We don't set the m_lastLocation if we are smaller than
+			// m_senderIntervalSecs.
 		} else {
 			m_lastLocationValid = true;
 			m_lastLocation = loc;
@@ -169,7 +194,8 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		viewgpsage.setText(m_dateFormatter.format(new Date(loc.getTime())));
 		viewLat.setText(String.valueOf(loc.getLatitude()));
 		viewLon.setText(String.valueOf(loc.getLongitude()));
-		viewAcc.setText(loc.hasAccuracy() ? String.valueOf(loc.getAccuracy()) : "...");
+		viewAcc.setText(loc.hasAccuracy() ? String.valueOf(loc.getAccuracy())
+				: "...");
 
 		if (m_lastLocationValid) {
 			long secdiff = (loc.getTime() - m_lastLocation.getTime()) / 1000;
@@ -196,57 +222,75 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		String startLon = degToString(startLoc.getLongitude());
 		String endLat = degToString(endLoc.getLatitude());
 		String endLon = degToString(endLoc.getLongitude());
-		String duration = String.valueOf((endLoc.getTime() - startLoc.getTime()) / 1000);
+		String duration = String
+		.valueOf((endLoc.getTime() - startLoc.getTime()) / 1000);
 		String endTime = m_dateFormatSender.format(new Date(endLoc.getTime()));
-		// FIXME: Need to transfer speed and accuracy at both points, and also group selection
+		// FIXME: Need to transfer speed and accuracy at both points, and also
+		// group selection
 
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(m_server + "slices");
 
 		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
 		resultview.setText("Sending to " + httppost.getURI().toString());
-		String displaytime = m_dateFormatter.format(new Date(endLoc.getTime())) + ": ";
+		String displaytime = m_dateFormatter.format(new Date(endLoc.getTime()))
+		+ ": ";
 		try {
-			// Add your data  
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);  
-			nameValuePairs.add(new BasicNameValuePair("slice[startlat]", startLat));  
-			nameValuePairs.add(new BasicNameValuePair("slice[startlon]", startLon));  
-			nameValuePairs.add(new BasicNameValuePair("slice[lat]", endLat));  
-			nameValuePairs.add(new BasicNameValuePair("slice[lon]", endLon));  
-			nameValuePairs.add(new BasicNameValuePair("slice[duration]", duration));  
-			nameValuePairs.add(new BasicNameValuePair("slice[time]", endTime));  
-			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));  
+			// Add your data
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
+			nameValuePairs.add(new BasicNameValuePair("slice[startlat]",
+					startLat));
+			nameValuePairs.add(new BasicNameValuePair("slice[startlon]",
+					startLon));
+			nameValuePairs.add(new BasicNameValuePair("slice[lat]", endLat));
+			nameValuePairs.add(new BasicNameValuePair("slice[lon]", endLon));
+			nameValuePairs.add(new BasicNameValuePair("slice[duration]",
+					duration));
+			nameValuePairs.add(new BasicNameValuePair("slice[time]", endTime));
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-			//			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			//			httppost.getEntity().writeTo(baos);
-			//			m_webview.loadData(baos.toString(), "text/html", "utf-8");
+			// ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			// httppost.getEntity().writeTo(baos);
+			// m_webview.loadData(baos.toString(), "text/html", "utf-8");
 
-			// Execute HTTP Post Request  
+			// Execute HTTP Post Request
 			HttpResponse response = httpclient.execute(httppost);
-			//			baos.reset();
-			//			response.getEntity().writeTo(baos);
-			//			m_webview.loadData(baos.toString(), "text/html", "utf-8");
+			// baos.reset();
+			// response.getEntity().writeTo(baos);
+			// m_webview.loadData(baos.toString(), "text/html", "utf-8");
 			StatusLine rstatus = response.getStatusLine();
-			resultview.setText(displaytime + String.valueOf(rstatus.getStatusCode()) + " " + rstatus.getReasonPhrase());
-			resultview.setTextColor(ColorStateList.valueOf(Color.GREEN));
-		} catch (ClientProtocolException e) {  
-			resultview.setText(displaytime + "Sending failed (Protocol): " + e.getLocalizedMessage());
+			int rcode = rstatus.getStatusCode();
+			if (rcode >= 200 && rcode < 300) {
+				resultview.setText(displaytime + String.valueOf(rcode) + " "
+						+ rstatus.getReasonPhrase());
+				resultview.setTextColor(ColorStateList.valueOf(Color.GREEN));
+			} else {
+				resultview.setText(displaytime + String.valueOf(rcode) + " "
+						+ rstatus.getReasonPhrase());
+				resultview.setTextColor(ColorStateList.valueOf(Color.RED));
+			}
+		} catch (ClientProtocolException e) {
+			resultview.setText(displaytime + "Sending failed (Protocol): "
+					+ e.getLocalizedMessage());
 			resultview.setTextColor(ColorStateList.valueOf(Color.RED));
-		} catch (IOException e) {  
-			resultview.setText(displaytime + "Sending failed (IO): " + e.getLocalizedMessage());
+		} catch (IOException e) {
+			resultview.setText(displaytime + "Sending failed (IO): "
+					+ e.getLocalizedMessage());
 			resultview.setTextColor(ColorStateList.valueOf(Color.RED));
 		}
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		//Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider + " disabled", Toast.LENGTH_SHORT).show();
+		// Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider +
+		// " disabled", Toast.LENGTH_SHORT).show();
 		m_togglebuttonGps.setChecked(false);
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		//Toast.makeText(KonPhiActivity.this, "Good: Provider " + provider + " enabled", Toast.LENGTH_SHORT).show();
+		// Toast.makeText(KonPhiActivity.this, "Good: Provider " + provider +
+		// " enabled", Toast.LENGTH_SHORT).show();
 		m_togglebuttonGps.setChecked(true);
 	}
 
@@ -254,15 +298,18 @@ public class KonPhiActivity extends Activity implements LocationListener {
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		switch (status) {
 		case LocationProvider.OUT_OF_SERVICE:
-			//Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider + " out of service", Toast.LENGTH_SHORT).show();
+			// Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider +
+			// " out of service", Toast.LENGTH_SHORT).show();
 			m_togglebuttonGps.setChecked(false);
 			break;
 		case LocationProvider.TEMPORARILY_UNAVAILABLE:
-			//Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider + " tmp. unavailable", Toast.LENGTH_SHORT).show();
+			// Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider +
+			// " tmp. unavailable", Toast.LENGTH_SHORT).show();
 			m_togglebuttonGps.setChecked(false);
 			break;
 		case LocationProvider.AVAILABLE:
-			//Toast.makeText(KonPhiActivity.this, "Good: Provider " + provider + " available", Toast.LENGTH_SHORT).show();
+			// Toast.makeText(KonPhiActivity.this, "Good: Provider " + provider
+			// + " available", Toast.LENGTH_SHORT).show();
 			m_togglebuttonGps.setChecked(true);
 			break;
 		}

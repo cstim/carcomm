@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KonPhiDroid</string>
+    <string name="hello">KonPhiDense Test-App. Die Bewegung der GPS-Position wird aufgenommen und zum Server übertragen.</string>
+    <string name="transmission_on">Übertragung</string>
+    <string name="transmission_off">Keine Übertragung</string>
+    <string name="gpsbutton">GPS</string>
+    <string name="gps_timestamp">GPS Zeitstempel:</string>
+    <string name="transmission_on_toast">Bewegung wird zum Server übertragen</string>
+    <string name="transmission_off_toast">Es wird keine Bewegung mehr übertragen</string>
+    <string name="labelsender_on">Übertragungsergebnis:</string>
+    <string name="labelsender_off">Pause; Letzte:</string>
+    <string name="ask_activate_gps_settings">Das GPS ist ausgeschaltet. Wollen Sie die Einstellungen für Standort &amp; Sicherheit bearbeiten, um GPS einzuschalten?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+</resources>
