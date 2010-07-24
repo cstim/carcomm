@@ -1,51 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:id="@+id/MainLayout" android:layout_height="fill_parent">
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:text="@string/hello" />
 
-	<ToggleButton android:id="@+id/togglebutton"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:textOn="GPS" android:textOff="GPS" />
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:orientation="horizontal">
 
-	<TableLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
-		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<ToggleButton android:id="@+id/togglebutton"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:textOn="GPS" android:textOff="GPS" />
+
+		<ToggleButton android:id="@+id/togglebuttonSender"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:textOn="Transmission" android:textOff="No Transmission"
+			android:checked="true" />
+
+	</LinearLayout>
+
+	<TableLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+		<TableRow android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
 			<TextView android:text="GPS Timestamp:"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewGPSAge"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
-		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<TableRow android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
 			<TextView android:text="Latitude [deg]:"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewLat"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
-		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<TableRow android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
 			<TextView android:text="Longitude [deg]:"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewLon"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
-		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content">
-			<TextView android:text="Accuracy [m]:"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+		<TableRow android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:text="Accuracy [m]:" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewAcc"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
-		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<TableRow android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
 			<TextView android:text="Dist to previous [m]:"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewDist"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
-		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<TableRow android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
 			<TextView android:text="Time to previous [s]:"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<TextView android:text="..." android:id="@+id/TextViewSecs"
 				android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</TableRow>
+		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content">
+			<TextView android:text="Sending result:" android:id="@+id/TextLabelSender"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<TextView android:text="..." android:id="@+id/TextViewSender"
+				android:scrollHorizontally="true" android:layout_width="fill_parent"
+				android:layout_height="wrap_content" />
+		</TableRow>
 	</TableLayout>
+
+	<LinearLayout android:id="@+id/LayoutWebview"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"></LinearLayout>
 
 </LinearLayout>
