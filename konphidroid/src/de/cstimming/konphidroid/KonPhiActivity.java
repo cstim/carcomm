@@ -23,6 +23,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -66,7 +68,7 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		m_dateFormatSender.setTimeZone(TimeZone.getTimeZone("GMT00"));
 		m_dateFormatter = new SimpleDateFormat("HH:mm:ss");
 		m_senderIntervalSecs = 30;
-		m_togglebuttonGps = (ToggleButton) findViewById(R.id.togglebutton);
+		m_togglebuttonGps = (ToggleButton) findViewById(R.id.togglebuttonGps);
 		m_togglebuttonSender = (ToggleButton) findViewById(R.id.togglebuttonSender);
 		m_labelSender = (TextView) findViewById(R.id.TextLabelSender);
 
@@ -95,8 +97,10 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		m_togglebuttonSender.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if (m_togglebuttonSender.isChecked()) {
+					Toast.makeText(KonPhiActivity.this, "Sending movement to server", Toast.LENGTH_SHORT).show();
 					m_labelSender.setText("Sending Result:");
 				} else {
+					Toast.makeText(KonPhiActivity.this, "No movement is sent to server", Toast.LENGTH_SHORT).show();
 					m_labelSender.setText("Paused; Last:");
 				}
 			}
@@ -139,6 +143,22 @@ public class KonPhiActivity extends Activity implements LocationListener {
 	public void onLocationChanged(Location loc) {
 		//Toast.makeText(KonPhiActivity.this, "Received location from " + loc.getProvider(), Toast.LENGTH_SHORT).show();
 
+		printLocInfo(loc);
+
+		if (m_lastLocationValid) {
+			long secdiff = (loc.getTime() - m_lastLocation.getTime()) / 1000;
+			if (secdiff >= m_senderIntervalSecs) {
+				sendPairNow(m_lastLocation, loc);
+				m_lastLocation = loc;
+			}
+			// Note: We don't set the m_lastLocation if we are smaller than m_senderIntervalSecs.
+		} else {
+			m_lastLocationValid = true;
+			m_lastLocation = loc;
+		}
+	}
+
+	private void printLocInfo(Location loc) {
 		final TextView viewgpsage = (TextView) findViewById(R.id.TextViewGPSAge);
 		final TextView viewLat = (TextView) findViewById(R.id.TextViewLat);
 		final TextView viewLon = (TextView) findViewById(R.id.TextViewLon);
@@ -151,21 +171,16 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		viewLon.setText(String.valueOf(loc.getLongitude()));
 		viewAcc.setText(loc.hasAccuracy() ? String.valueOf(loc.getAccuracy()) : "...");
 
-		String dist = "...";
-		String secs = "...";
 		if (m_lastLocationValid) {
 			long secdiff = (loc.getTime() - m_lastLocation.getTime()) / 1000;
-			if (secdiff >= m_senderIntervalSecs) {
-				sendPairNow(m_lastLocation, loc);
-			}
-			secs = String.valueOf(secdiff);
-			dist = String.valueOf(m_lastLocation.distanceTo(loc));
+			String secs = String.valueOf(secdiff);
+			String dist = String.valueOf(m_lastLocation.distanceTo(loc));
+			viewDist.setText(dist);
+			viewSecs.setText(secs);
+		} else {
+			viewDist.setText("...");
+			viewSecs.setText("...");
 		}
-		viewDist.setText(dist);
-		viewSecs.setText(secs);
-
-		m_lastLocationValid = true;
-		m_lastLocation = loc;
 	}
 
 	private String degToString(double deg) {
@@ -212,11 +227,14 @@ public class KonPhiActivity extends Activity implements LocationListener {
 			//			response.getEntity().writeTo(baos);
 			//			m_webview.loadData(baos.toString(), "text/html", "utf-8");
 			StatusLine rstatus = response.getStatusLine();
-			resultview.setText(displaytime + String.valueOf(rstatus.getStatusCode()) + " " + rstatus.getReasonPhrase());  
+			resultview.setText(displaytime + String.valueOf(rstatus.getStatusCode()) + " " + rstatus.getReasonPhrase());
+			resultview.setTextColor(ColorStateList.valueOf(Color.GREEN));
 		} catch (ClientProtocolException e) {  
 			resultview.setText(displaytime + "Sending failed (Protocol): " + e.getLocalizedMessage());
+			resultview.setTextColor(ColorStateList.valueOf(Color.RED));
 		} catch (IOException e) {  
 			resultview.setText(displaytime + "Sending failed (IO): " + e.getLocalizedMessage());
+			resultview.setTextColor(ColorStateList.valueOf(Color.RED));
 		}
 	}
 
