@@ -172,7 +172,9 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		if (m_lastLocationValid) {
 			long secdiff = (loc.getTime() - m_lastLocation.getTime()) / 1000;
 			if (secdiff >= m_senderIntervalSecs) {
-				sendPairNow(m_lastLocation, loc);
+				if (secdiff <= 4 * m_senderIntervalSecs) {
+					sendPairNow(m_lastLocation, loc);
+				}
 				m_lastLocation = loc;
 			}
 			// Note: We don't set the m_lastLocation if we are smaller than
