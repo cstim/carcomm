@@ -6,6 +6,14 @@
     <%= f.datetime_select :time %>
   </p>
   <p>
+    <%= f.label :startlat %> [deg]<br />
+    <%= f.text_field :startlat %>
+  </p>
+  <p>
+    <%= f.label :startlon %> [deg]<br />
+    <%= f.text_field :startlon %>
+  </p>
+  <p>
     End Lat [deg]<br />
     <%= f.text_field :lat %>
   </p>
@@ -30,12 +38,20 @@
     <%= f.text_field :duration %>
   </p>
   <p>
-    <%= f.label :startlat %> [deg]<br />
-    <%= f.text_field :startlat %>
+    <%= f.label :startaccuracy %> [m], optional<br />
+    <%= f.text_field :startaccuracy %>
   </p>
   <p>
-    <%= f.label :startlon %> [deg]<br />
-    <%= f.text_field :startlon %>
+    <%= f.label :endaccuracy %> [m], optional<br />
+    <%= f.text_field :endaccuracy %>
+  </p>
+  <p>
+    <%= f.label :instanceid %>, optional<br />
+    <%= f.text_field :instanceid %>
+  </p>
+  <p>
+    <%= f.label :categoryid %>, optional<br />
+    <%= f.text_field :categoryid %>
   </p>
   <p>
     <%= f.submit "Save" %>

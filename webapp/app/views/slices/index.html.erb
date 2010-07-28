@@ -5,27 +5,35 @@
 <table>
   <tr>
     <th>Time</th>
+    <th>Start Lat [deg]</th>
+    <th>Start Lon [deg]</th>
     <th>End Lat [deg]</th>
     <th>End Lon [deg]</th>
     <th>Avgvel [m/s]</th>
     <th>Headingdeg [deg]</th>
     <th>Dist [m]</th>
     <th>Duration [s]</th>
-    <th>Start Lat [deg]</th>
-    <th>Start Lon [deg]</th>
+    <th>Start Accuracy [m]</th>
+    <th>End Accuracy [m]</th>
+    <th>Instance Id</th>
+    <th>Category</th>
   </tr>
 
 <% for slice in @slices %>
   <tr>
     <td><%=h slice.time %></td>
+    <td><%=h slice.startlat %></td>
+    <td><%=h slice.startlon %></td>
     <td><%=h slice.lat %></td>
     <td><%=h slice.lon %></td>
     <td><%=h slice.avgvel %></td>
     <td><%=h slice.headingdeg %></td>
     <td><%=h slice.dist %></td>
     <td><%=h slice.duration %></td>
-    <td><%=h slice.startlat %></td>
-    <td><%=h slice.startlon %></td>
+    <td><%=h slice.startaccuracy %></td>
+    <td><%=h slice.endaccuracy %></td>
+    <td><%=h slice.instanceid %></td>
+    <td><%=h slice.categoryid %></td>
     <td><%= link_to 'Show', slice %></td>
     <td><%= link_to 'Edit', edit_slice_path(slice) %></td>
     <td><%= link_to 'Destroy', slice, :confirm => 'Are you sure?', :method => :delete %></td>
