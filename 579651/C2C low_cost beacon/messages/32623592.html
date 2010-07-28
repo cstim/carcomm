@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>C2C low-cost beacon - Web-Applikation im Browser funktioniert auch!</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="../../html_exports/html_exports.css">
+  </head>
+  <body class="message">
+    <p class="back_to_projects"><a href="../../projects.html">&larr; Back to the list of projects</a></p>
+    <div class="header">
+  <h2>C2C low-cost beacon &mdash; citytraffic</h2>
+</div>
+
+    <p class="nav"><a href="../messages.html">&larr; Back to messages</a></p>
+    <div class="message">
+      <h3 class="title">
+        Web-Applikation im Browser funktioniert auch!
+        
+      </h3>
+      <p>Posted by Christian Stimming on 19 May, 2010<br />
+      Category: No category</p>
+      <div class="body">
+        <div>Anders als neulich im Telefonat vermutet, ist eine Implementierung als reine Web-Anwendung im Browser tatsächlich mit vertretbarem Aufwand möglich. Also: Man zücke sein GPS-fähiges Handy mit Browser und wähle folgende Webseite an:</div><div><br /></div><div><a href="http://carcomm.cstimming.de/map.html">http://carcomm.cstimming.de/map.html</a></div><div><br /></div><div>Sodann muss das Handy zunächst ca. 800 KByte Javascript laden und fragt nach, ob der Benutzer die eigene Position der Webseite mitteilen will. Wenn ja, geht es sofort los:<br /></div><ul><li>Die OpenStreetMap-Karte wird mit der eigenen Position in der Mitte angezeigt</li><li>Die bunten Wege aus der Datenbank werden geladen und eingetragen (z.Zt. noch ohne zeitliche Einschränkung, also erstmal alles, was in der Datenbank ist)</li><li>Alle 60 Sekunden wird die eigene Position und die vorige Position als neues Wegstück an die Datenbank geschickt.</li></ul><div>Dies funktioniert jedenfalls im Firefox am PC zuhause. Ich brauche dann Rückmeldungen aus anderen Browsern und natürlich aus den Browsern vom Handy: iPhone, Android, Nokia, whatnot.<br /></div>
+      </div>
+    </div>
+    <div class="comments">
+    <h3>Comments</h3>
+    <div class="comment">
+      <p>Christian Stimming on 19 May, 2010:</p>
+      <div class="body">
+        <div>(Beim Aufräumen habe ich zusätzlich noch sämtliche Wegstücke aus der Datenbank gelöscht, die ich seinerzeit aus OpenStreetMap-GPS-Traces rüberkopiert habe. Die hätten ja eventuell Lizenz-Auswirkungen gehabt. Aber jetzt sind sie alle wieder draußen und wir haben nur unsere eigenen Daten, über die wir dementsprechend auch alle Rechte haben.)<br /></div>
+      </div>
+    </div>
+    <div class="comment">
+      <p>Philippe Dreiling on 21 May, 2010:</p>
+      <div class="body">
+        <div>Hallo Christian, Hallo Niels,</div>
+<div><br /></div>
+<div>leider hat uns eine influenza am Anfang der Woche flachgelegt.</div>
+<div>Soweit wieder fit und auf dem Weg in den Urlaub.</div>
+<div>Kurz vorher noch ein paar Dinge vom Flughafen München :-)</div>
+<div><br /></div>
+<div>Ich werde zwei Beispiele hochladen, wie ich mir das Interface vorstelle.</div>
+<div>Ausserdem habe ich mit der Grafik Designer Freundin gesprochen.</div>
+<div>Sie kennt einen Spieleentwickler, der uns vielleicht weiterhelfen könnte, grafisch ist er allerdings nicht Oberklasse meinte sie :-)</div>
+<div><br /></div>
+<div>Habe Deine neue SW runtergeladen, und der Browserlink funktionierte bei mir auch, hatte aber kein GPS dran.</div>
+<div><br /></div>
+<div>Ciao Philippe</div>
+<div>Ab dem 7.7 wieder in München, ab und zu per Mail.</div>
+<div><br /></div>
+<div><br /></div>
+      </div>
+    </div>
+    <div class="comment">
+      <p>Christian Stimming on 22 May, 2010:</p>
+      <div class="body">
+        <div>Hallo Philippe, Niels, kurze Statusmeldung über diese Woche:<br /></div><ul><li>&nbsp;Von der Laptop-Software hatte ich letzten Montag die neue Version gemacht, die dann die von Philippe vorgeschlagenen Status-Anzeigen ("Grünes Licht") enthält.</li><li>Und dann habe ich herausgefunden, dass die bisherige Funktionalität auch über eine reine Javascript-Implementierung (d.h. eine Webseite im Browser) möglich ist - eben der Link oben. ABER: Die GPS-Position bekommt die Webseite nur auf einem Smartphone heraus, nicht auf einem Laptop. Die überraschenden Ergebnisse Funktionstest bei verschiedenen Bekannten: Auf dem iPhone funktioniert das sofort!!! Auf einem Android-Phone dagegen kommt zwar die Karte, aber die Abfrage der GPS-Position scheint noch nicht zu funktionieren. Auf einem Windows-Phone im Internet Explorer kommt die Fehlermeldung, dass Vektoren nicht angezeigt werden können, so dass also keine Wegstücke angezeigt werden können. Ein Windows-Phone mit Firefox oder Opera müsste noch getestet werden, ebenso ein Nokia/Symbian-Phone.</li></ul><div>Denkbar ist bei der Javascript/Webseiten-Lösung also nun auch, dass die grafische Darstellung Schritt für Schritt weiter in Richtung des Konphidense-Spiel umgebaut wird - und man hat das in den verschiedenen Phones dann sofort fertig.<br /></div>
+      </div>
+    </div>
+    <div class="comment">
+      <p>Christian Stimming on 22 May, 2010:</p>
+      <div class="body">
+        <div>Auf Philippes Bildern kann ich leider noch nicht so viel erkennen. Da brauche ich wohl noch die telefonische Erklärung.<br /></div>
+      </div>
+    </div>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>C2C low-cost beacon - SP App Layout</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="../../html_exports/html_exports.css">
+  </head>
+  <body class="message">
+    <p class="back_to_projects"><a href="../../projects.html">&larr; Back to the list of projects</a></p>
+    <div class="header">
+  <h2>C2C low-cost beacon &mdash; citytraffic</h2>
+</div>
+
+    <p class="nav"><a href="../messages.html">&larr; Back to messages</a></p>
+    <div class="message">
+      <h3 class="title">
+        SP App Layout
+        
+      </h3>
+      <p>Posted by Niels Koch on  5 May, 2010<br />
+      Category: Design</p>
+      <div class="body">
+        <p>Hier die Zusammenfassung der 3-Vorwärtsschritte der letzten Tage und Nächte:<br />
+Stand 5.5.10, <span class="caps">KON</span></p>
+
+	<p>Phone Start &rarr; App wird in Hintergrund geladen<br />
+Hintergrundprozeß: Monitoring <span class="caps">GPS</span>-Valid Data und Funkzellenwechsel für dynamische Erkennung der Bewegung und Strom zu sparen.<br />
+>5min <span class="caps">GPS </span>Data invalid &rarr; <span class="caps">GPS</span> ausschalten<br />
+Handover Request &rarr; <span class="caps">GPS</span> einschalten</p>
+
+	<p>Wenn <span class="caps">GPS </span>Data valid, Start Game<br />
+Startbildschirm anzeigen<br />
+Frage User: Start Game ja/nein<br />
+Ja:<br />
+Auswahl der Bewegungsart:<br />
+Fußgänger &rarr; Späher (Stone Age)<br />
+Radfahrer &rarr; Kurier (Middle Age)<br />
+Auto &rarr; Rocket Man (Industrial Age)<br />
+Hintergrund: Für jeden Bewegungstyp eigenen Score und Unterscheidung in Datenbank, wie Daten behandelt werden, um Fehlinformationen zu vermeiden.<br />
+Weitere Auswahl: Gruppenfahrt<br />
+Hintergrund: manchmal will man in einer Gruppe gegeneinander das Spiel spielen, wer kommt auf unterschiedlichen Wegen in direkten Vergleich schneller an. Wie man das genau macht, müssen wir noch aushandeln. Mögliches Feature für Zukunft.</p>
+
+	<p>Phone kontaktiert Server, meldet sich an. <br />
+Server berechnet nächste Updatezeit für das Phone, um Systemlast zu nivellieren<br />
+Formel: mittlere Speed der letzten 10 <span class="caps">GPS</span>-Punkte [in m/s] * Serverlast / Normallast + Zufallszahl(1&#8230;5 min).<br />
+Ergebnis: hohe Serverlast, längere Zeitdauer bis User sich wieder meldet, geringe Serverlast öfter Teilabschnitte eingesendet Zufallszahl verhindert, daß bei gleicher Prozessorlast und mittlerer Speed sich alle solche User zur gleichen Zeit wieder melden und dann wieder Last hochschnellt, somit zeitlich entzerrt wird.</p>
+
+	<p>Logge Daten der Bewegung bis User Game beendet; kein Logging wenn <span class="caps">GPS</span>-Daten invalid<br />
+Wenn Timer (den Server vorgegeben hat) abgelaufen, kontaktiere Server und sende <span class="caps">GPS</span>-Daten bis zu diesem Zeitpunkt und bekomme aktuelle Verkehrslage als Bild vom Server. <br />
+Server-Bild nach Formel: mittlere Speed letzten 10 <span class="caps">GPS</span>-Punkte [in m/s]* 5 min Fahrt<br />
+Ergebnis: minimal 2km Umkreis, 200km/h = 17km Umkreis, max. 20km Umkreis</p>
+
+	<p>Darstellung des Bildes, Phone stellt um Umkreisbild des Servers nur Ausschnitt abhängig von aktueller Geschwindigkeit dar. Schnelle Fahrt-> weit vorausblickend, langsame Fahrt &rarr; näher heran.<br />
+Straßen mit hoher mittlerer Speed-> breitere Linien, langsame Speed-> schmale Linie<br />
+evtl. einfärben mit Farben, um weitere Unterscheidung zu erreichen.</p>
+
+	<p>Server Updates:<br />
+Wenn Taste: &#8220;Force Update Now&#8221; von User gedrückt<br />
+Wenn Position >80% des Server-Bildes erreicht hat (Kartenende)<br />
+Wenn Timer abgelaufen</p>
+
+	<p>Wenn Game beendet wird:<br />
+Game kann von User beendet werden &rarr; Menü-Punkt &#8220;Ende Game&#8221; <br />
+Wenn <span class="caps">GPS</span>-Data >5min invalid<br />
+Bei Beendigung: Abmeldung des Phones vom Server, Berechnung des End-Scores und Anzeige der Score-Liste<br />
+Wenn neuer Highscore, Glückwunsch-Popup<br />
+Beendigung der Aufzeichnung des Tracks<br />
+Frage, ob dieser Track in Favoriten-Liste gespeichert werden soll, um ggfs. Upload in Openstreetmap oder für Google-Maps Darstellung oder wenn gute Route zur Wiederfahrt gespeichert werden soll.<br />
+Ansonsten verwerfen des Tracks, Speicher wieder freigeben.<br />
+App geht in Schlafmodus und überwacht nur, <span class="caps">GPS</span>-Speed und Zellenwechsel &rarr; siehe Anfang</p>
+
+	<p>Gameplay:<br />
+Credits werden für jeden gefahrenen Kilometer gewährt, z.B. 1000 Credits (evtll. logarithmisch über Strecke 1,5,10,20,50,100). Da das Spiel als Ziel hat, möglichst schnell sein Ziel zu erreichen, wird ein Speed-Multiplikator eingeführt.<br />
+Formel: (meine_mittlere Speed &#8211; Server_mittlere Speed) / 10 + 1 für meine Speed>Server Speed<br />
+1-(Server_mittlere_Speed &#8211; meine_mittlere_Speed) /10 für Speed &lt; Server_Speed<br />
+Ergebnis: fährt jemand 2 km im Mittel schneller als die im Server hinterlegte mittlere Speed in der Region, dann wird ein Faktor 1,2 * gefahrene Kilometer angewendet. Fährt jemand 10km langsamer, dann wird er in den Credits bestraft mit 0,1 * km<br />
+Sonderpunkte für neue Strecken, die nicht in der Datenbank enthalten ist: Bonus 10&#8217;000 Credits<br />
+Fahrstrecke zu einer neuen Zeit, die nicht in der Datenbank enthalten ist: Bonus 5&#8217;000 Credits<br />
+Scores:<br />
+mit jedem Serverupdate wird Zwischen-Score berechnet und aufsummiert. <br />
+Ende des Games: Endsstand der Credits.</p>
+
+	<p>Popups:<br />
+New Highscore<br />
+Bonus Creditis<br />
+Monster Popup für Fahrt in den Stau hinein &#8211; nix geht mehr<br />
+aktuelle Stauansicht &rarr; kann mit 8888 Credits gekauft werden oder wenn Bonus / new highscore erreicht, kann der User mal den aktuellen Stau sehen 30 sek lang.</p>
+      </div>
+    </div>
+    <div class="comments">
+    <p>There are no comments.</p>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>C2C low-cost beacon - Laptop-Client 1.0.0</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="../../html_exports/html_exports.css">
+  </head>
+  <body class="message">
+    <p class="back_to_projects"><a href="../../projects.html">&larr; Back to the list of projects</a></p>
+    <div class="header">
+  <h2>C2C low-cost beacon &mdash; citytraffic</h2>
+</div>
+
+    <p class="nav"><a href="../messages.html">&larr; Back to messages</a></p>
+    <div class="message">
+      <h3 class="title">
+        Laptop-Client 1.0.0
+        
+      </h3>
+      <p>Posted by Christian Stimming on 29 Apr, 2010<br />
+      Category: No category</p>
+      <div class="body">
+        <p>Habe soeben die Version 1.0.0 des Laptop-Client hochgeladen. Man mache damit folgendes: Das Paket installiern. Sodann das Programm &#8220;Carclient&#8221; starten. Screenshot siehe Anhang.</p>
+
+	<p>Oben im Abschnitt &#8220;GPS Device Settings&#8221; den Port und die Baudrate des <span>GPS</span>-Empfängers auswählen und per &#8220;Connect&#8221; mit dem <span>GPS</span>-Empfänger verbinden. Der Portname kann sich je nach angeschlossenen <span>USB</span>-Geräten auch mal ändern. Nachsehen kann man das im Windows-Gerätemanager unter &#8220;Anschlüsse (COM und <span>LPT</span>)&#8221;, dort steht der <span>GPS</span>-Empfänger bei mir unter &#8220;Prolific <span>USB</span>-to-Serial Comm Port (COM4)&#8221;, also <span>COM4</span>. Bei der Baudrate muss man so lange ausprobieren, bis man den richtigen Wert gefunden hat. Umstellen geht z.B. mit der Software SiRFDemo <a href="http://forum.pocketnavigation.de/forum64-gps-tools/18039-sirf-demo-wo-kann-man-downloaden/">http://forum.pocketnavigation.de/forum64-gps-tools/18039-sirf-demo-wo-kann-man-downloaden/</a></p>
+
+	<p>Wenn der <span>GPS</span>-Empfänger verbunden ist, zeigt die Anzeige in &#8220;Latitude&#8221;, &#8220;Longitude&#8221;, &#8220;Time&#8221; die Werte vom <span>GPS</span>. Desweiteren wird bei aktiviertem &#8220;Auto-Send&#8221; alle 60 Sekunden das zurückgelegte Wegstück an den Server geschicken. Durch Drücken auf &#8220;Send Now&#8221; kann man schon früher das zurückgelegte Wegstück an den Server schicken, sofern man Netzverbindung hat (und sich das dann in der Tabelle auf der Webseite ansehen).</p>
+
+	<p>Die Karte wird bei jedem abgeschickten <span>GPS</span>-Wert aktualisiert und zeigt die auf dem Server gespeicherten Wege für das Zeitintervall, welches in &#8220;Map History&#8221; ausgewählt ist.</p>
+
+	<p>Bekannte Einschränkung 1: Die Anzeige der Karte ist über eine <span>HTML</span>-Seite und Javascript realisiert und funktioniert daher nur, wenn bei Programmstart ca. 500KB Javascript-Code aus dem Netz runtergeladen werden konnten. Sollte man also vielleicht nicht bei ausschließlich <span>UMTS</span>-Anbindung starten, sondern vorher im Büro starten und dann mit <span>UMTS</span> ins Auto tragen.</p>
+
+	<p>Bekannte Einschränkung 2: Die eigene Position in der Karte ist nicht weiter markiert, sondern nur durch das Zentrum der Karte dargestellt.</p>
+      </div>
+    </div>
+    <div class="comments">
+    <h3>Comments</h3>
+    <div class="comment">
+      <p>Niels Koch on 29 Apr, 2010:</p>
+      <div class="body">
+        <p>Dafür benötigt man eine <span>UMTS</span>-Karte im Laptop, richtig ?</p>
+      </div>
+    </div>
+    <div class="comment">
+      <p>Christian Stimming on 29 Apr, 2010:</p>
+      <div class="body">
+        <p>Wenn man Daten an den Server schicken will (und die Karte sehen will), braucht man eine Verbindung ins Internet. Das kann von unterwegs wohl nur via <span>UMTS</span>-Karte funktionieren, ja. (Oder <span>GSM</span>). Zum Testen und beim Herumlaufen im Büro oder -Nähe könnte man auch schon mit <span>WLAN</span> oder Kabel auskommen.</p>
+      </div>
+    </div>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,120 @@
+body {
+  background: #fff;
+  font-family: helvetica, arial, sans-serif;
+  margin: 0 20px;
+}
+
+a:link, a:visited {
+  color: blue;
+}
+
+p.back_to_projects {
+  font-size: 80%;
+}
+
+p.back_to_projects a:link,
+p.back_to_projects a:visited {
+  color: #666;
+}
+
+div.header {
+}
+
+div.nav {
+  border-bottom: 1px solid #000;
+}
+
+p.nav {
+  padding-bottom: 1em;
+  border-bottom: 1px solid #000;
+}
+
+span.comments {
+  font-size: 80%;
+  color: #666;
+}
+
+div.comments {
+  border-top: 1px dashed #999;
+}
+
+div.comments div.comment {
+  border-bottom: 1px dashed #999;
+}
+
+div.body {
+  padding-left: 2em;
+}
+
+table.index {
+  margin: 1em 0;
+}
+
+table.index th {
+  text-align: left;
+  padding-right: 1em;
+}
+
+table.index td {
+  padding-right: 1em;
+}
+
+span.private {
+  font-weight: normal;
+  color: #c00;
+  font-size: 80%;
+}
+
+body.todo p.label {
+  margin-bottom: 0.5em;
+}
+
+body.todo ul {
+  margin-top: 0;
+  margin-bottom: 1.5em;
+}
+
+body.todo div.todo_list {
+  border-bottom: 1px dashed #999;
+}
+
+body.milestones li.milestone {
+  margin-bottom: 0.5em;
+}
+
+body.milestones li.milestone span.responsible,
+body.milestone div.body span.responsible {
+  font-size: 80%;
+}
+
+body.time_entries table.index {
+  border-collapse: collapse;
+}
+
+body.time_entries table.index td {
+  border-top: 1px solid #ddd;
+  vertical-align: top;
+  padding: 0.5em 1em 0.5em 0;
+}
+
+body.projects div.project_status_group {
+  border-bottom: 1px dashed #999;
+}
+
+div.people_column {
+  width: 25%;
+  float: left;
+}
+
+div.company {
+  font-size: 80%;
+  padding-bottom: 2em;
+  margin-left: 0.75em;
+  overflow: hidden;
+}
+
+h3.company {
+  background: #ccc;
+  padding: 0.25em 0.5em;
+  margin: 0;
+}
