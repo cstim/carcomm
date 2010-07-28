@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">KonPhiDroid</string>
-    <string name="hello">KonPhiDense Test App. We receive GPS movements and send it to the server.</string>
+    <string name="hello">KonPhiDense Test App, Version</string>
     <string name="transmission_on">Transmission</string>
     <string name="transmission_off">No Transmission</string>
     <string name="gpsbutton">GPS</string>
@@ -14,4 +14,5 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="bottom_url_text">http://carcomm.cstimming.de/view.html</string>
+    <string name="labelspeed">Speed:</string>
 </resources>

@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.Location;
@@ -53,6 +54,8 @@ public class KonPhiActivity extends Activity implements LocationListener {
 
 	//private WebView m_webview;
 	private TextView m_labelSender;
+	private int m_instanceId;
+	private int m_categoryId;
 
 	private static final int DIALOG_GPSWARNING = 1;
 
@@ -70,6 +73,21 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		m_togglebuttonSender = (ToggleButton) findViewById(R.id.togglebuttonSender);
 		m_labelSender = (TextView) findViewById(R.id.TextLabelSender);
 
+		java.util.Random rg = new java.util.Random();
+		m_instanceId = rg.nextInt();
+		m_categoryId = 1;
+
+		// Print the version number into the UI
+		TextView versionView = (TextView) findViewById(R.id.TextViewVersion);
+		String versionString;
+		try {
+			versionString = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		} catch (NameNotFoundException e) {
+			versionString = "Not found";
+			e.printStackTrace();
+		}
+		versionView.setText(" " + versionString);
+		
 		//final LinearLayout ell = (LinearLayout) findViewById(R.id.LayoutWebview);
 		//m_webview = new WebView(this);
 		//ell.addView(m_webview);
@@ -192,6 +210,7 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		final TextView viewAcc = (TextView) findViewById(R.id.TextViewAcc);
 		final TextView viewDist = (TextView) findViewById(R.id.TextViewDist);
 		final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
+		final TextView viewSpeed = (TextView) findViewById(R.id.TextViewSpeed);
 
 		viewgpsage.setText(m_dateFormatter.format(new Date(loc.getTime())));
 		viewLat.setText(String.valueOf(loc.getLatitude()));
@@ -200,14 +219,17 @@ public class KonPhiActivity extends Activity implements LocationListener {
 				: "...");
 
 		if (m_lastLocationValid) {
-			long secdiff = (loc.getTime() - m_lastLocation.getTime()) / 1000;
-			String secs = String.valueOf(secdiff);
-			String dist = String.valueOf(m_lastLocation.distanceTo(loc));
+			long msecdiff = loc.getTime() - m_lastLocation.getTime();
+			float distance = m_lastLocation.distanceTo(loc);
+			String secs = String.valueOf(msecdiff / 1000);
+			String dist = String.valueOf(distance);
 			viewDist.setText(dist);
 			viewSecs.setText(secs);
+			viewSpeed.setText(String.valueOf(3600.0 * distance / (float) msecdiff) + " km/h");
 		} else {
 			viewDist.setText("...");
 			viewSecs.setText("...");
+			viewSpeed.setText("...");
 		}
 	}
 
@@ -239,17 +261,21 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		+ ": ";
 		try {
 			// Add your data
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
-			nameValuePairs.add(new BasicNameValuePair("slice[startlat]",
+			List<NameValuePair> nvpairs = new ArrayList<NameValuePair>(10);
+			nvpairs.add(new BasicNameValuePair("slice[startlat]",
 					startLat));
-			nameValuePairs.add(new BasicNameValuePair("slice[startlon]",
+			nvpairs.add(new BasicNameValuePair("slice[startlon]",
 					startLon));
-			nameValuePairs.add(new BasicNameValuePair("slice[lat]", endLat));
-			nameValuePairs.add(new BasicNameValuePair("slice[lon]", endLon));
-			nameValuePairs.add(new BasicNameValuePair("slice[duration]",
+			nvpairs.add(new BasicNameValuePair("slice[lat]", endLat));
+			nvpairs.add(new BasicNameValuePair("slice[lon]", endLon));
+			nvpairs.add(new BasicNameValuePair("slice[duration]",
 					duration));
-			nameValuePairs.add(new BasicNameValuePair("slice[time]", endTime));
-			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			nvpairs.add(new BasicNameValuePair("slice[time]", endTime));
+			nvpairs.add(new BasicNameValuePair("slice[startaccuracy]", String.valueOf(startLoc.getAccuracy())));
+			nvpairs.add(new BasicNameValuePair("slice[endaccuracy]", String.valueOf(endLoc.getAccuracy())));
+			nvpairs.add(new BasicNameValuePair("slice[instanceid]", String.valueOf(m_instanceId)));
+			nvpairs.add(new BasicNameValuePair("slice[categoryid]", String.valueOf(m_categoryId)));
+			httppost.setEntity(new UrlEncodedFormEntity(nvpairs));
 
 			// ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			// httppost.getEntity().writeTo(baos);
