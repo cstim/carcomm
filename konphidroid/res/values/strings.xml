@@ -15,4 +15,5 @@
     <string name="no">No</string>
     <string name="bottom_url_text">http://carcomm.cstimming.de/view.html</string>
     <string name="labelspeed">Speed:</string>
+    <string name="choose_sending_interval">Choose a sending time interval</string>
 </resources>

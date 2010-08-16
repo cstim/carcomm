@@ -14,4 +14,5 @@
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
     <string name="labelspeed">Speed:</string>
+    <string name="choose_sending_interval">Sende-Intervall wählen [s]:</string>
 </resources>

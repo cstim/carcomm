@@ -19,10 +19,9 @@
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:textOn="@string/gpsbutton" android:textOff="@string/gpsbutton" />
 
-		<ToggleButton android:id="@+id/togglebuttonSender"
+		<Button android:id="@+id/togglebuttonSender"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:textOn="@string/transmission_on" android:textOff="@string/transmission_off"
-			android:checked="true" />
+			android:text="@string/transmission_on" />
 
 	</LinearLayout>
 

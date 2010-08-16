@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -39,7 +40,7 @@ import android.widget.ToggleButton;
 public class KonPhiActivity extends Activity implements LocationListener, SliceSenderResult {
 
 	private ToggleButton m_togglebuttonGps;
-	private ToggleButton m_togglebuttonSender;
+	private Button m_togglebuttonSender;
 
 	private SimpleDateFormat m_dateFormatter;
 	private SimpleDateFormat m_dateFormatSender;
@@ -58,6 +59,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 	private int m_categoryId;
 
 	private static final int DIALOG_GPSWARNING = 1;
+	private static final int DIALOG_INTERVAL_MULTICHOICE = 2;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -72,12 +74,13 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		m_speedFormatter = NumberFormat.getInstance();
 		m_speedFormatter.setMaximumFractionDigits(1);
 
-		m_senderIntervalSecs = 30;
-		m_currentlySendingSlices = false;
-
 		m_togglebuttonGps = (ToggleButton) findViewById(R.id.togglebuttonGps);
-		m_togglebuttonSender = (ToggleButton) findViewById(R.id.togglebuttonSender);
+		m_togglebuttonSender = (Button) findViewById(R.id.togglebuttonSender);
 		m_labelSender = (TextView) findViewById(R.id.TextLabelSender);
+
+		m_senderIntervalSecs = 0;
+		setSenderIntervalSecs(30);
+		m_currentlySendingSlices = false;
 
 		java.util.Random rg = new java.util.Random();
 		m_instanceId = rg.nextInt();
@@ -121,44 +124,53 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		});
 		m_togglebuttonSender.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
-				if (m_togglebuttonSender.isChecked()) {
-					m_labelSender.setText(R.string.labelsender_on);
-					final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
-					m_labelSender.setTextColor(viewSecs.getTextColors());
-					if (locationManager
-							.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-						// Show the toast only if GPS is already on, but not if
-						// we open the dialog as this would interfere visually
-						// with the toast.
-						Toast.makeText(KonPhiActivity.this,
-								R.string.transmission_on_toast,
-								Toast.LENGTH_SHORT).show();
-					} else {
-						showDialog(DIALOG_GPSWARNING);
-					}
-				} else {
-					Toast.makeText(KonPhiActivity.this,
-							R.string.transmission_off_toast, Toast.LENGTH_SHORT)
-							.show();
-					m_labelSender.setText(R.string.labelsender_off);
-					m_labelSender.setTextColor(ColorStateList.valueOf(Color.RED));
-					resultview.setTextColor(ColorStateList.valueOf(Color.GRAY));
-				}
-			}
-		});
+				showDialog(DIALOG_INTERVAL_MULTICHOICE);
+			}});
 
-		long minTime = 1000 * m_senderIntervalSecs; // [milliseconds]
+		long minTime = 1000 * getSenderIntervalSecs(); // [milliseconds]
 		float minDistance = 0; // 10; // [meters]
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
 				minTime, minDistance, this);
 	}
 
+	public long getSenderIntervalSecs() {
+		return m_senderIntervalSecs;
+	}
+	public void setSenderIntervalSecs(long v) {
+		if (v == m_senderIntervalSecs)
+			return;
+		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
+		if (v == 0) {
+			m_togglebuttonSender.setText(R.string.transmission_off);
+			m_labelSender.setText(R.string.labelsender_off);
+			m_labelSender.setTextColor(ColorStateList.valueOf(Color.RED));
+			resultview.setTextColor(ColorStateList.valueOf(Color.GRAY));
+		} else {
+			m_togglebuttonSender.setText(getString(R.string.transmission_on) + " " + String.valueOf(v) + "s");
+			m_labelSender.setText(R.string.labelsender_on);
+			final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
+			m_labelSender.setTextColor(viewSecs.getTextColors());
+			final LocationManager locationManager = (LocationManager) getApplicationContext()
+				.getSystemService(Context.LOCATION_SERVICE);
+			if (!locationManager
+					.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+				showDialog(DIALOG_GPSWARNING);
+			}
+			if (v < m_senderIntervalSecs) {
+				long minTime = 1000 * v; // [milliseconds]
+				float minDistance = 0; // 10; // [meters]
+				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+					minTime, minDistance, this);
+			}
+		}
+		m_senderIntervalSecs = v;
+	}
+
 	protected Dialog onCreateDialog(int d) {
-		Dialog result;
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		switch (d) {
 		case DIALOG_GPSWARNING:
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			
 			builder.setMessage(R.string.ask_activate_gps_settings)
 			.setCancelable(false)
 			.setPositiveButton(R.string.yes,
@@ -178,11 +190,23 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 					dialog.cancel();
 				}
 			});
-			result = builder.create();
+			break;
+		case DIALOG_INTERVAL_MULTICHOICE:
+			builder.setTitle(R.string.choose_sending_interval);
+			final CharSequence[] items = {"60", "30", "20", "10", "2", "0"};
+			builder.setSingleChoiceItems(items, 1, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					String item = items[which].toString();
+					setSenderIntervalSecs(Integer.parseInt(item));
+					dismissDialog(DIALOG_INTERVAL_MULTICHOICE);
+				}
+			});
 			break;
 		default:
-			result = null;
+			return null;
 		}
+		Dialog result = builder.create();
 		return result;
 	}
 
@@ -195,8 +219,9 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 
 		if (m_lastLocationValid) {
 			long secdiff = (loc.getTime() - m_lastLocation.getTime()) / 1000;
-			if (secdiff >= m_senderIntervalSecs) {
-				if (secdiff <= 4 * m_senderIntervalSecs) {
+			long intervalSecs = getSenderIntervalSecs();
+			if (intervalSecs > 0 && secdiff >= intervalSecs) {
+				if (secdiff <= 4 * intervalSecs) {
 					sendPairNow(m_lastLocation, loc);
 				}
 				m_lastLocation = loc;
@@ -245,7 +270,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 
 	private void sendPairNow(Location startLoc, Location endLoc) {
 		// Only send if the togglebutton is active
-		if (!m_togglebuttonSender.isChecked())
+		if (getSenderIntervalSecs() == 0)
 			return;
 
 		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
