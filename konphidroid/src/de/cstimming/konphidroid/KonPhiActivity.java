@@ -1,16 +1,14 @@
 package de.cstimming.konphidroid;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -38,16 +36,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class KonPhiActivity extends Activity implements LocationListener {
+public class KonPhiActivity extends Activity implements LocationListener, SliceSenderResult {
 
 	private ToggleButton m_togglebuttonGps;
 	private ToggleButton m_togglebuttonSender;
 
 	private SimpleDateFormat m_dateFormatter;
 	private SimpleDateFormat m_dateFormatSender;
+	private NumberFormat m_speedFormatter;
 
 	private Location m_lastLocation;
 	private boolean m_lastLocationValid;
+	private boolean m_currentlySendingSlices;
 
 	private long m_senderIntervalSecs;
 	private String m_server = "http://carcomm.cstimming.de/";
@@ -68,7 +68,13 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		m_dateFormatSender = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		m_dateFormatSender.setTimeZone(TimeZone.getTimeZone("GMT00"));
 		m_dateFormatter = new SimpleDateFormat("HH:mm:ss");
+
+		m_speedFormatter = NumberFormat.getInstance();
+		m_speedFormatter.setMaximumFractionDigits(1);
+
 		m_senderIntervalSecs = 30;
+		m_currentlySendingSlices = false;
+
 		m_togglebuttonGps = (ToggleButton) findViewById(R.id.togglebuttonGps);
 		m_togglebuttonSender = (ToggleButton) findViewById(R.id.togglebuttonSender);
 		m_labelSender = (TextView) findViewById(R.id.TextLabelSender);
@@ -225,7 +231,7 @@ public class KonPhiActivity extends Activity implements LocationListener {
 			String dist = String.valueOf(distance);
 			viewDist.setText(dist);
 			viewSecs.setText(secs);
-			viewSpeed.setText(String.valueOf(3600.0 * distance / (float) msecdiff) + " km/h");
+			viewSpeed.setText(m_speedFormatter.format(3600.0 * distance / (float) msecdiff) + " km/h");
 		} else {
 			viewDist.setText("...");
 			viewSecs.setText("...");
@@ -242,6 +248,13 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		if (!m_togglebuttonSender.isChecked())
 			return;
 
+		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
+
+		if (m_currentlySendingSlices) {
+			resultview.setText("Still sending (ignoring newer position)...");
+			return;
+		}
+
 		String startLat = degToString(startLoc.getLatitude());
 		String startLon = degToString(startLoc.getLongitude());
 		String endLat = degToString(endLoc.getLatitude());
@@ -255,10 +268,8 @@ public class KonPhiActivity extends Activity implements LocationListener {
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(m_server + "slices");
 
-		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
 		resultview.setText("Sending to " + httppost.getURI().toString());
-		String displaytime = m_dateFormatter.format(new Date(endLoc.getTime()))
-		+ ": ";
+		final String displaytime = m_dateFormatter.format(new Date(endLoc.getTime())) + ": ";
 		try {
 			// Add your data
 			List<NameValuePair> nvpairs = new ArrayList<NameValuePair>(10);
@@ -281,26 +292,13 @@ public class KonPhiActivity extends Activity implements LocationListener {
 			// httppost.getEntity().writeTo(baos);
 			// m_webview.loadData(baos.toString(), "text/html", "utf-8");
 
+			// The network connection is moved into a separate task
+			SliceSenderTask task = new SliceSenderTask(httpclient, displaytime, this);
+			
 			// Execute HTTP Post Request
-			HttpResponse response = httpclient.execute(httppost);
-			// baos.reset();
-			// response.getEntity().writeTo(baos);
-			// m_webview.loadData(baos.toString(), "text/html", "utf-8");
-			StatusLine rstatus = response.getStatusLine();
-			int rcode = rstatus.getStatusCode();
-			if (rcode >= 200 && rcode < 300) {
-				resultview.setText(displaytime + String.valueOf(rcode) + " "
-						+ rstatus.getReasonPhrase());
-				resultview.setTextColor(ColorStateList.valueOf(Color.GREEN));
-			} else {
-				resultview.setText(displaytime + String.valueOf(rcode) + " "
-						+ rstatus.getReasonPhrase());
-				resultview.setTextColor(ColorStateList.valueOf(Color.RED));
-			}
-		} catch (ClientProtocolException e) {
-			resultview.setText(displaytime + "Sending failed (Protocol): "
-					+ e.getLocalizedMessage());
-			resultview.setTextColor(ColorStateList.valueOf(Color.RED));
+			m_currentlySendingSlices = true;
+			task.execute(httppost);
+
 		} catch (IOException e) {
 			resultview.setText(displaytime + "Sending failed (IO): "
 					+ e.getLocalizedMessage());
@@ -341,5 +339,13 @@ public class KonPhiActivity extends Activity implements LocationListener {
 			m_togglebuttonGps.setChecked(true);
 			break;
 		}
+	}
+
+	@Override
+	public void sliceSenderResult(String text, boolean good, int color) {
+		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
+		resultview.setText(text);
+		resultview.setTextColor(ColorStateList.valueOf(color));
+		m_currentlySendingSlices = false;
 	}
 }
