@@ -16,9 +16,15 @@ ssh ssh-17573-cs@cstimming.de
 
 # Datenbank von Duplikaten befreien - Alle Zeilen abfragen, die
 # duplizierte times haben:
-select distinct slices.id, slices.time from slices, slices as b where slices.time = b.time and slices.id <> b.id;
+select distinct slices.id, slices.time, slices.instanceid from slices, slices as b where slices.time = b.time and slices.id <> b.id;
 
 # Von Duplikat-Zeilen jeweils nur eine anzeigen - die kann man dann
 # alle zum Löschen auswählen, solange bis keine derartigen Zeilen mehr
 # übrig sind:
 select distinct slices.id, slices.time from slices, slices as b where slices.time = b.time and slices.id <> b.id GROUP BY slices.time HAVING COUNT(*) > 1;
+
+Von Timo:
+
+Delete from slices where id in(
+        Select min(id) as id, time from slices group by time having count(*) > 1
+)
