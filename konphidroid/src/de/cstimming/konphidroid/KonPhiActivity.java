@@ -34,7 +34,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class KonPhiActivity extends Activity implements LocationListener, SliceSenderResult {
@@ -264,10 +263,6 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		}
 	}
 
-	private String degToString(double deg) {
-		return String.valueOf(deg);
-	}
-
 	private void sendPairNow(Location startLoc, Location endLoc) {
 		// Only send if the togglebutton is active
 		if (getSenderIntervalSecs() == 0)
@@ -280,15 +275,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 			return;
 		}
 
-		String startLat = degToString(startLoc.getLatitude());
-		String startLon = degToString(startLoc.getLongitude());
-		String endLat = degToString(endLoc.getLatitude());
-		String endLon = degToString(endLoc.getLongitude());
-		String duration = String
-		.valueOf((endLoc.getTime() - startLoc.getTime()) / 1000);
-		String endTime = m_dateFormatSender.format(new Date(endLoc.getTime()));
-		// FIXME: Need to transfer speed and accuracy at both points, and also
-		// group selection
+		Slice slice = new Slice(startLoc, endLoc, m_instanceId, m_categoryId, m_dateFormatSender);
 
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(m_server + "slices");
@@ -297,21 +284,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		final String displaytime = m_dateFormatter.format(new Date(endLoc.getTime())) + ": ";
 		try {
 			// Add your data
-			List<NameValuePair> nvpairs = new ArrayList<NameValuePair>(10);
-			nvpairs.add(new BasicNameValuePair("slice[startlat]",
-					startLat));
-			nvpairs.add(new BasicNameValuePair("slice[startlon]",
-					startLon));
-			nvpairs.add(new BasicNameValuePair("slice[lat]", endLat));
-			nvpairs.add(new BasicNameValuePair("slice[lon]", endLon));
-			nvpairs.add(new BasicNameValuePair("slice[duration]",
-					duration));
-			nvpairs.add(new BasicNameValuePair("slice[time]", endTime));
-			nvpairs.add(new BasicNameValuePair("slice[startaccuracy]", String.valueOf(startLoc.getAccuracy())));
-			nvpairs.add(new BasicNameValuePair("slice[endaccuracy]", String.valueOf(endLoc.getAccuracy())));
-			nvpairs.add(new BasicNameValuePair("slice[instanceid]", String.valueOf(m_instanceId)));
-			nvpairs.add(new BasicNameValuePair("slice[categoryid]", String.valueOf(m_categoryId)));
-			httppost.setEntity(new UrlEncodedFormEntity(nvpairs));
+			httppost.setEntity(new UrlEncodedFormEntity(slice.toNameValuePair()));
 
 			// ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			// httppost.getEntity().writeTo(baos);
