@@ -4,15 +4,27 @@ require 'date'
 
 # Represents one point of a GPX or NMEA track
 class Trkpt
-  attr_reader :time, :lat, :lon
+  attr_reader :time, :lat, :lon,
+    :avgvel, :headingdeg,
+    :accuracy, :instanceid, :categoryid
 
   def initialize(_time, _lat, _lon)
     @time = _time
     @lat = _lat
     @lon = _lon
+    @avgvel = nil
+    @headingdeg = nil
+    @accuracy = 0
+    @instanceid = 0
+    @categoryid = 0
   end
 
   def Trkpt.fromXml(elem)
+    @avgvel = nil
+    @headingdeg = nil
+    @accuracy = 0
+    @instanceid = 0
+    @categoryid = 0
     if not elem.attribute("lat").nil?
       @lat = elem.attribute("lat").to_s
     end
@@ -22,6 +34,21 @@ class Trkpt
     if elem.elements["time"]
       strtime = elem.elements["time"].text
       @time = Time.parse strtime
+    end
+    if not elem.attribute("avgvel").nil?
+      @avgvel = elem.attribute("avgvel").to_s
+    end
+    if not elem.attribute("headingdeg").nil?
+      @headingdeg = elem.attribute("headingdeg").to_s
+    end
+    if not elem.attribute("accuracy").nil?
+      @accuracy = elem.attribute("accuracy").to_s
+    end
+    if not elem.attribute("instanceid").nil?
+      @instanceid = elem.attribute("instanceid").to_s
+    end
+    if not elem.attribute("categoryid").nil?
+      @categoryid = elem.attribute("categoryid").to_s
     end
   end
 end
@@ -46,7 +73,13 @@ def postSlice(trkpt, prev)
                       :lon => trkpt.lon,
                       :startlat => prev.lat,
                       :startlon => prev.lon,
-                      :duration => duration)
+                      :duration => duration,
+                      :avgvel => trkpt.avgvel,
+                      :headingdev => trkpt.headingdeg,
+                      :startaccuracy => prev.accuracy,
+                      :endaccuracy => trkpt.accuracy,
+                      :instanceid => trkpt.instanceid,
+                      :categoryid => trkpt.categoryid)
     slice.save
     return true
   else
@@ -60,7 +93,7 @@ class HomeController < ApplicationController
   attr_reader :minSliceDuration
 
   def initialize
-    @minSliceDuration = 30
+    @minSliceDuration = 0  # formerly: 30
     super
   end
 
