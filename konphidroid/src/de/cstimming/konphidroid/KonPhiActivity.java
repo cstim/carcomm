@@ -291,7 +291,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 			// m_webview.loadData(baos.toString(), "text/html", "utf-8");
 
 			// The network connection is moved into a separate task
-			SliceSenderTask task = new SliceSenderTask(httpclient, displaytime, this);
+			SliceSenderTask task = new SliceSenderTask(httpclient, displaytime, this, null);
 			
 			// Execute HTTP Post Request
 			m_currentlySendingSlices = true;

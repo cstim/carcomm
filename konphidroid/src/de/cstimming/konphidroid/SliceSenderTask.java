@@ -12,22 +12,29 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 
 public class SliceSenderTask extends AsyncTask<HttpPost, Void, HttpResponse> {
-	HttpClient m_httpclient;
-	SliceSenderResult m_callback;
-	String m_resultprefix;
+	private HttpClient m_httpclient;
+	private SliceSenderResult m_text_cb;
+	private String m_resultprefix;
+	private SenderInterface m_sender_cb;
 
-	public SliceSenderTask(HttpClient client, String resultprefix, SliceSenderResult callback) {
+	public SliceSenderTask(HttpClient client, String resultprefix, SliceSenderResult callback, SenderInterface callback2) {
 		super();
 		m_httpclient = client;
 		m_resultprefix = resultprefix;
-		m_callback = callback;
+		m_text_cb = callback;
+		m_sender_cb = callback2;
 	}
 
 	@Override
 	protected void onPreExecute() {
 		String text = "Sending Way...";
 		int color = Color.YELLOW;
-		m_callback.sliceSenderResult(m_resultprefix + text, true, color);
+		if (m_text_cb != null) {
+			m_text_cb.sliceSenderResult(m_resultprefix + text, true, color);
+		}
+		if (m_sender_cb != null) {
+			m_sender_cb.startedSending();
+		}
 	}
 
 	@Override
@@ -66,7 +73,12 @@ public class SliceSenderTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 			text = "Exception during HTTP connect";
 			good = false;
 		}
-		m_callback.sliceSenderResult(m_resultprefix + text, good, good ? Color.GREEN : Color.RED);
+		if (m_text_cb != null) {
+			m_text_cb.sliceSenderResult(m_resultprefix + text, good, good ? Color.GREEN : Color.RED);
+		}
+		if (m_sender_cb != null) {
+			m_sender_cb.stoppedSending(good);			
+		}
 	}
 
 }
