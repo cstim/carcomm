@@ -1,7 +1,6 @@
 package de.cstimming.konphidroid;
 
 import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -21,7 +20,7 @@ public class GpxCharArrayWriter extends CharArrayWriter {
 		"</trk>\n"+
 		"</gpx>\n";
 
-	GpxCharArrayWriter(List<Location> l){ 
+	public GpxCharArrayWriter(List<Location> l){ 
 		super(50); // FIXME: calculate meaningful value
 
 		String gpxHeader = 
@@ -53,10 +52,10 @@ public class GpxCharArrayWriter extends CharArrayWriter {
 
 		super.append(
 				"<trkpt lat=\""+loc.getLatitude()+"\" lon=\""+loc.getLongitude()+"\">\n"+
-				"<time>"+this.date.format(this.cal.getTime())+"T"+this.time.format(this.cal.getTime())+"Z</time>\n" +
-				"<speed>0.000000</speed>\n"+
-				"<name>TP"+(pointsCount++)+"</name>\n"+
-				"<fix>none</fix>\n"+
+				" <time>"+this.date.format(this.cal.getTime())+"T"+this.time.format(this.cal.getTime())+"Z</time>\n" +
+				" <speed>" + loc.getSpeed() + "</speed>\n"+
+				//"<name>TP"+(pointsCount++)+"</name>\n"+
+				//"<fix>none</fix>\n"+
 		"</trkpt>\n");
 	}
 
