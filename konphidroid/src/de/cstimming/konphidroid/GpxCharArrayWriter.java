@@ -20,14 +20,14 @@ public class GpxCharArrayWriter extends CharArrayWriter {
 		"</trk>\n"+
 		"</gpx>\n";
 
-	public GpxCharArrayWriter(List<Location> l){ 
+	public GpxCharArrayWriter(List<Location> l, int instanceid){ 
 		super(50); // FIXME: calculate meaningful value
 
 		String gpxHeader = 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<gpx\n"+
 			" version=\"1.0\"\n"+
-			"creator=\"GPS Logger\"\n"+
+			"creator=\"KonPhiDroid\"\n"+
 			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"+
 			"xmlns=\"http://www.topografix.com/GPX/1/0\"\n"+
 			"xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd\">\"\n"+
@@ -39,7 +39,7 @@ public class GpxCharArrayWriter extends CharArrayWriter {
 		super.append(gpxHeader);
 
 		for (Iterator<Location> iter = l.iterator(); iter.hasNext(); ) {
-			saveLocation(iter.next());
+			saveLocation(iter.next(), instanceid);
 		}
 		closeFile();
 
@@ -48,12 +48,17 @@ public class GpxCharArrayWriter extends CharArrayWriter {
 		super.append(this.gpxFoter);
 	}
 
-	public void saveLocation(Location loc) {
-
+	public void saveLocation(Location loc, int instanceid) {
 		super.append(
-				"<trkpt lat=\""+loc.getLatitude()+"\" lon=\""+loc.getLongitude()+"\">\n"+
-				" <time>"+this.date.format(this.cal.getTime())+"T"+this.time.format(this.cal.getTime())+"Z</time>\n" +
-				" <speed>" + loc.getSpeed() + "</speed>\n"+
+				"<trkpt lat=\""+loc.getLatitude()
+				+ "\" lon=\""+loc.getLongitude() 
+				+ "\" avgvel=\"" + loc.getSpeed()
+				+ "\" headingdeg=\"" + loc.getBearing()
+				+ "\" accuracy=\"" + loc.getAccuracy()
+				+ "\" instanceid=\"" + instanceid
+				+ "\">\n"+
+				" <time>"+this.date.format(loc.getTime())
+				+ "T" + this.time.format(loc.getTime())+"Z</time>\n" +
 				//"<name>TP"+(pointsCount++)+"</name>\n"+
 				//"<fix>none</fix>\n"+
 		"</trkpt>\n");
