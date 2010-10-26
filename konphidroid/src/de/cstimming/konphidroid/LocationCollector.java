@@ -1,14 +1,15 @@
 package de.cstimming.konphidroid;
 
 import java.io.CharArrayWriter;
-import java.io.InputStream;
-import java.io.StringBufferInputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.location.Location;
@@ -22,11 +23,13 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	private String m_server;
 	private SliceSenderResult m_result_cb;
 	private SimpleDateFormat m_dateFormatter;
+	private int m_instanceid;
 
-	public LocationCollector(String serveraddress, SliceSenderResult result_cb) {
+	public LocationCollector(String serveraddress, SliceSenderResult result_cb, int instanceid) {
 		m_currentlySending = false;
 		m_server = serveraddress;
 		m_result_cb = result_cb;
+		m_instanceid = instanceid;
 		m_dateFormatter = new SimpleDateFormat("HH:mm:ss");
 		resetCollecting();
 	}
@@ -61,19 +64,23 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	}
 
 	// FIXME: This must be tested!
-	private static InputStreamEntity listToStreamEntity(ArrayList<Location> ul) {
-		CharArrayWriter gpxoutput = new GpxCharArrayWriter(ul);
+	private static HttpEntity listToStreamEntity(ArrayList<Location> ul, int instanceid) {
+		CharArrayWriter gpxoutput = new GpxCharArrayWriter(ul, instanceid);
 		String gpxstring = gpxoutput.toString();
-		@SuppressWarnings("deprecation")
-		InputStream istr = new StringBufferInputStream(gpxstring);
-		return new InputStreamEntity(istr, gpxstring.length());
+		try {
+			return new StringEntity(gpxstring);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	private void scheduleSending() {
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(m_server + "slices"); // FIXME: Different URL for GPX upload!
 		final String displaytime = m_dateFormatter.format(new Date(m_sendingLocations.get(m_sendingLocations.size() - 1).getTime())) + ": ";
-		InputStreamEntity entity = listToStreamEntity(m_sendingLocations);
+		HttpEntity entity = listToStreamEntity(m_sendingLocations, m_instanceid);
 		httppost.setEntity(entity);
 
 		// The network connection is moved into a separate task
