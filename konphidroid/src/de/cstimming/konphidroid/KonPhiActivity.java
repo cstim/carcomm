@@ -3,18 +3,13 @@ package de.cstimming.konphidroid;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -56,6 +51,8 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 	private TextView m_labelSender;
 	private int m_instanceId;
 	private int m_categoryId;
+	
+	private LocationCollector m_locationCollector;
 
 	private static final int DIALOG_GPSWARNING = 1;
 	private static final int DIALOG_INTERVAL_MULTICHOICE = 2;
@@ -84,6 +81,8 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		java.util.Random rg = new java.util.Random();
 		m_instanceId = rg.nextInt();
 		m_categoryId = 1;
+
+		m_locationCollector = new LocationCollector(m_server, this, m_instanceId);
 
 		// Print the version number into the UI
 		TextView versionView = (TextView) findViewById(R.id.TextViewVersion);
@@ -126,10 +125,24 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 				showDialog(DIALOG_INTERVAL_MULTICHOICE);
 			}});
 
-		long minTime = 1000 * getSenderIntervalSecs(); // [milliseconds]
-		float minDistance = 0; // 10; // [meters]
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-				minTime, minDistance, this);
+		registerAtLocationManager(getSenderIntervalSecs());
+	}
+	
+	private void registerAtLocationManager(long intervalSecs) {
+		final LocationManager locationManager = (LocationManager) getApplicationContext()
+		.getSystemService(Context.LOCATION_SERVICE);
+		if (!locationManager
+				.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			showDialog(DIALOG_GPSWARNING);
+		}
+		if (intervalSecs < m_senderIntervalSecs) {
+			long minTime = 1000 * intervalSecs; // [milliseconds]
+			float minDistance = 0; // 10; // [meters]
+			LocationListener listener = this;//m_locationCollector;//this;
+			locationManager.removeUpdates(listener);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+					minTime, minDistance, listener);
+		}
 	}
 
 	public long getSenderIntervalSecs() {
@@ -149,18 +162,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 			m_labelSender.setText(R.string.labelsender_on);
 			final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
 			m_labelSender.setTextColor(viewSecs.getTextColors());
-			final LocationManager locationManager = (LocationManager) getApplicationContext()
-				.getSystemService(Context.LOCATION_SERVICE);
-			if (!locationManager
-					.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-				showDialog(DIALOG_GPSWARNING);
-			}
-			if (v < m_senderIntervalSecs) {
-				long minTime = 1000 * v; // [milliseconds]
-				float minDistance = 0; // 10; // [meters]
-				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-					minTime, minDistance, this);
-			}
+			registerAtLocationManager(v);
 		}
 		m_senderIntervalSecs = v;
 	}
