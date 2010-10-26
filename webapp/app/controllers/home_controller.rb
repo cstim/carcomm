@@ -19,7 +19,7 @@ class Trkpt
     @categoryid = 0
   end
 
-  def Trkpt.fromXml(elem)
+  def fromXml(elem)
     @avgvel = nil
     @headingdeg = nil
     @accuracy = 0
@@ -75,7 +75,7 @@ def postSlice(trkpt, prev)
                       :startlon => prev.lon,
                       :duration => duration,
                       :avgvel => trkpt.avgvel,
-                      :headingdev => trkpt.headingdeg,
+                      :headingdeg => trkpt.headingdeg,
                       :startaccuracy => prev.accuracy,
                       :endaccuracy => trkpt.accuracy,
                       :instanceid => trkpt.instanceid,
@@ -120,7 +120,9 @@ class HomeController < ApplicationController
     doc.elements.each("gpx/trk/trkseg") do | track |
       prev = nil
       track.elements.each do | elem_trkpt |
-        trkpt = Trkpt.fromXml elem_trkpt
+        trkpt = Trkpt.new(nil, nil, nil)
+        trkpt.fromXml elem_trkpt
+        #logger.info("#{Time.now} Trying trkpt, got #{trkpt} from #{elem_trkpt}")
         if prev.nil? or trkpt.time.nil?
           prev = trkpt
         else
