@@ -64,24 +64,55 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	}
 
 	// FIXME: This must be tested!
-	private static HttpEntity listToStreamEntity(ArrayList<Location> ul, int instanceid) {
+	private static String listToString(ArrayList<Location> ul, int instanceid) {
 		CharArrayWriter gpxoutput = new GpxCharArrayWriter(ul, instanceid);
 		String gpxstring = gpxoutput.toString();
-		try {
-			return new StringEntity(gpxstring);
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		return gpxstring;
 	}
+
+//	private static HttpEntity listToStreamEntity(ArrayList<Location> ul, int instanceid) {
+//		String gpxstring = listToString(ul, instanceid);
+//		try {
+//			return new StringEntity(gpxstring);
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
 
 	private void scheduleSending() {
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost(m_server + "slices"); // FIXME: Different URL for GPX upload!
+		HttpPost httppost = new HttpPost(m_server + "home/gpxUpload"); // FIXME: Different URL for GPX upload!
 		final String displaytime = m_dateFormatter.format(new Date(m_sendingLocations.get(m_sendingLocations.size() - 1).getTime())) + ": ";
-		HttpEntity entity = listToStreamEntity(m_sendingLocations, m_instanceid);
-		httppost.setEntity(entity);
+
+		// Copied from http://www.anddev.org/upload_files_to_web_server-t443-s30.html
+		final String lineEnd = "\r\n";
+		final String twoHyphens = "--";
+		final String boundary = "*****";
+		httppost.setHeader("Content-Type", "multipart/form-data; boundary="+boundary);
+
+		String gpxstring = listToString(m_sendingLocations, m_instanceid);
+		String output = twoHyphens + boundary + lineEnd;
+		output += "Content-Disposition: form-data; name=\"upload\"; filename=\"anonym\"" + lineEnd;
+		output += "Content-Type: text/plain; charset=UTF-8" + lineEnd;
+		output += lineEnd;
+		// send file data
+		output += gpxstring;
+		// send multipart form data necesssary after file data.
+		output += lineEnd;
+		output += twoHyphens + boundary + twoHyphens + lineEnd;
+
+		// Put the string into the http entity
+		try {
+			HttpEntity entity = new StringEntity(output);
+			httppost.setEntity(entity);
+		} catch (UnsupportedEncodingException e) {
+			// Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+		//HttpEntity entity = listToStreamEntity(m_sendingLocations, m_instanceid);
 
 		// The network connection is moved into a separate task
 		SliceSenderTask task = new SliceSenderTask(httpclient, displaytime, m_result_cb, this);

@@ -138,7 +138,11 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		if (intervalSecs < m_senderIntervalSecs) {
 			long minTime = 1000 * intervalSecs; // [milliseconds]
 			float minDistance = 0; // 10; // [meters]
-			LocationListener listener = this;//m_locationCollector;//this;
+			LocationListener listener = m_locationCollector;//this;
+			locationManager.removeUpdates(listener);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+					minTime, minDistance, listener);
+			listener = this;
 			locationManager.removeUpdates(listener);
 			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
 					minTime, minDistance, listener);
@@ -223,7 +227,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 			long intervalSecs = getSenderIntervalSecs();
 			if (intervalSecs > 0 && secdiff >= intervalSecs) {
 				if (secdiff <= 4 * intervalSecs) {
-					sendPairNow(m_lastLocation, loc);
+					//sendPairNow(m_lastLocation, loc);
 				}
 				m_lastLocation = loc;
 			}

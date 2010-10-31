@@ -28,3 +28,15 @@ Von Timo:
 Delete from slices where id in(
         Select min(id) as id, time from slices group by time having count(*) > 1
 )
+
+
+# ############################################################
+
+Android installieren:
+
+# Switch the Vodafone 845 for linux
+usb_modeswitch -v 0x12d1 -p 0x1031 -s 20 -M "55534243123456780600000080000601000000000000000000000000000000"
+
+cd $HOME/android-sdk-linux_86/tools
+./adb -d uninstall de.cstimming.konphidroid
+./adb -d install -r ~/org/carcomm/konphidroid/bin/konphidroid.apk 
