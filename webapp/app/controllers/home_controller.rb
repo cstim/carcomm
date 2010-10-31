@@ -97,6 +97,8 @@ class HomeController < ApplicationController
     super
   end
 
+  protect_from_forgery :except => :gpxUpload
+
   def index
   end
 
@@ -112,7 +114,7 @@ class HomeController < ApplicationController
 
   protected
   def storeGpx(file)
-    originalname = file.original_filename
+    originalname = (defined? file.original_filename) ? file.original_filename : "<anonymous>"
     content = file.read
 
     doc = REXML::Document.new content
