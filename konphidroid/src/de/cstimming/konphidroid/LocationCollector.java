@@ -146,11 +146,17 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	@Override
 	public void onProviderDisabled(String arg0) {
 		// TODO Auto-generated method stub
+		if (m_location_cb != null) {
+			m_location_cb.onProviderDisabled(arg0);
+		}
 
 	}
 	@Override
 	public void onProviderEnabled(String arg0) {
 		// TODO Auto-generated method stub
+		if (m_location_cb != null) {
+			m_location_cb.onProviderEnabled(arg0);
+		}
 
 	}
 	@Override

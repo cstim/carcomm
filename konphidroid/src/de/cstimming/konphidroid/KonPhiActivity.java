@@ -73,7 +73,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		m_recordIntervalSecs = 0;
 		m_locationCollector = new LocationCollector(m_server, this, m_instanceId, m_categoryId, this);
 
-		setRecordIntervalSecs(30);
+		setRecordIntervalSecs(2);
 		setSenderIntervalSecs(60);
 		java.util.Random rg = new java.util.Random();
 		m_instanceId = rg.nextInt();
@@ -131,8 +131,9 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		final LocationManager locationManager = (LocationManager) getApplicationContext()
 		.getSystemService(Context.LOCATION_SERVICE);
 		LocationListener listener = m_locationCollector;//this;
-		locationManager.removeUpdates(listener);
-		if (intervalSecs > 0) { //< m_senderIntervalSecs) {
+		if (intervalSecs == 0) {
+			locationManager.removeUpdates(listener);
+		} else {
 			if (!locationManager
 					.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 				showDialog(DIALOG_GPSWARNING);
@@ -168,8 +169,8 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 	}
 
 	public void setRecordIntervalSecs(long v) {
-		if (v == m_recordIntervalSecs)
-			return;
+		//if (v == m_recordIntervalSecs)
+			//return;
 		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
 		if (v == 0) {
 			m_togglebuttonRecord.setText(R.string.recording_off);
@@ -213,7 +214,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 			break;
 		case DIALOG_RECORDINTERVAL_MULTICHOICE:
 			builder.setTitle(R.string.choose_record_interval);
-			final CharSequence[] items = {"60", "30", "20", "10", "2", "off"};
+			final CharSequence[] items = {"60", "30", "20", "10", "2", "1", "off"};
 			builder.setSingleChoiceItems(items, 1, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -251,21 +252,8 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 
 		printLocInfo(loc);
 
-		if (m_lastLocationValid) {
-			long secdiff = (loc.getTime() - m_lastLocation.getTime()) / 1000;
-			long intervalSecs = getRecordIntervalSecs();
-			if (intervalSecs > 0 && secdiff >= intervalSecs) {
-				if (secdiff <= 4 * intervalSecs) {
-					//sendPairNow(m_lastLocation, loc);
-				}
-				m_lastLocation = loc;
-			}
-			// Note: We don't set the m_lastLocation if we are smaller than
-			// m_senderIntervalSecs.
-		} else {
-			m_lastLocationValid = true;
-			m_lastLocation = loc;
-		}
+		m_lastLocationValid = true;
+		m_lastLocation = loc;
 	}
 
 	private void printLocInfo(Location loc) {
@@ -282,20 +270,19 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		viewLon.setText(String.valueOf(loc.getLongitude()));
 		viewAcc.setText(loc.hasAccuracy() ? String.valueOf(loc.getAccuracy())
 				: "...");
+		float speed = loc.getSpeed();
+		viewSpeed.setText(m_speedFormatter.format(3.6 * speed) + " km/h");
 
 		if (m_lastLocationValid) {
 			long msecdiff = loc.getTime() - m_lastLocation.getTime();
 			float distance = m_lastLocation.distanceTo(loc);
-			float speed = m_lastLocation.getSpeed();
 			String secs = String.valueOf(msecdiff / 1000);
 			String dist = String.valueOf(distance);
 			viewDist.setText(dist);
 			viewSecs.setText(secs);
-			viewSpeed.setText(m_speedFormatter.format(3.6 * speed) + " km/h");
 		} else {
 			viewDist.setText("...");
 			viewSecs.setText("...");
-			viewSpeed.setText("...");
 		}
 	}
 
