@@ -1,15 +1,10 @@
 package de.cstimming.konphidroid;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -35,6 +30,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 
 	private ToggleButton m_togglebuttonGps;
 	private Button m_togglebuttonSender;
+	private Button m_togglebuttonRecord;
 
 	private SimpleDateFormat m_dateFormatter;
 	private SimpleDateFormat m_dateFormatSender;
@@ -42,9 +38,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 
 	private Location m_lastLocation;
 	private boolean m_lastLocationValid;
-	private boolean m_currentlySendingSlices;
-
-	private long m_senderIntervalSecs;
+	private long m_recordIntervalSecs;
 	private String m_server = "http://carcomm.cstimming.de/";
 
 	//private WebView m_webview;
@@ -55,7 +49,8 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 	private LocationCollector m_locationCollector;
 
 	private static final int DIALOG_GPSWARNING = 1;
-	private static final int DIALOG_INTERVAL_MULTICHOICE = 2;
+	private static final int DIALOG_RECORDINTERVAL_MULTICHOICE = 2;
+	private static final int DIALOG_SENDERINTERVAL_MULTICHOICE = 3;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -72,17 +67,17 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 
 		m_togglebuttonGps = (ToggleButton) findViewById(R.id.togglebuttonGps);
 		m_togglebuttonSender = (Button) findViewById(R.id.togglebuttonSender);
+		m_togglebuttonRecord = (Button) findViewById(R.id.togglebuttonRecord);
 		m_labelSender = (TextView) findViewById(R.id.TextLabelSender);
 
-		m_senderIntervalSecs = 0;
-		setSenderIntervalSecs(30);
-		m_currentlySendingSlices = false;
+		m_recordIntervalSecs = 0;
+		m_locationCollector = new LocationCollector(m_server, this, m_instanceId, m_categoryId, this);
 
+		setRecordIntervalSecs(30);
+		setSenderIntervalSecs(60);
 		java.util.Random rg = new java.util.Random();
 		m_instanceId = rg.nextInt();
 		m_categoryId = 1;
-
-		m_locationCollector = new LocationCollector(m_server, this, m_instanceId);
 
 		// Print the version number into the UI
 		TextView versionView = (TextView) findViewById(R.id.TextViewVersion);
@@ -122,38 +117,40 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		});
 		m_togglebuttonSender.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				showDialog(DIALOG_INTERVAL_MULTICHOICE);
+				showDialog(DIALOG_SENDERINTERVAL_MULTICHOICE);
+			}});
+		m_togglebuttonRecord.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				showDialog(DIALOG_RECORDINTERVAL_MULTICHOICE);
 			}});
 
-		registerAtLocationManager(getSenderIntervalSecs());
+		registerAtLocationManager(getRecordIntervalSecs());
 	}
 	
 	private void registerAtLocationManager(long intervalSecs) {
 		final LocationManager locationManager = (LocationManager) getApplicationContext()
 		.getSystemService(Context.LOCATION_SERVICE);
-		if (!locationManager
-				.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-			showDialog(DIALOG_GPSWARNING);
-		}
-		if (intervalSecs < m_senderIntervalSecs) {
+		LocationListener listener = m_locationCollector;//this;
+		locationManager.removeUpdates(listener);
+		if (intervalSecs > 0) { //< m_senderIntervalSecs) {
+			if (!locationManager
+					.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+				showDialog(DIALOG_GPSWARNING);
+			}
+
 			long minTime = 1000 * intervalSecs; // [milliseconds]
 			float minDistance = 0; // 10; // [meters]
-			LocationListener listener = m_locationCollector;//this;
-			locationManager.removeUpdates(listener);
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-					minTime, minDistance, listener);
-			listener = this;
-			locationManager.removeUpdates(listener);
 			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
 					minTime, minDistance, listener);
 		}
 	}
 
-	public long getSenderIntervalSecs() {
-		return m_senderIntervalSecs;
+	public long getRecordIntervalSecs() {
+		return m_recordIntervalSecs;
 	}
+
 	public void setSenderIntervalSecs(long v) {
-		if (v == m_senderIntervalSecs)
+		if (v == m_locationCollector.getSendingIntervalSecs())
 			return;
 		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
 		if (v == 0) {
@@ -162,13 +159,31 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 			m_labelSender.setTextColor(ColorStateList.valueOf(Color.RED));
 			resultview.setTextColor(ColorStateList.valueOf(Color.GRAY));
 		} else {
-			m_togglebuttonSender.setText(getString(R.string.transmission_on) + " " + String.valueOf(v) + "s");
+			m_togglebuttonSender.setText(getString(R.string.transmission_on) + " " + String.valueOf(v / 60) + "min");
 			m_labelSender.setText(R.string.labelsender_on);
 			final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
 			m_labelSender.setTextColor(viewSecs.getTextColors());
-			registerAtLocationManager(v);
 		}
-		m_senderIntervalSecs = v;
+		m_locationCollector.setSendingIntervalSecs(v);
+	}
+
+	public void setRecordIntervalSecs(long v) {
+		if (v == m_recordIntervalSecs)
+			return;
+		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
+		if (v == 0) {
+			m_togglebuttonRecord.setText(R.string.recording_off);
+			m_labelSender.setText(R.string.labelsender_off);
+			m_labelSender.setTextColor(ColorStateList.valueOf(Color.RED));
+			resultview.setTextColor(ColorStateList.valueOf(Color.GRAY));
+		} else {
+			m_togglebuttonRecord.setText(getString(R.string.recording_on) + " " + String.valueOf(v) + "s");
+			m_labelSender.setText(R.string.labelsender_on);
+			final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
+			m_labelSender.setTextColor(viewSecs.getTextColors());
+		}
+		registerAtLocationManager(v);
+		m_recordIntervalSecs = v;
 	}
 
 	protected Dialog onCreateDialog(int d) {
@@ -196,15 +211,29 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 				}
 			});
 			break;
-		case DIALOG_INTERVAL_MULTICHOICE:
-			builder.setTitle(R.string.choose_sending_interval);
-			final CharSequence[] items = {"60", "30", "20", "10", "2", "0"};
+		case DIALOG_RECORDINTERVAL_MULTICHOICE:
+			builder.setTitle(R.string.choose_record_interval);
+			final CharSequence[] items = {"60", "30", "20", "10", "2", "off"};
 			builder.setSingleChoiceItems(items, 1, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String item = items[which].toString();
-					setSenderIntervalSecs(Integer.parseInt(item));
-					dismissDialog(DIALOG_INTERVAL_MULTICHOICE);
+					final int secs = (item == "off" ? 0 : Integer.parseInt(item));
+					setRecordIntervalSecs(secs);
+					dismissDialog(DIALOG_RECORDINTERVAL_MULTICHOICE);
+				}
+			});
+			break;
+		case DIALOG_SENDERINTERVAL_MULTICHOICE:
+			builder.setTitle(R.string.choose_sending_interval);
+			final CharSequence[] items1 = {"10", "5", "2", "1", "off"};
+			builder.setSingleChoiceItems(items1, 1, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					String item = items1[which].toString();
+					final int mins = (item == "off" ? 0 : Integer.parseInt(item));
+					setSenderIntervalSecs(60 * mins);
+					dismissDialog(DIALOG_SENDERINTERVAL_MULTICHOICE);
 				}
 			});
 			break;
@@ -224,7 +253,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 
 		if (m_lastLocationValid) {
 			long secdiff = (loc.getTime() - m_lastLocation.getTime()) / 1000;
-			long intervalSecs = getSenderIntervalSecs();
+			long intervalSecs = getRecordIntervalSecs();
 			if (intervalSecs > 0 && secdiff >= intervalSecs) {
 				if (secdiff <= 4 * intervalSecs) {
 					//sendPairNow(m_lastLocation, loc);
@@ -257,56 +286,16 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		if (m_lastLocationValid) {
 			long msecdiff = loc.getTime() - m_lastLocation.getTime();
 			float distance = m_lastLocation.distanceTo(loc);
+			float speed = m_lastLocation.getSpeed();
 			String secs = String.valueOf(msecdiff / 1000);
 			String dist = String.valueOf(distance);
 			viewDist.setText(dist);
 			viewSecs.setText(secs);
-			viewSpeed.setText(m_speedFormatter.format(3600.0 * distance / (float) msecdiff) + " km/h");
+			viewSpeed.setText(m_speedFormatter.format(3.6 * speed) + " km/h");
 		} else {
 			viewDist.setText("...");
 			viewSecs.setText("...");
 			viewSpeed.setText("...");
-		}
-	}
-
-	private void sendPairNow(Location startLoc, Location endLoc) {
-		// Only send if the togglebutton is active
-		if (getSenderIntervalSecs() == 0)
-			return;
-
-		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
-
-		if (m_currentlySendingSlices) {
-			resultview.setText("Still sending (ignoring newer position)...");
-			return;
-		}
-
-		Slice slice = new Slice(startLoc, endLoc, m_instanceId, m_categoryId, m_dateFormatSender);
-
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost(m_server + "slices");
-
-		resultview.setText("Sending to " + httppost.getURI().toString());
-		final String displaytime = m_dateFormatter.format(new Date(endLoc.getTime())) + ": ";
-		try {
-			// Add your data
-			httppost.setEntity(new UrlEncodedFormEntity(slice.toNameValuePair()));
-
-			// ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			// httppost.getEntity().writeTo(baos);
-			// m_webview.loadData(baos.toString(), "text/html", "utf-8");
-
-			// The network connection is moved into a separate task
-			SliceSenderTask task = new SliceSenderTask(httpclient, displaytime, this, null);
-			
-			// Execute HTTP Post Request
-			m_currentlySendingSlices = true;
-			task.execute(httppost);
-
-		} catch (IOException e) {
-			resultview.setText(displaytime + "Sending failed (IO): "
-					+ e.getLocalizedMessage());
-			resultview.setTextColor(ColorStateList.valueOf(Color.RED));
 		}
 	}
 
@@ -350,6 +339,5 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
 		resultview.setText(text);
 		resultview.setTextColor(ColorStateList.valueOf(color));
-		m_currentlySendingSlices = false;
 	}
 }

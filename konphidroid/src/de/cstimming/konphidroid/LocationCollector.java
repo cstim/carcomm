@@ -24,12 +24,17 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	private SliceSenderResult m_result_cb;
 	private SimpleDateFormat m_dateFormatter;
 	private int m_instanceid;
+	private int m_categoryId;
+	private LocationListener m_location_cb;
+	private long m_sendingIntervalSecs;
 
-	public LocationCollector(String serveraddress, SliceSenderResult result_cb, int instanceid) {
+	public LocationCollector(String serveraddress, SliceSenderResult result_cb, int instanceid, int mCategoryId, LocationListener another_location_cb) {
 		m_currentlySending = false;
 		m_server = serveraddress;
 		m_result_cb = result_cb;
 		m_instanceid = instanceid;
+		m_categoryId = mCategoryId;
+		m_location_cb = another_location_cb;
 		m_dateFormatter = new SimpleDateFormat("HH:mm:ss");
 		resetCollecting();
 	}
@@ -39,19 +44,31 @@ public class LocationCollector implements LocationListener, SenderInterface {
 
 	@Override
 	public void onLocationChanged(Location loc) {
+		if (m_location_cb != null) {
+			m_location_cb.onLocationChanged(loc);
+		}
 		m_collectingLocations.add(loc);
 		checkForSending();
 	}
 
+	public void setSendingIntervalSecs(long secs) {
+		m_sendingIntervalSecs = secs;
+	}
+	
+	public long getSendingIntervalSecs() {
+		return m_sendingIntervalSecs;
+	}
+
 	private void checkForSending() {
-		if (m_currentlySending || m_collectingLocations.size() <= 1) {
+		if (m_currentlySending
+				|| m_collectingLocations.size() <= 1
+				|| m_sendingIntervalSecs == 0) {
 			return;
 		}
 		Location first = m_collectingLocations.get(0);
 		Location last = m_collectingLocations.get(m_collectingLocations.size() - 1);
 		long secdiff = (last.getTime() - first.getTime()) / 1000;
-		long intervalSecs = 30; // FIXME getSenderIntervalSecs();
-		if (intervalSecs > 0 && secdiff >= intervalSecs) {
+		if (m_sendingIntervalSecs > 0 && secdiff >= m_sendingIntervalSecs) {
 			sendNow();
 		}
 	}
@@ -63,23 +80,11 @@ public class LocationCollector implements LocationListener, SenderInterface {
 		resetCollecting();
 	}
 
-	// FIXME: This must be tested!
 	private static String listToString(ArrayList<Location> ul, int instanceid) {
 		CharArrayWriter gpxoutput = new GpxCharArrayWriter(ul, instanceid);
 		String gpxstring = gpxoutput.toString();
 		return gpxstring;
 	}
-
-//	private static HttpEntity listToStreamEntity(ArrayList<Location> ul, int instanceid) {
-//		String gpxstring = listToString(ul, instanceid);
-//		try {
-//			return new StringEntity(gpxstring);
-//		} catch (UnsupportedEncodingException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
 
 	private void scheduleSending() {
 		HttpClient httpclient = new DefaultHttpClient();

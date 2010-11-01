@@ -4,6 +4,8 @@
     <string name="hello">KonPhiDense Test-App, Version</string>
     <string name="transmission_on">Übertragung</string>
     <string name="transmission_off">Keine Übertragung</string>
+    <string name="recording_on">Logging</string>
+    <string name="recording_off">Kein Logging</string>
     <string name="gpsbutton">GPS</string>
     <string name="gps_timestamp">GPS Zeitstempel:</string>
     <string name="transmission_on_toast">Bewegung wird zum Server übertragen</string>
@@ -14,5 +16,6 @@
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
     <string name="labelspeed">Speed:</string>
-    <string name="choose_sending_interval">Sende-Intervall wählen [s]:</string>
+    <string name="choose_sending_interval">Sende-Intervall wählen [Min]:</string>
+    <string name="choose_record_interval">Aufzeichnungs-Intervall wählen [Sek]:</string>
 </resources>

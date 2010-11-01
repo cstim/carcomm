@@ -19,10 +19,13 @@
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:textOn="@string/gpsbutton" android:textOff="@string/gpsbutton" />
 
+		<Button android:text="@string/recording_on" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/togglebuttonRecord" />
+
 		<Button android:id="@+id/togglebuttonSender"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:text="@string/transmission_on" />
-
+	
 	</LinearLayout>
 
 	<TableLayout android:layout_width="fill_parent"
@@ -92,6 +95,6 @@
 		android:autoLink="web" />
 
 	<LinearLayout android:id="@+id/LayoutWebview"
-		android:layout_width="fill_parent" android:layout_height="fill_parent"></LinearLayout>
+		android:layout_width="fill_parent" android:layout_height="fill_parent" />
 
 </LinearLayout>
