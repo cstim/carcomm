@@ -70,14 +70,15 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		m_togglebuttonRecord = (Button) findViewById(R.id.togglebuttonRecord);
 		m_labelSender = (TextView) findViewById(R.id.TextLabelSender);
 
-		m_recordIntervalSecs = 0;
-		m_locationCollector = new LocationCollector(m_server, this, m_instanceId, m_categoryId, this);
-
-		setRecordIntervalSecs(2);
-		setSenderIntervalSecs(60);
 		java.util.Random rg = new java.util.Random();
 		m_instanceId = rg.nextInt();
 		m_categoryId = 1;
+
+		m_recordIntervalSecs = 0;
+		m_locationCollector = new LocationCollector(m_server, this, m_instanceId, m_categoryId, this);
+
+		setRecordIntervalSecs(10);
+		setSenderIntervalSecs(60);
 
 		// Print the version number into the UI
 		TextView versionView = (TextView) findViewById(R.id.TextViewVersion);
@@ -215,7 +216,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		case DIALOG_RECORDINTERVAL_MULTICHOICE:
 			builder.setTitle(R.string.choose_record_interval);
 			final CharSequence[] items = {"60", "30", "20", "10", "2", "1", "off"};
-			builder.setSingleChoiceItems(items, 1, new DialogInterface.OnClickListener() {
+			builder.setSingleChoiceItems(items, 3, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String item = items[which].toString();
@@ -228,7 +229,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		case DIALOG_SENDERINTERVAL_MULTICHOICE:
 			builder.setTitle(R.string.choose_sending_interval);
 			final CharSequence[] items1 = {"10", "5", "2", "1", "off"};
-			builder.setSingleChoiceItems(items1, 1, new DialogInterface.OnClickListener() {
+			builder.setSingleChoiceItems(items1, 3, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String item = items1[which].toString();
