@@ -1,0 +1,3 @@
+# Time	StartLat[deg]	StartLon[deg]	EndLat[deg]	EndLon[deg]	AvgVel[m/s]	Headingdeg[deg]	Dist[m]	Duration[s]	StartAccuracy[m]	EndAccuracy[m]	InstanceId	Category
+<% for slice in @slices %><%=h slice.time %>	<%=h slice.startlat %>	<%=h slice.startlon %>	<%=h slice.lat %>	<%=h slice.lon %>	<%=h slice.avgvel %>	<%=h slice.headingdeg %>	<%=h slice.dist %>	<%=h slice.duration %>	<%=h slice.startaccuracy %>	<%=h slice.endaccuracy %>	<%=h slice.instanceid %>	<%=h slice.categoryid %>
+<% end %>

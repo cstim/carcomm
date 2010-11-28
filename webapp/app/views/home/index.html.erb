@@ -49,6 +49,13 @@
             // Define the styles for the way slices
             gpxStyleMap = csCreateGpxStyleMap();
 
+            // Set the initial date interval to 2 weeks
+            var num_minutes = 10080 * 2 + 60; // 2 weeks + 1 hour
+            var max_time = new Date();
+            document.forms.extent.max_time.value = dateToString(max_time);
+            var min_time = new Date(max_time.getTime() - num_minutes * 60 * 1000);
+            document.forms.extent.min_time.value = dateToString(min_time);
+
             // Choose Hamburg as center
             zoomToHamburg();
 
@@ -85,6 +92,46 @@ function on_osm_tileloaded() {
                                         min_time, max_time);
 
             map.addLayer(layerGpx);
+        }
+
+        function loadWaysGpx() {
+            var min_lat = document.forms.extent.min_lat.value;
+            var max_lat = document.forms.extent.max_lat.value;
+            var min_lon = document.forms.extent.min_lon.value;
+            var max_lon = document.forms.extent.max_lon.value;
+
+            var min_time = document.forms.extent.min_time.value;
+            var max_time = document.forms.extent.max_time.value;
+
+            var fullURL = serverUrl + "slices.gpx?"
+                + "min_lat=" + min_lat
+                + "&max_lat=" + max_lat
+                + "&min_lon=" + min_lon
+                + "&max_lon=" + max_lon
+                + "&min_time=" + min_time
+                + "&max_time=" + max_time;
+
+            window.open(fullURL, "Zweitfenster");
+        }
+
+        function loadWaysCsv() {
+            var min_lat = document.forms.extent.min_lat.value;
+            var max_lat = document.forms.extent.max_lat.value;
+            var min_lon = document.forms.extent.min_lon.value;
+            var max_lon = document.forms.extent.max_lon.value;
+
+            var min_time = document.forms.extent.min_time.value;
+            var max_time = document.forms.extent.max_time.value;
+
+            var fullURL = serverUrl + "slices.csv?"
+                + "min_lat=" + min_lat
+                + "&max_lat=" + max_lat
+                + "&min_lon=" + min_lon
+                + "&max_lon=" + max_lon
+                + "&min_time=" + min_time
+                + "&max_time=" + max_time;
+
+            window.open(fullURL, "Zweitfenster");
         }
 
         function updateExtent() {
@@ -168,8 +215,8 @@ map. Additionally, all the way slices from <%= link_to "here",
 <tr><td>max_lon</td><td><input type="text" name="max_lon" value=""></td></tr>
 <tr><td>min_time</td><td><input type="text" name="min_time" value="2009-05-01T00:00:00Z"></td></tr>
 <tr><td>max_time</td><td><input type="text" name="max_time" value=""></td></tr>
-<tr><td colspan="2"><input type="button" value="Only Reload Ways" onClick="reloadWays()"> according to the coordinates above</td></tr>
 <tr><td colspan="2"><input type="button" value="Reload" onClick="updateExtent()"> everything (coordinates from map, and ways from coordinates)</td></tr>
+<tr><td colspan="2">File Download: <input type="button" value="As GPX" onClick="loadWaysGpx()"> <input type="button" value="As CSV" onClick="loadWaysCsv()"></td></tr>
 </table>
 </form>
 

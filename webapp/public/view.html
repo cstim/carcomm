@@ -164,9 +164,9 @@ function loadWaysDefault() {
         return;
     }
 
-    var num_minutes = 10080 * 6 + 60; // 6 weeks + 1 hour
+    var num_minutes = 10080 * 4 + 60; // 4 weeks + 1 hour
     var max_time = new Date();
-    var min_time = new Date(max_time.getDate() - num_minutes * 60 * 1000);
+    var min_time = new Date(max_time.getTime() - num_minutes * 60 * 1000);
     loadWays(dateToString(min_time), dateToString(max_time));
 }
 

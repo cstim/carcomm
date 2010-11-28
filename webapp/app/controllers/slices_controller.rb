@@ -31,6 +31,7 @@ class SlicesController < ApplicationController
     # And choose the output format
     respond_to do |format|
       format.html # index.html.erb
+      format.csv # index.erb
       format.gpx  # index.gpx.builder
       format.xml  { render :xml => @slices }
     end
