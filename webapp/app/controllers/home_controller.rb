@@ -105,6 +105,10 @@ class HomeController < ApplicationController
   def gpxUpload
     resulttext = storeGpx(params[:upload])
     render :text => "File has been uploaded successfully: #{resulttext}"
+
+    #r = runMyAlgo
+
+    #render :text => r.to_s
   end
 
   def nmeaUpload
