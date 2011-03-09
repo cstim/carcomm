@@ -1,3 +1,5 @@
+require "geo"
+
 class Slice < ActiveRecord::Base
   validates_presence_of :time, :lat, :lon, :avgvel
   validates_numericality_of :avgvel, :greater_than_or_equal_to => 0, :less_than => 100
@@ -17,6 +19,7 @@ class Slice < ActiveRecord::Base
   RAD_TO_DEG = 180.0 / Math::PI
 
   protected
+
   def calc_dist_if_empty!
     if dist.nil? and not (startlat.nil? or startlon.nil? or lat.nil? or lon.nil?)
 
@@ -24,24 +27,10 @@ class Slice < ActiveRecord::Base
       # the distance. This uses the Haversine formula, see
       # http://www.movable-type.co.uk/scripts/latlong.html
 
-      earthR = 6371000 # m
-      lat_rad = lat * DEG_TO_RAD
-      startlat_rad = startlat * DEG_TO_RAD
-
-      dLat = (lat - startlat) * DEG_TO_RAD
-      dLon = (lon - startlon) * DEG_TO_RAD
-
-      a = Math::sin(dLat / 2) * Math::sin(dLat / 2) \
-          + Math::cos(startlat_rad) * Math::cos(lat_rad) \
-          * Math::sin(dLon / 2) * Math::sin(dLon / 2)
-      c = 2 * Math::atan2(Math::sqrt(a), Math::sqrt(1 - a))
-      d = earthR * c
-
-      self.dist = d
+      self.dist = Geo.haversine_dist(startlat, lat, startlon, lon)
     end
   end
 
-  protected
   def calc_heading_if_empty!
     if headingdeg.nil? and not (startlat.nil? or startlon.nil? or lat.nil? or lon.nil?)
       startlat_rad = startlat * DEG_TO_RAD
@@ -56,14 +45,12 @@ class Slice < ActiveRecord::Base
     end
   end
 
-  protected
   def calc_duration_from_avgvel!
     if duration.nil? and not dist.nil? and not avgvel.nil?
       self.duration = dist / avgvel
     end
   end
 
-  protected
   def calc_avgvel_from_duration!
     if avgvel.nil? and not dist.nil? and not duration.nil?
       self.avgvel  = dist / duration
