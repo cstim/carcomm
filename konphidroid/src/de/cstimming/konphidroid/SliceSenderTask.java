@@ -6,7 +6,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -66,6 +68,14 @@ public class SliceSenderTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 			int rcode = rstatus.getStatusCode();
 			text = String.valueOf(rcode) + " " + rstatus.getReasonPhrase();
 			if (rcode >= 200 && rcode < 300) {
+				try {
+					text = new BasicResponseHandler().handleResponse(response);
+					//System.out.println("rtext=" + rtext);
+				} catch (HttpResponseException e) {
+					good = false;
+				} catch (IOException e) {
+					good = false;
+				}
 			} else {
 				good = false;
 			}
