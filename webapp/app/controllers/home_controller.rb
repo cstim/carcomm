@@ -17,7 +17,7 @@ class HomeController < ApplicationController
 
   def gpxUpload
     resulttext = Gpx.storeGpx(params[:upload], minSliceDuration)
-    render :text => "File has been uploaded successfully: #{resulttext}"
+    render :text => "#{resulttext} successfully."
 
     #r = runMyAlgo
 

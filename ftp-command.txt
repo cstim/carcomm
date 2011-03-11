@@ -5,13 +5,20 @@ lftp 17573-ftp@ftp.cstim.de
 cd webapps/
 cd carcomm/
 
-mirror -R -x .git -n .
+mirror -R -x .git -x '.*~' -n .
 
 # -x REGEX  - to exclude REGEX from transfer
 # -n        - to transfer only newer files
 # -R        - Reverse mirror to transfer in upload direction
 
+# WATCH OUT: config/environment.rb must have uncommented the line
+# RAILS_GEM_VERSION = '2.2.2' on the server, otherwise the server
+# won't have the correct gem versions.
+
 ssh ssh-17573-cs@cstimming.de
+
+# To force rails to reload the files: Put a file "restart.txt" in
+# tmp/, i.e. /webapps/carcomm/tmp
 
 
 # Datenbank von Duplikaten befreien - Alle Zeilen abfragen, die
@@ -37,6 +44,6 @@ Android installieren:
 # Switch the Vodafone 845 for linux
 usb_modeswitch -v 0x12d1 -p 0x1031 -s 20 -M "55534243123456780600000080000601000000000000000000000000000000"
 
-cd $HOME/android-sdk-linux_86/tools
+cd $HOME/android-sdk-linux_86/platform-tools
 ./adb -d uninstall de.cstimming.konphidroid
 ./adb -d install -r ~/org/carcomm/konphidroid/bin/konphidroid.apk 

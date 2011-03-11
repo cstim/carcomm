@@ -29,7 +29,7 @@ class Gpx
         end
       end # track.points.each
     end # gpx.tracks.each
-    "Added #{newslices} new slices from #{originalname}"
+    "#{newslices} new slices are added from #{originalname}"
   end
 
 end
