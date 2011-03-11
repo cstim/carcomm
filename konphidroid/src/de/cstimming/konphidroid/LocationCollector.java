@@ -80,8 +80,8 @@ public class LocationCollector implements LocationListener, SenderInterface {
 		resetCollecting();
 	}
 
-	private static String listToString(ArrayList<Location> ul, int instanceid) {
-		CharArrayWriter gpxoutput = new GpxCharArrayWriter(ul, instanceid);
+	private static String listToString(ArrayList<Location> ul, int instanceid, int categoryid) {
+		CharArrayWriter gpxoutput = new GpxCharArrayWriter(ul, instanceid, categoryid);
 		String gpxstring = gpxoutput.toString();
 		return gpxstring;
 	}
@@ -97,7 +97,7 @@ public class LocationCollector implements LocationListener, SenderInterface {
 		final String boundary = "*****";
 		httppost.setHeader("Content-Type", "multipart/form-data; boundary="+boundary);
 
-		String gpxstring = listToString(m_sendingLocations, m_instanceid);
+		String gpxstring = listToString(m_sendingLocations, m_instanceid, m_categoryId);
 		String output = twoHyphens + boundary + lineEnd;
 		output += "Content-Disposition: form-data; name=\"upload\"; filename=\"anonym\"" + lineEnd;
 		output += "Content-Type: text/plain; charset=UTF-8" + lineEnd;

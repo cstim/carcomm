@@ -10,7 +10,7 @@ import android.location.Location;
 
 public class GpxCharArrayWriter extends CharArrayWriter {
 
-	private int pointsCount = 0;
+	//private int pointsCount = 0;
 	private SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");		
 	private SimpleDateFormat time = new SimpleDateFormat("HH:mm:ss");		
 	Calendar cal = Calendar.getInstance();
@@ -20,7 +20,7 @@ public class GpxCharArrayWriter extends CharArrayWriter {
 		"</trk>\n"+
 		"</gpx>\n";
 
-	public GpxCharArrayWriter(List<Location> l, int instanceid){ 
+	public GpxCharArrayWriter(List<Location> l, int instanceid, int catid){ 
 		super(50); // FIXME: calculate meaningful value
 
 		String gpxHeader = 
@@ -39,7 +39,7 @@ public class GpxCharArrayWriter extends CharArrayWriter {
 		super.append(gpxHeader);
 
 		for (Iterator<Location> iter = l.iterator(); iter.hasNext(); ) {
-			saveLocation(iter.next(), instanceid);
+			saveLocation(iter.next(), instanceid, catid);
 		}
 		closeFile();
 
@@ -48,7 +48,7 @@ public class GpxCharArrayWriter extends CharArrayWriter {
 		super.append(this.gpxFoter);
 	}
 
-	public void saveLocation(Location loc, int instanceid) {
+	public void saveLocation(Location loc, int instanceid, int catid) {
 		super.append(
 				"<trkpt lat=\""+loc.getLatitude()
 				+ "\" lon=\""+loc.getLongitude() 
@@ -56,6 +56,7 @@ public class GpxCharArrayWriter extends CharArrayWriter {
 				+ "\" headingdeg=\"" + loc.getBearing()
 				+ "\" accuracy=\"" + loc.getAccuracy()
 				+ "\" instanceid=\"" + instanceid
+				+ "\" categoryid=\"" + catid
 				+ "\">\n"+
 				" <time>"+this.date.format(loc.getTime())
 				+ "T" + this.time.format(loc.getTime())+"Z</time>\n" +

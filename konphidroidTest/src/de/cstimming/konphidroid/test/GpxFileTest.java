@@ -21,7 +21,7 @@ public class GpxFileTest extends TestCase {
 	}
 
 	public void testWriter() {
-		GpxCharArrayWriter w = new GpxCharArrayWriter(m_list, 17);
+		GpxCharArrayWriter w = new GpxCharArrayWriter(m_list, 17, 32);
 		System.out.println(w.toString());
 		System.out.println("blabla");
 		assertTrue(true);
