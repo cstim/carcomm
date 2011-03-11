@@ -11,6 +11,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import android.location.Location;
 import android.location.LocationListener;
@@ -27,6 +30,7 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	private int m_categoryId;
 	private LocationListener m_location_cb;
 	private long m_sendingIntervalSecs;
+	private HttpParams m_httpParameters;
 
 	public LocationCollector(String serveraddress, SliceSenderResult result_cb, int instanceid, int mCategoryId, LocationListener another_location_cb) {
 		m_currentlySending = false;
@@ -37,6 +41,16 @@ public class LocationCollector implements LocationListener, SenderInterface {
 		m_location_cb = another_location_cb;
 		m_dateFormatter = new SimpleDateFormat("HH:mm:ss");
 		resetCollecting();
+		
+		m_httpParameters = new BasicHttpParams();
+		// Set the timeout in milliseconds until a connection is established.
+		int timeoutConnection = 5000;
+		HttpConnectionParams.setConnectionTimeout(m_httpParameters, timeoutConnection);
+		// Set the default socket timeout (SO_TIMEOUT) 
+		// in milliseconds which is the timeout for waiting for data.
+		int timeoutSocket = 5000;
+		HttpConnectionParams.setSoTimeout(m_httpParameters, timeoutSocket);
+
 	}
 	private void resetCollecting() {
 		m_collectingLocations = new ArrayList<Location>();
@@ -87,7 +101,7 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	}
 
 	private void scheduleSending() {
-		HttpClient httpclient = new DefaultHttpClient();
+		HttpClient httpclient = new DefaultHttpClient(m_httpParameters);
 		HttpPost httppost = new HttpPost(m_server + "home/gpxUpload"); // FIXME: Different URL for GPX upload!
 		final String displaytime = m_dateFormatter.format(new Date(m_sendingLocations.get(m_sendingLocations.size() - 1).getTime())) + ": ";
 
