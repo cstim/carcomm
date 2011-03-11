@@ -18,13 +18,16 @@ public class SliceSenderTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 	private SliceSenderResult m_text_cb;
 	private String m_resultprefix;
 	private SenderInterface m_sender_cb;
+	private SenderFloatResult m_floatResult_cb;
 
-	public SliceSenderTask(HttpClient client, String resultprefix, SliceSenderResult callback, SenderInterface callback2) {
+	public SliceSenderTask(HttpClient client, String resultprefix,
+			SliceSenderResult callback, SenderInterface c2, SenderFloatResult c3) {
 		super();
 		m_httpclient = client;
 		m_resultprefix = resultprefix;
 		m_text_cb = callback;
-		m_sender_cb = callback2;
+		m_sender_cb = c2;
+		m_floatResult_cb = c3;
 	}
 
 	@Override
@@ -82,6 +85,17 @@ public class SliceSenderTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 		} else {
 			text = "Exception during HTTP connect";
 			good = false;
+		}
+		float resultfloat = 0;
+		try {
+			int firstWhitespace = text.indexOf(" ");
+			String tmp = (firstWhitespace == -1) ? text : text.substring(0, firstWhitespace);
+			resultfloat = Float.parseFloat(tmp);
+		} catch (NumberFormatException ex) {
+			// do nothing
+		}
+		if (m_floatResult_cb != null) {
+			m_floatResult_cb.resultFloat(resultfloat, good);
 		}
 		if (m_text_cb != null) {
 			m_text_cb.sliceSenderResult(m_resultprefix + text, good, good ? Color.GREEN : Color.RED);

@@ -26,7 +26,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class KonPhiActivity extends Activity implements LocationListener, SliceSenderResult {
+public class KonPhiActivity extends Activity implements LocationListener, SliceSenderResult, SenderFloatResult {
 
 	private ToggleButton m_togglebuttonGps;
 	private Button m_togglebuttonSender;
@@ -75,7 +75,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		m_categoryId = 1;
 
 		m_recordIntervalSecs = 0;
-		m_locationCollector = new LocationCollector(m_server, this, m_instanceId, m_categoryId, this);
+		m_locationCollector = new LocationCollector(m_server, this, m_instanceId, m_categoryId, this, this);
 
 		setRecordIntervalSecs(10);
 		setSenderIntervalSecs(60);
@@ -327,5 +327,17 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
 		resultview.setText(text);
 		resultview.setTextColor(ColorStateList.valueOf(color));
+	}
+
+	@Override
+	public void resultFloat(float value, boolean good) {
+		final TextView numberview = (TextView) findViewById(R.id.TextViewNumber);
+		numberview.setText(Float.toString(value));
+		int color = Color.RED;
+		if (good)
+		{
+			color = value > 0 ? Color.GREEN : Color.YELLOW;
+		}
+		numberview.setTextColor(ColorStateList.valueOf(color));
 	}
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KonPhiDroid</string>
-    <string name="hello">KonPhiDense Test-App, Version</string>
+    <string name="app_name">Stautimer</string>
+    <string name="hello">Stautimer KonPhi, Version</string>
     <string name="transmission_on">Übertragung</string>
     <string name="transmission_off">Keine Übertragung</string>
     <string name="recording_on">Logging</string>

@@ -25,6 +25,7 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	private boolean m_currentlySending;
 	private String m_server;
 	private SliceSenderResult m_result_cb;
+	private SenderFloatResult m_floatResult_cb;
 	private SimpleDateFormat m_dateFormatter;
 	private int m_instanceid;
 	private int m_categoryId;
@@ -32,10 +33,13 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	private long m_sendingIntervalSecs;
 	private HttpParams m_httpParameters;
 
-	public LocationCollector(String serveraddress, SliceSenderResult result_cb, int instanceid, int mCategoryId, LocationListener another_location_cb) {
+	public LocationCollector(String serveraddress, SliceSenderResult result_cb,
+			int instanceid, int mCategoryId, LocationListener another_location_cb,
+			SenderFloatResult c3) {
 		m_currentlySending = false;
 		m_server = serveraddress;
 		m_result_cb = result_cb;
+		m_floatResult_cb = c3;
 		m_instanceid = instanceid;
 		m_categoryId = mCategoryId;
 		m_location_cb = another_location_cb;
@@ -134,7 +138,7 @@ public class LocationCollector implements LocationListener, SenderInterface {
 		//HttpEntity entity = listToStreamEntity(m_sendingLocations, m_instanceid);
 
 		// The network connection is moved into a separate task
-		SliceSenderTask task = new SliceSenderTask(httpclient, displaytime, m_result_cb, this);
+		SliceSenderTask task = new SliceSenderTask(httpclient, displaytime, m_result_cb, this, m_floatResult_cb);
 
 		// Execute HTTP Post Request
 		task.execute(httppost);
