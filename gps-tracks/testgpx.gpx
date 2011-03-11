@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.0" creator="OpenStreetMap.org" xmlns="http://www.topografix.com/GPX/1/0/">
+<trk>
+<trkseg>
+<trkpt lat="48.0" lon="10.0"
+ avgvel="20.0" headingdeg="0.0" accuracy="3.0" instanceid="17">
+ <time>2010-10-01T00:00:00Z</time>
+</trkpt>
+<trkpt lat="48.0" lon="10.0003"
+ avgvel="20.0" headingdeg="0.0" accuracy="4.0" instanceid="17">
+ <time>2010-10-01T00:01:00Z</time>
+</trkpt>
+<trkpt lat="48.0" lon="10.0006"
+ avgvel="20.0" headingdeg="0.0" accuracy="5.0" instanceid="17">
+ <time>2010-10-01T00:02:00Z</time>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>
