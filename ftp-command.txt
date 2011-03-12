@@ -5,7 +5,7 @@ lftp 17573-ftp@ftp.cstim.de
 cd webapps/
 cd carcomm/
 
-mirror -R -x .git -x '.*~' -n .
+mirror -R -x .git -x '.*~' -x '.*\.log' -x environment.rb -n .
 
 # -x REGEX  - to exclude REGEX from transfer
 # -n        - to transfer only newer files
