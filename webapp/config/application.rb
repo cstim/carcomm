@@ -40,3 +40,6 @@ module Webapp
     config.filter_parameters += [:password]
   end
 end
+
+# Extra mime type
+Mime::Type.register "application/gpx+xml", :gpx
