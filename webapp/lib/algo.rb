@@ -1,7 +1,7 @@
 require 'time'
 
 class Algo
-  def self.time_to_still(tdata)
+  def self.predict1(tdata)
     if tdata.empty?
       return 0
     end
@@ -14,6 +14,10 @@ class Algo
     # Find the last index where the block is true
     t_30_index = tdata.rindex{|i| t_current - i[0] >= 30}
 
+    if t_30_index.nil? or tdata[t_30_index].nil?
+      return 0
+    end
+
     # This is the measurement approx. 30 seconds ago, and its velocity
     t_30 = tdata[t_30_index][0]
     v_30 = tdata[t_30_index][1]
@@ -21,6 +25,9 @@ class Algo
 
     # The max and min velocity in our data
     v_minmax = tdata.minmax_by{|i| i[1]}
+    if v_minmax.nil?
+      return 0
+    end
     v_min = v_minmax[0][1]
     v_max = v_minmax[1][1]
 
@@ -30,7 +37,7 @@ class Algo
     v_diff = v_current - v_30
 
     m = v_diff.to_f / t_diff.to_f
-    puts "t_diff=#{t_diff} v_diff=#{v_diff} m=#{m} in_jam=#{is_in_jam} v_min=#{v_min} v_max=#{v_max}"
+    #puts "t_diff=#{t_diff} v_diff=#{v_diff} m=#{m} in_jam=#{is_in_jam} v_min=#{v_min} v_max=#{v_max}"
 
     if v_current >= 60
       # Free flowing traffic, except if we're braking
@@ -78,19 +85,22 @@ def test_main1
   tdata = [	[-30, 90], [-20, 12], [-10, 11], [0, 80] ]
   #print_tdata(tdata)
 
-  puts "Test Result1 = " + Algo.time_to_still(tdata).to_s
+  puts "Test Result1 = " + Algo.predict1(tdata).to_s
 
   tdata = [	[-30, 120], [-20, 12], [-10, 11], [0, 61] ]
-  puts "Test Result2 = " + Algo.time_to_still(tdata).to_s
+  puts "Test Result2 = " + Algo.predict1(tdata).to_s
 
   tdata = [	[-30, 70], [-20, 90], [-10, 11], [0, 35] ]
-  puts "Test Result3 = " + Algo.time_to_still(tdata).to_s
+  puts "Test Result3 = " + Algo.predict1(tdata).to_s
 
   tdata = [	[-30, 46], [-20, 12], [-10, 11], [0, 25] ]
-  puts "Test Result4 = " + Algo.time_to_still(tdata).to_s
+  puts "Test Result4 = " + Algo.predict1(tdata).to_s
 
   tdata = [	[-30, 12], [-20, 12], [-10, 11], [0, 35] ]
-  puts "Test Result4 = " + Algo.time_to_still(tdata).to_s
+  puts "Test Result4 = " + Algo.predict1(tdata).to_s
+
+  tdata = [	[0, 72] ]
+  puts "Test Result4 = " + Algo.predict1(tdata).to_s
 
 end
 
