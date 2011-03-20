@@ -1,4 +1,4 @@
-package de.cstimming.konphidroid;
+package de.cstimming.jamanalysis;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

@@ -1,9 +1,11 @@
-package de.cstimming.konphidroid;
+package de.cstimming.jamanalysis;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
+import de.cstimming.jamanalysis.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
