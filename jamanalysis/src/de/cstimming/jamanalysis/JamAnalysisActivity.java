@@ -103,10 +103,10 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 		try {
 			versionString = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 		} catch (NameNotFoundException e) {
-			versionString = "Not found";
+			versionString = getString(R.string.version_not_found);
 			e.printStackTrace();
 		}
-		versionView.setText(" " + versionString);
+		versionView.setText(versionString);
 
 		verifyGpsAvailable();
 
@@ -138,7 +138,7 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 		Button buttonFeedback = (Button) findViewById(R.id.ButtonFeedback);
 		buttonFeedback.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				Toast.makeText(JamAnalysisActivity.this, "Vielen Dank!", Toast.LENGTH_SHORT).show();
+				Toast.makeText(JamAnalysisActivity.this, R.string.toast_feedback, Toast.LENGTH_SHORT).show();
 			}
 		});
 
@@ -172,10 +172,10 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 
 	/** Creates the menu items */
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_CHANGE_RECORDING, 0, "Choose Recording Interval");
-		menu.add(0, MENU_CHANGE_SENDING, 0, "Choose Sending Interval");
-		menu.add(0, MENU_ABOUT, 0, "About");
-		menu.add(0, MENU_QUIT, 0, "Quit");
+		menu.add(0, MENU_CHANGE_RECORDING, 0, R.string.menu_choose_recording_interval);
+		menu.add(0, MENU_CHANGE_SENDING, 0, R.string.menu_choose_sending_interval);
+		menu.add(0, MENU_ABOUT, 0, R.string.about);
+		menu.add(0, MENU_QUIT, 0, R.string.quit);
 		return true;
 	}
 
@@ -245,7 +245,7 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 			break;
 		case DIALOG_ABOUT:
 			builder.setMessage(R.string.text_about)
-			.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel(); }
 			});
@@ -293,21 +293,21 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 	}
 
 	private void printLocInfo(Location loc) {
-		float speed = loc.getSpeed();
-		String speedtext = "Geschwindigkeit: " + m_formatterSpeed.format(3.6 * speed) + " km/h";
-		sliceSenderResult(speedtext, true, Color.GREEN);
+		//float speed = loc.getSpeed();
+		//String speedtext = "Geschwindigkeit: " + m_formatterSpeed.format(3.6 * speed) + " km/h";
+		//sliceSenderResult(speedtext, true, Color.GREEN);
 
-		if (m_numLocTotal < 6) {
-			setTextPrognose("Erst " + Integer.valueOf(m_numLocTotal) + " GPS-Punkte", Color.YELLOW);
+		if (m_numLocTotal <= 6) {
+			setTextPrognose(getString(R.string.only_few_gps_points, m_numLocTotal), Color.YELLOW);
 		} else {
-			setTextPrognose("Ausreichend GPS-Punkte", Color.GREEN); 
+			setTextPrognose(getString(R.string.sufficient_gps_points), Color.GREEN); 
 		}
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		String text = "GPS nicht eingeschaltet";
-		sliceSenderResult(text, false, Color.RED);
+		String text = getString(R.string.gps_not_switched_on);
+		//sliceSenderResult(text, false, Color.RED);
 		setTextPrognose(text, Color.RED);
 		m_buttonJamslow.setEnabled(false);
 		m_buttonJamstart.setEnabled(false);
@@ -315,7 +315,7 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		String text = "GPS eingeschaltet";
+		String text = getString(R.string.gps_switched_on);
 		sliceSenderResult(text, true, Color.GREEN);
 		setTextPrognose(text, Color.YELLOW);
 		m_buttonJamslow.setEnabled(true);
@@ -326,7 +326,7 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		switch (status) {
 		case LocationProvider.OUT_OF_SERVICE:
-			sliceSenderResult("Kein GPS mehr verfügbar", false, Color.RED);
+			sliceSenderResult(getString(R.string.no_gps_available), false, Color.RED);
 			// Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider +
 			// " out of service", Toast.LENGTH_SHORT).show();
 			//			m_togglebuttonGps.setChecked(false);
@@ -388,7 +388,7 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 		if (!active) {
 			duration = "--";
 		}
-		m_textViewStauanfang.setText("In ca. " + duration + " s: Stillstand");
+		m_textViewStauanfang.setText(getString(R.string.seconds_till_standstill, duration));
 	}
 
 	private void setTextJamend(boolean active, String duration) {
@@ -396,7 +396,7 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 		if (!active) {
 			duration = "--";
 		}
-		m_textViewJamend.setText("In ca. " + duration + " s: Stauende");
+		m_textViewJamend.setText(getString(R.string.seconds_till_free_drive, duration));
 	}
 
 	public void setCategoryId(int id) {

@@ -20,4 +20,17 @@
     <string name="choose_sending_interval">Choose a sending time interval (minutes):</string>
     <string name="choose_record_interval">Choose a recording time interval (seconds):</string>
     <string name="text_about">This is a traffic jam analysis by Niels Koch, Philippe Dreiling, Christian Stimming.</string>
+    <string name="version_not_found">Not found</string>
+    <string name="toast_feedback">Thank you very much!</string>
+    <string name="quit">Quit</string>
+    <string name="about">About</string>
+    <string name="menu_choose_recording_interval">Choose Recording Interval</string>
+    <string name="ok">Ok</string>
+    <string name="no_gps_available">No GPS available</string>
+    <string name="gps_not_switched_on">GPS is not switched on</string>
+    <string name="gps_switched_on">GPS switched on</string>
+    <string name="sufficient_gps_points">Sufficient GPS points</string>
+    <string name="only_few_gps_points">Only %d GPS points so far</string>
+    <string name="seconds_till_standstill">Standstill in %s s</string>
+    <string name="seconds_till_free_drive">Free driving in %s s</string>
 </resources>

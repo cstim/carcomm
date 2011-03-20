@@ -18,5 +18,19 @@
     <string name="labelspeed">Speed:</string>
     <string name="choose_sending_interval">Sende-Intervall wählen [Min]:</string>
     <string name="choose_record_interval">Aufzeichnungs-Intervall wählen [Sek]:</string>
-    <string name="text_about">Diese App macht eine Stauanalyse, um zuerst die Zeit bis zum Stillstand zu schätzen und dann die zu erwartende Dauer des Staus bis zur freien Fahrt. Von Niels Koch, Philippe Dreiling, Christian Stimming.</string>
+    <string name="text_about">Stauanalyse am Stauanfang zur Vorhersage der Zeit bis zum Stillstand, anschließend der erwarteten Dauer des Staus bis zur freien Fahrt. Von Niels Koch, Philippe Dreiling, Christian Stimming.</string>
+    <string name="version_not_found">Unbekannt</string>
+    <string name="toast_feedback">Vielen Dank!</string>
+    <string name="quit">Beenden</string>
+    <string name="about">Über...</string>
+    <string name="menu_choose_recording_interval">Logging-Intervall wählen</string>
+    <string name="menu_choose_sending_interval">Sende-Intervall wählen</string>
+    <string name="ok">Ok</string>
+    <string name="no_gps_available">Kein GPS mehr verfügbar</string>
+    <string name="gps_not_switched_on">GPS nicht eingeschaltet</string>
+    <string name="gps_switched_on">GPS eingeschaltet</string>
+    <string name="sufficient_gps_points">Ausreichend GPS-Punkte</string>
+    <string name="only_few_gps_points">Erst %d GPS-Punkte</string>
+    <string name="seconds_till_standstill">Stillstand in %s s</string>
+    <string name="seconds_till_free_drive">Freie Fahrt in %s s</string>
 </resources>

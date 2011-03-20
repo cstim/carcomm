@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_height="fill_parent"
 	android:layout_width="fill_parent">
 
 	<LinearLayout android:layout_height="wrap_content"
-		android:orientation="horizontal" android:layout_width="fill_parent"
-		android:layout_weight="1" android:layout_marginTop="10dip" android:layout_marginLeft="10dip">
+		android:id="@+id/LayoutHeadline" android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_weight="1"
+		android:layout_marginTop="10dip" android:layout_marginLeft="10dip">
 		<TextView android:layout_height="wrap_content" android:text="@string/hello"
 			android:textAppearance="@style/TextHeadline" android:layout_width="wrap_content"
 			android:layout_marginRight="4dip" />
@@ -14,8 +15,10 @@
 			android:text="--" android:layout_width="wrap_content" />
 	</LinearLayout>
 
-	<LinearLayout android:orientation="horizontal"
-		android:layout_weight="1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10dip">
+	<LinearLayout android:orientation="horizontal" android:id="@+id/LayoutStatus"
+		android:layout_weight="1" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_marginLeft="10dip"
+		android:layout_below="@+id/LayoutHeadline">
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:text="Status:"
 			android:layout_marginRight="8dip"></TextView>
@@ -25,8 +28,8 @@
 
 	<RadioGroup android:id="@+id/RadioGroupJam"
 		android:layout_height="wrap_content" android:orientation="vertical"
-		android:layout_width="fill_parent"
-		android:layout_marginLeft="10dip" android:layout_weight="1">
+		android:layout_width="fill_parent" android:layout_marginLeft="10dip"
+		android:layout_weight="1" android:layout_below="@id/LayoutStatus">
 		<RadioButton android:id="@+id/RadioButtonJamstart"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:text="Stauanfang in Sicht" android:textAppearance="@style/TextData"></RadioButton>
@@ -41,11 +44,14 @@
 			android:textAppearance="@style/TextData" android:text="In ca. -- s: Stauende"></TextView>
 		<RadioButton android:id="@+id/RadioButtonNojam"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:text="Kein Stau" android:textAppearance="@style/TextData" android:checked="true"></RadioButton>
+			android:text="Kein Stau" android:textAppearance="@style/TextData"
+			android:checked="true"></RadioButton>
 	</RadioGroup>
 
-	<LinearLayout android:orientation="horizontal"
-		android:layout_weight="1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10dip">
+	<LinearLayout android:orientation="horizontal" android:id="@+id/LayoutPrediction"
+		android:layout_weight="1" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_marginLeft="10dip"
+		android:layout_below="@id/RadioGroupJam">
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:text="Prognosegenauigkeit:"
 			android:layout_marginRight="8dip"></TextView>
@@ -55,5 +61,7 @@
 
 	<Button android:text="Gefällt mir" android:id="@+id/ButtonFeedback"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_gravity="center" android:layout_weight="2" android:layout_marginLeft="10dip" android:layout_marginBottom="10dip"></Button>
-</LinearLayout>
+		android:layout_gravity="center" android:layout_weight="2"
+		android:layout_marginLeft="10dip" android:layout_marginBottom="10dip"
+		android:layout_below="@id/LayoutPrediction" android:layout_centerHorizontal="true"></Button>
+</RelativeLayout>
