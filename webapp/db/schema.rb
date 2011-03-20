@@ -9,17 +9,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100728201227) do
+ActiveRecord::Schema.define(:version => 20110320224400) do
 
   create_table "slices", :force => true do |t|
     t.datetime "time"
-    t.float    "lat"
-    t.float    "lon"
+    t.double    "lat"
+    t.double    "lon"
     t.float    "avgvel"
     t.float    "headingdeg"
     t.float    "dist"
-    t.float    "startlat"
-    t.float    "startlon"
+    t.double    "startlat"
+    t.double    "startlon"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.float    "duration"
