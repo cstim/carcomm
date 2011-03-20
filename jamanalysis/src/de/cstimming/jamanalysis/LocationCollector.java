@@ -45,7 +45,7 @@ public class LocationCollector implements LocationListener, SenderInterface {
 		m_location_cb = another_location_cb;
 		m_dateFormatter = new SimpleDateFormat("HH:mm:ss");
 		resetCollecting();
-		
+
 		m_httpParameters = new BasicHttpParams();
 		// Set the timeout in milliseconds until a connection is established.
 		int timeoutConnection = 5000;
@@ -72,7 +72,7 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	public void setSendingIntervalSecs(long secs) {
 		m_sendingIntervalSecs = secs;
 	}
-	
+
 	public long getSendingIntervalSecs() {
 		return m_sendingIntervalSecs;
 	}
@@ -151,12 +151,18 @@ public class LocationCollector implements LocationListener, SenderInterface {
 
 	}
 	@Override
-	public void stoppedSending(boolean successful) {
+	public void stoppedSending(boolean successful, boolean mayRetry) {
 		if (successful) {
 			m_currentlySending = false;
 			m_sendingLocations = null;
 		} else {
-			scheduleSending(); // TODO: what now?
+			if (mayRetry) {
+				scheduleSending();
+			} else {
+				// TODO: what now?
+				m_currentlySending = false;
+				m_sendingLocations = null;
+			}
 		}
 	}
 
@@ -181,6 +187,13 @@ public class LocationCollector implements LocationListener, SenderInterface {
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public int getCategoryId() {
+		return m_categoryId;
+	}
+	public void setCategoryId(int m_categoryId) {
+		this.m_categoryId = m_categoryId;
 	}
 
 }

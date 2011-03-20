@@ -18,4 +18,5 @@
     <string name="labelspeed">Speed:</string>
     <string name="choose_sending_interval">Sende-Intervall wählen [Min]:</string>
     <string name="choose_record_interval">Aufzeichnungs-Intervall wählen [Sek]:</string>
+    <string name="text_about">Diese App macht eine Stauanalyse, um zuerst die Zeit bis zum Stillstand zu schätzen und dann die zu erwartende Dauer des Staus bis zur freien Fahrt. Von Niels Koch, Philippe Dreiling, Christian Stimming.</string>
 </resources>

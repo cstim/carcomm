@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextHeadline" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">#0084c2</item>
+    </style>
+    <style name="TextData" parent="@android:style/TextAppearance.Medium">
+    </style>
+    <style name="TextButton" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">#0084c2</item>
+    </style>
+</resources>

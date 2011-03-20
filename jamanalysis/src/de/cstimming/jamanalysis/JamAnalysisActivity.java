@@ -2,7 +2,6 @@ package de.cstimming.jamanalysis;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 
 import de.cstimming.jamanalysis.R;
@@ -22,37 +21,42 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.ToggleButton;
+import android.widget.Toast;
 
 public class JamAnalysisActivity extends Activity implements LocationListener, SliceSenderResult, SenderFloatResult {
 
-	private ToggleButton m_togglebuttonGps;
-	private Button m_togglebuttonSender;
-	private Button m_togglebuttonRecord;
-
-	private SimpleDateFormat m_dateFormatter;
 	private SimpleDateFormat m_dateFormatSender;
-	private NumberFormat m_speedFormatter;
+	private NumberFormat m_formatterSeconds, m_formatterSpeed;
 
-	private Location m_lastLocation;
-	private boolean m_lastLocationValid;
 	private long m_recordIntervalSecs;
 	private String m_server = "http://carcomm.cstimming.de/";
 
-	//private WebView m_webview;
-	private TextView m_labelSender;
 	private int m_instanceId;
 	private int m_categoryId;
 
 	private LocationCollector m_locationCollector;
+	private LocationManager m_locationManager;
+
+	private TextView m_textViewStauanfang, m_textViewJamend;
+	private TextView m_textViewStatus, m_textViewPrognose;
+	private RadioButton m_buttonJamstart, m_buttonJamslow, m_buttonNojam;
+	private int m_numLocTotal = 0;
 
 	private static final int DIALOG_GPSWARNING = 1;
 	private static final int DIALOG_RECORDINTERVAL_MULTICHOICE = 2;
 	private static final int DIALOG_SENDERINTERVAL_MULTICHOICE = 3;
+	private static final int DIALOG_ABOUT = 4;
+	private static final int MENU_CHANGE_RECORDING = 101;
+	private static final int MENU_CHANGE_SENDING = 102;
+	private static final int MENU_QUIT = 103;
+	private static final int MENU_ABOUT = 104;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -62,19 +66,30 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 
 		m_dateFormatSender = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		m_dateFormatSender.setTimeZone(TimeZone.getTimeZone("GMT00"));
-		m_dateFormatter = new SimpleDateFormat("HH:mm:ss");
+		//m_dateFormatter = new SimpleDateFormat("HH:mm:ss");
 
-		m_speedFormatter = NumberFormat.getInstance();
-		m_speedFormatter.setMaximumFractionDigits(1);
+		m_formatterSeconds = NumberFormat.getInstance();
+		m_formatterSeconds.setMaximumFractionDigits(0);
+		m_formatterSpeed = NumberFormat.getInstance();
+		m_formatterSpeed.setMaximumFractionDigits(1);
 
-		m_togglebuttonGps = (ToggleButton) findViewById(R.id.togglebuttonGps);
-		m_togglebuttonSender = (Button) findViewById(R.id.togglebuttonSender);
-		m_togglebuttonRecord = (Button) findViewById(R.id.togglebuttonRecord);
-		m_labelSender = (TextView) findViewById(R.id.TextLabelSender);
+		m_textViewStauanfang = (TextView) findViewById(R.id.TextViewJamstop);
+		m_textViewJamend = (TextView) findViewById(R.id.TextViewJamend);
+		m_textViewStatus = (TextView) findViewById(R.id.TextViewStatus);
+		m_textViewPrognose = (TextView) findViewById(R.id.TextViewPrognose);
+		m_textViewStauanfang.setEnabled(false);
+		m_textViewJamend.setEnabled(false);
+
+		m_buttonJamstart = (RadioButton) findViewById(R.id.RadioButtonJamstart);
+		m_buttonJamslow = (RadioButton) findViewById(R.id.RadioButtonJam);
+		m_buttonNojam = (RadioButton) findViewById(R.id.RadioButtonNojam);
 
 		java.util.Random rg = new java.util.Random();
 		m_instanceId = rg.nextInt();
 		m_categoryId = 1;
+
+		m_locationManager = (LocationManager) getApplicationContext()
+		.getSystemService(Context.LOCATION_SERVICE);
 
 		m_recordIntervalSecs = 0;
 		m_locationCollector = new LocationCollector(m_server, this, m_instanceId, m_categoryId, this, this);
@@ -93,41 +108,47 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 		}
 		versionView.setText(" " + versionString);
 
-		//final LinearLayout ell = (LinearLayout) findViewById(R.id.LayoutWebview);
-		//m_webview = new WebView(this);
-		//ell.addView(m_webview);
+		verifyGpsAvailable();
 
-		final LocationManager locationManager = (LocationManager) getApplicationContext()
-		.getSystemService(Context.LOCATION_SERVICE);
-
-		m_togglebuttonGps.setChecked(locationManager
-				.isProviderEnabled(LocationManager.GPS_PROVIDER));
-
-		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-			showDialog(DIALOG_GPSWARNING);
-		}
-
-		m_togglebuttonGps.setOnClickListener(new OnClickListener() {
+		m_buttonJamstart.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				// Perform action on clicks
-				final Intent i = new Intent(
-						Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-				startActivity(i);
-				m_togglebuttonGps.setChecked(locationManager
-						.isProviderEnabled(LocationManager.GPS_PROVIDER));
+				verifyGpsAvailable();
+				setCategoryId(10);
+				m_textViewStauanfang.setEnabled(true);
+				m_textViewJamend.setEnabled(false);
 			}
 		});
-		m_togglebuttonSender.setOnClickListener(new OnClickListener() {
+		m_buttonJamslow.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				showDialog(DIALOG_SENDERINTERVAL_MULTICHOICE);
-			}});
-		m_togglebuttonRecord.setOnClickListener(new OnClickListener() {
+				verifyGpsAvailable();
+				setCategoryId(20);
+				m_textViewStauanfang.setEnabled(false);
+				m_textViewJamend.setEnabled(true);
+			}
+		});
+		m_buttonNojam.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				showDialog(DIALOG_RECORDINTERVAL_MULTICHOICE);
-			}});
+				verifyGpsAvailable();
+				setCategoryId(1);
+				m_textViewStauanfang.setEnabled(false);
+				m_textViewJamend.setEnabled(false);
+			}
+		});
+
+		Button buttonFeedback = (Button) findViewById(R.id.ButtonFeedback);
+		buttonFeedback.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				Toast.makeText(JamAnalysisActivity.this, "Vielen Dank!", Toast.LENGTH_SHORT).show();
+			}
+		});
 
 		registerAtLocationManager(getRecordIntervalSecs());
+	}
+
+	private void verifyGpsAvailable() {
+		if (!m_locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			showDialog(DIALOG_GPSWARNING);
+		}
 	}
 
 	private void registerAtLocationManager(long intervalSecs) {
@@ -149,6 +170,39 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 		}
 	}
 
+	/** Creates the menu items */
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, MENU_CHANGE_RECORDING, 0, "Choose Recording Interval");
+		menu.add(0, MENU_CHANGE_SENDING, 0, "Choose Sending Interval");
+		menu.add(0, MENU_ABOUT, 0, "About");
+		menu.add(0, MENU_QUIT, 0, "Quit");
+		return true;
+	}
+
+	/** Handles item selections */
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case MENU_CHANGE_RECORDING:
+			showDialog(DIALOG_RECORDINTERVAL_MULTICHOICE);
+			return true;
+		case MENU_CHANGE_SENDING:
+			showDialog(DIALOG_SENDERINTERVAL_MULTICHOICE);
+			return true;
+		case MENU_QUIT:
+			quit();
+			return true;
+		case MENU_ABOUT:
+			showDialog(DIALOG_ABOUT);
+			return true;
+		}
+		return false;
+	}
+
+	public void quit() {
+		registerAtLocationManager(0);
+		finish();
+	}
+
 	public long getRecordIntervalSecs() {
 		return m_recordIntervalSecs;
 	}
@@ -156,36 +210,10 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 	public void setSenderIntervalSecs(long v) {
 		if (v == m_locationCollector.getSendingIntervalSecs())
 			return;
-		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
-		if (v == 0) {
-			m_togglebuttonSender.setText(R.string.transmission_off);
-			m_labelSender.setText(R.string.labelsender_off);
-			m_labelSender.setTextColor(ColorStateList.valueOf(Color.RED));
-			resultview.setTextColor(ColorStateList.valueOf(Color.GRAY));
-		} else {
-			m_togglebuttonSender.setText(getString(R.string.transmission_on) + " " + String.valueOf(v / 60) + "min");
-			m_labelSender.setText(R.string.labelsender_on);
-			final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
-			m_labelSender.setTextColor(viewSecs.getTextColors());
-		}
 		m_locationCollector.setSendingIntervalSecs(v);
 	}
 
 	public void setRecordIntervalSecs(long v) {
-		//if (v == m_recordIntervalSecs)
-		//return;
-		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
-		if (v == 0) {
-			m_togglebuttonRecord.setText(R.string.recording_off);
-			m_labelSender.setText(R.string.labelsender_off);
-			m_labelSender.setTextColor(ColorStateList.valueOf(Color.RED));
-			resultview.setTextColor(ColorStateList.valueOf(Color.GRAY));
-		} else {
-			m_togglebuttonRecord.setText(getString(R.string.recording_on) + " " + String.valueOf(v) + "s");
-			m_labelSender.setText(R.string.labelsender_on);
-			final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
-			m_labelSender.setTextColor(viewSecs.getTextColors());
-		}
 		registerAtLocationManager(v);
 		m_recordIntervalSecs = v;
 	}
@@ -213,6 +241,13 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 						int id) {
 					dialog.cancel();
 				}
+			});
+			break;
+		case DIALOG_ABOUT:
+			builder.setMessage(R.string.text_about)
+			.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.cancel(); }
 			});
 			break;
 		case DIALOG_RECORDINTERVAL_MULTICHOICE:
@@ -250,96 +285,122 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 
 	@Override
 	public void onLocationChanged(Location loc) {
-		// Toast.makeText(KonPhiActivity.this, "Received location from " +
-		// loc.getProvider(), Toast.LENGTH_SHORT).show();
-
+		m_numLocTotal += 1;
 		printLocInfo(loc);
 
-		m_lastLocationValid = true;
-		m_lastLocation = loc;
+		//m_lastLocationValid = true;
+		//m_lastLocation = loc;
 	}
 
 	private void printLocInfo(Location loc) {
-		final TextView viewgpsage = (TextView) findViewById(R.id.TextViewGPSAge);
-		final TextView viewLat = (TextView) findViewById(R.id.TextViewLat);
-		final TextView viewLon = (TextView) findViewById(R.id.TextViewLon);
-		final TextView viewAcc = (TextView) findViewById(R.id.TextViewAcc);
-		final TextView viewDist = (TextView) findViewById(R.id.TextViewDist);
-		final TextView viewSecs = (TextView) findViewById(R.id.TextViewSecs);
-		final TextView viewSpeed = (TextView) findViewById(R.id.TextViewSpeed);
-
-		viewgpsage.setText(m_dateFormatter.format(new Date(loc.getTime())));
-		viewLat.setText(String.valueOf(loc.getLatitude()));
-		viewLon.setText(String.valueOf(loc.getLongitude()));
-		viewAcc.setText(loc.hasAccuracy() ? String.valueOf(loc.getAccuracy())
-				: "...");
 		float speed = loc.getSpeed();
-		viewSpeed.setText(m_speedFormatter.format(3.6 * speed) + " km/h");
+		String speedtext = "Geschwindigkeit: " + m_formatterSpeed.format(3.6 * speed) + " km/h";
+		sliceSenderResult(speedtext, true, Color.GREEN);
 
-		if (m_lastLocationValid) {
-			long msecdiff = loc.getTime() - m_lastLocation.getTime();
-			float distance = m_lastLocation.distanceTo(loc);
-			String secs = String.valueOf(msecdiff / 1000);
-			String dist = String.valueOf(distance);
-			viewDist.setText(dist);
-			viewSecs.setText(secs);
+		if (m_numLocTotal < 6) {
+			setTextPrognose("Erst " + Integer.valueOf(m_numLocTotal) + " GPS-Punkte", Color.YELLOW);
 		} else {
-			viewDist.setText("...");
-			viewSecs.setText("...");
+			setTextPrognose("Ausreichend GPS-Punkte", Color.GREEN); 
 		}
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		// Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider +
-		// " disabled", Toast.LENGTH_SHORT).show();
-		m_togglebuttonGps.setChecked(false);
+		String text = "GPS nicht eingeschaltet";
+		sliceSenderResult(text, false, Color.RED);
+		setTextPrognose(text, Color.RED);
+		m_buttonJamslow.setEnabled(false);
+		m_buttonJamstart.setEnabled(false);
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		// Toast.makeText(KonPhiActivity.this, "Good: Provider " + provider +
-		// " enabled", Toast.LENGTH_SHORT).show();
-		m_togglebuttonGps.setChecked(true);
+		String text = "GPS eingeschaltet";
+		sliceSenderResult(text, true, Color.GREEN);
+		setTextPrognose(text, Color.YELLOW);
+		m_buttonJamslow.setEnabled(true);
+		m_buttonJamstart.setEnabled(true);
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		switch (status) {
 		case LocationProvider.OUT_OF_SERVICE:
+			sliceSenderResult("Kein GPS mehr verfügbar", false, Color.RED);
 			// Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider +
 			// " out of service", Toast.LENGTH_SHORT).show();
-			m_togglebuttonGps.setChecked(false);
+			//			m_togglebuttonGps.setChecked(false);
 			break;
 		case LocationProvider.TEMPORARILY_UNAVAILABLE:
 			// Toast.makeText(KonPhiActivity.this, "Oh: Provider " + provider +
 			// " tmp. unavailable", Toast.LENGTH_SHORT).show();
-			m_togglebuttonGps.setChecked(false);
+			//			m_togglebuttonGps.setChecked(false);
 			break;
 		case LocationProvider.AVAILABLE:
 			// Toast.makeText(KonPhiActivity.this, "Good: Provider " + provider
 			// + " available", Toast.LENGTH_SHORT).show();
-			m_togglebuttonGps.setChecked(true);
+			//			m_togglebuttonGps.setChecked(true);
 			break;
 		}
 	}
 
 	@Override
 	public void sliceSenderResult(String text, boolean good, int color) {
-		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
-		resultview.setText(text);
-		resultview.setTextColor(ColorStateList.valueOf(color));
+		m_textViewStatus.setText(text);
+		m_textViewStatus.setTextColor(ColorStateList.valueOf(color));
+	}
+
+	public void setTextPrognose(String text, int color) {
+		m_textViewPrognose.setText(text);
+		m_textViewPrognose.setTextColor(ColorStateList.valueOf(color));
 	}
 
 	@Override
 	public void resultFloat(float value, boolean good) {
-		final TextView numberview = (TextView) findViewById(R.id.TextViewNumber);
-		numberview.setText(Float.toString(value));
 		int color = Color.RED;
 		if (good)
 		{
 			color = value > 0 ? Color.GREEN : Color.YELLOW;
 		}
-		numberview.setTextColor(ColorStateList.valueOf(color));
+		String vstring = m_formatterSeconds.format(value);
+		sliceSenderResult(vstring, true, color);
+
+		if (!good)
+			return;
+
+		if (m_buttonJamstart.isChecked()) {
+			// Heranfahren an Stau
+			setTextJamstanding(true, vstring);
+			setTextJamend(false, "");
+		} else if (m_buttonJamslow.isChecked()) {
+			// Im Stau
+			setTextJamstanding(false, "");
+			setTextJamend(true, vstring);
+		} else {
+			// Nix Stau
+			setTextJamstanding(false, "");
+			setTextJamend(false, "");
+		}
+	}
+
+	private void setTextJamstanding(boolean active, String duration) {
+		m_textViewStauanfang.setEnabled(active);
+		if (!active) {
+			duration = "--";
+		}
+		m_textViewStauanfang.setText("In ca. " + duration + " s: Stillstand");
+	}
+
+	private void setTextJamend(boolean active, String duration) {
+		m_textViewJamend.setEnabled(active);
+		if (!active) {
+			duration = "--";
+		}
+		m_textViewJamend.setText("In ca. " + duration + " s: Stauende");
+	}
+
+	public void setCategoryId(int id) {
+		m_categoryId = id;
+		m_locationCollector.setCategoryId(id);
 	}
 }

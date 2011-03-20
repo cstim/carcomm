@@ -1,97 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:id="@+id/MainLayout" android:layout_height="fill_parent" android:orientation="vertical">
+	android:orientation="vertical" android:layout_height="fill_parent"
+	android:layout_width="fill_parent">
 
-	<LinearLayout android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:orientation="horizontal">
-		<TextView android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:text="@string/hello" />
+	<LinearLayout android:layout_height="wrap_content"
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_weight="1" android:layout_marginTop="10dip" android:layout_marginLeft="10dip">
+		<TextView android:layout_height="wrap_content" android:text="@string/hello"
+			android:textAppearance="@style/TextHeadline" android:layout_width="wrap_content"
+			android:layout_marginRight="4dip" />
 		<TextView android:id="@+id/TextViewVersion"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="" />
+			android:layout_height="wrap_content" android:textAppearance="@style/TextHeadline"
+			android:text="--" android:layout_width="wrap_content" />
 	</LinearLayout>
 
-	<LinearLayout android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:orientation="horizontal">
-
-		<ToggleButton android:id="@+id/togglebuttonGps"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:textOn="@string/gpsbutton" android:textOff="@string/gpsbutton" />
-
-		<Button android:text="@string/recording_on" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/togglebuttonRecord" />
-
-		<Button android:id="@+id/togglebuttonSender"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:text="@string/transmission_on" />
-	
+	<LinearLayout android:orientation="horizontal"
+		android:layout_weight="1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10dip">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="Status:"
+			android:layout_marginRight="8dip"></TextView>
+		<TextView android:text="--" android:id="@+id/TextViewStatus"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
 	</LinearLayout>
 
-	<TableLayout android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
-		<TableRow android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-			<TextView android:text="@string/gps_timestamp"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<TextView android:text="..." android:id="@+id/TextViewGPSAge"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-		</TableRow>
-		<TableRow android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-			<TextView android:text="Latitude [deg]:"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<TextView android:text="..." android:id="@+id/TextViewLat"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-		</TableRow>
-		<TableRow android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-			<TextView android:text="Longitude [deg]:"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<TextView android:text="..." android:id="@+id/TextViewLon"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-		</TableRow>
-		<TableRow android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-			<TextView android:text="Accuracy [m]:" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
-			<TextView android:text="..." android:id="@+id/TextViewAcc"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-		</TableRow>
-		<TableRow android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-			<TextView android:text="Dist to previous [m]:"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<TextView android:text="..." android:id="@+id/TextViewDist"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-		</TableRow>
-		<TableRow android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-			<TextView android:text="Time to previous [s]:"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<TextView android:text="..." android:id="@+id/TextViewSecs"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-		</TableRow>
-		<TableRow android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-			<TextView android:text="@string/labelsender_on" android:id="@+id/TextLabelSender"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<TextView android:text="..." android:id="@+id/TextViewSender"
-				android:scrollHorizontally="true" android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
-		</TableRow>
-		<TableRow android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-			<TextView android:text="@string/labelspeed"
-				android:textSize="40sp" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
-			<TextView android:id="@+id/TextViewSpeed" android:textSize="40sp"
-				android:layout_width="fill_parent" android:layout_height="fill_parent" />
-		</TableRow>
-		<TableRow android:layout_width="wrap_content" android:layout_height="wrap_content">
-			<TextView android:text="Calculated:" android:layout_height="wrap_content" android:id="@+id/labelNumber" android:layout_width="wrap_content"></TextView>
-			<TextView android:text="..." android:layout_height="wrap_content" android:id="@+id/TextViewNumber" android:layout_width="wrap_content"></TextView>
-		</TableRow>
-	</TableLayout>
+	<RadioGroup android:id="@+id/RadioGroupJam"
+		android:layout_height="wrap_content" android:orientation="vertical"
+		android:layout_width="fill_parent"
+		android:layout_marginLeft="10dip" android:layout_weight="1">
+		<RadioButton android:id="@+id/RadioButtonJamstart"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:text="Stauanfang in Sicht" android:textAppearance="@style/TextData"></RadioButton>
+		<TextView android:id="@+id/TextViewJamstop"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:textAppearance="@style/TextData" android:text="In ca. -- s: Stillstand"></TextView>
+		<RadioButton android:id="@+id/RadioButtonJam"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:text="Im Stau" android:textAppearance="@style/TextData"></RadioButton>
+		<TextView android:id="@+id/TextViewJamend"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:textAppearance="@style/TextData" android:text="In ca. -- s: Stauende"></TextView>
+		<RadioButton android:id="@+id/RadioButtonNojam"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:text="Kein Stau" android:textAppearance="@style/TextData" android:checked="true"></RadioButton>
+	</RadioGroup>
 
+	<LinearLayout android:orientation="horizontal"
+		android:layout_weight="1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10dip">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="Prognosegenauigkeit:"
+			android:layout_marginRight="8dip"></TextView>
+		<TextView android:text="--" android:id="@+id/TextViewPrognose"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+	</LinearLayout>
+
+	<Button android:text="Gefällt mir" android:id="@+id/ButtonFeedback"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_gravity="center" android:layout_weight="2" android:layout_marginLeft="10dip" android:layout_marginBottom="10dip"></Button>
 </LinearLayout>

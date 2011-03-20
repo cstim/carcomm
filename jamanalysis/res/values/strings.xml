@@ -19,4 +19,5 @@
     <string name="labelspeed">Speed:</string>
     <string name="choose_sending_interval">Choose a sending time interval (minutes):</string>
     <string name="choose_record_interval">Choose a recording time interval (seconds):</string>
+    <string name="text_about">This is a traffic jam analysis by Niels Koch, Philippe Dreiling, Christian Stimming.</string>
 </resources>
