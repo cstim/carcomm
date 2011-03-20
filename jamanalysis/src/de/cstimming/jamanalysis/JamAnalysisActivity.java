@@ -28,7 +28,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class KonPhiActivity extends Activity implements LocationListener, SliceSenderResult, SenderFloatResult {
+public class JamAnalysisActivity extends Activity implements LocationListener, SliceSenderResult, SenderFloatResult {
 
 	private ToggleButton m_togglebuttonGps;
 	private Button m_togglebuttonSender;
@@ -47,7 +47,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 	private TextView m_labelSender;
 	private int m_instanceId;
 	private int m_categoryId;
-	
+
 	private LocationCollector m_locationCollector;
 
 	private static final int DIALOG_GPSWARNING = 1;
@@ -92,7 +92,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 			e.printStackTrace();
 		}
 		versionView.setText(" " + versionString);
-		
+
 		//final LinearLayout ell = (LinearLayout) findViewById(R.id.LayoutWebview);
 		//m_webview = new WebView(this);
 		//ell.addView(m_webview);
@@ -129,7 +129,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 
 		registerAtLocationManager(getRecordIntervalSecs());
 	}
-	
+
 	private void registerAtLocationManager(long intervalSecs) {
 		final LocationManager locationManager = (LocationManager) getApplicationContext()
 		.getSystemService(Context.LOCATION_SERVICE);
@@ -173,7 +173,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 
 	public void setRecordIntervalSecs(long v) {
 		//if (v == m_recordIntervalSecs)
-			//return;
+		//return;
 		final TextView resultview = (TextView) findViewById(R.id.TextViewSender);
 		if (v == 0) {
 			m_togglebuttonRecord.setText(R.string.recording_off);
@@ -194,7 +194,7 @@ public class KonPhiActivity extends Activity implements LocationListener, SliceS
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		switch (d) {
 		case DIALOG_GPSWARNING:
-			
+
 			builder.setMessage(R.string.ask_activate_gps_settings)
 			.setCancelable(false)
 			.setPositiveButton(R.string.yes,
