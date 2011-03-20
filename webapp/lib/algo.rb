@@ -1,9 +1,11 @@
 require 'time'
 
 class Algo
+  ### The input data is an array of two-element arrays. Each element
+  ### has [0] as time and [1] as velocity in km/h.
   def self.predict1(tdata)
     if tdata.empty?
-      return 0
+      return "0 tdata.empty"
     end
 
     # Current velocity in [km/h]
@@ -15,7 +17,7 @@ class Algo
     t_30_index = tdata.rindex{|i| t_current - i[0] >= 30}
 
     if t_30_index.nil? or tdata[t_30_index].nil?
-      return 0
+      return "0 t_30_index=#{t_30_index}"
     end
 
     # This is the measurement approx. 30 seconds ago, and its velocity
@@ -26,7 +28,7 @@ class Algo
     # The max and min velocity in our data
     v_minmax = tdata.minmax_by{|i| i[1]}
     if v_minmax.nil?
-      return 0
+      return "0 v_minmax=nil"
     end
     v_min = v_minmax[0][1]
     v_max = v_minmax[1][1]
@@ -56,7 +58,7 @@ class Algo
           until_jam_finish = 120 + v_current
           return until_jam_finish.round.to_s + " Sek bis freie Fahrt"
         else
-          return "-1 Stau"
+          return "-1 Momentan Stau"
         end
       else
         # Medium-fast traffic; moving into jam
@@ -69,7 +71,7 @@ class Algo
       end
     else
       # Slow traffic; in jam
-      return "-1 Stau"
+      return "-1 Momentan Stau"
     end
   end
 

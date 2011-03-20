@@ -13,14 +13,14 @@ class Congest
                        :order => "time ASC")
 
     if slices.empty?
-      return 0
+      return "0 slices.empty" #, lasttime=#{lasttime}"
     end
 
     # Simplify the list of slices into arrays with time[s] and
     # velocity [km/h]
     now = slices.last.time
     tdata = slices.map {|slice|
-      [ now - slice.time, 3.6 * slice.avgvel ]
+      [ slice.time - now, 3.6 * slice.avgvel ]
     }
 
     # Pass the list of slices on to the algorithm, then return its return value
