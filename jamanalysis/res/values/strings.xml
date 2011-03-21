@@ -17,7 +17,7 @@
     <string name="no">No</string>
     <string name="bottom_url_text">http://carcomm.cstimming.de/view.html</string>
     <string name="labelspeed">Speed:</string>
-    <string name="choose_sending_interval">Choose a sending time interval (minutes):</string>
+    <string name="choose_sending_interval">Choose a sending/updating time interval (seconds):</string>
     <string name="choose_record_interval">Choose a recording time interval (seconds):</string>
     <string name="text_about">This is a traffic jam analysis by Niels Koch, Philippe Dreiling, Christian Stimming.</string>
     <string name="version_not_found">Not found</string>
@@ -25,6 +25,7 @@
     <string name="quit">Quit</string>
     <string name="about">About</string>
     <string name="menu_choose_recording_interval">Choose Recording Interval</string>
+    <string name="menu_choose_sending_interval">Choose sending/updating interval</string>
     <string name="ok">Ok</string>
     <string name="no_gps_available">No GPS available</string>
     <string name="gps_not_switched_on">GPS is not switched on</string>

@@ -94,8 +94,8 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 		m_recordIntervalSecs = 0;
 		m_locationCollector = new LocationCollector(m_server, this, m_instanceId, m_categoryId, this, this);
 
-		setRecordIntervalSecs(10);
-		setSenderIntervalSecs(60);
+		setRecordIntervalSecs(2);
+		setSenderIntervalSecs(10);
 
 		// Print the version number into the UI
 		TextView versionView = (TextView) findViewById(R.id.TextViewVersion);
@@ -252,7 +252,7 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 			break;
 		case DIALOG_RECORDINTERVAL_MULTICHOICE:
 			builder.setTitle(R.string.choose_record_interval);
-			final CharSequence[] items = {"60", "30", "20", "10", "2", "1", "off"};
+			final CharSequence[] items = {"30", "20", "10", "2", "1", "off"};
 			builder.setSingleChoiceItems(items, 3, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -265,13 +265,13 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 			break;
 		case DIALOG_SENDERINTERVAL_MULTICHOICE:
 			builder.setTitle(R.string.choose_sending_interval);
-			final CharSequence[] items1 = {"10", "5", "2", "1", "off"};
-			builder.setSingleChoiceItems(items1, 3, new DialogInterface.OnClickListener() {
+			final CharSequence[] items1 = {"120", "60", "30", "20", "10", "off"};
+			builder.setSingleChoiceItems(items1, 4, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String item = items1[which].toString();
-					final int mins = (item == "off" ? 0 : Integer.parseInt(item));
-					setSenderIntervalSecs(60 * mins);
+					final int secs = (item == "off" ? 0 : Integer.parseInt(item));
+					setSenderIntervalSecs(secs);
 					dismissDialog(DIALOG_SENDERINTERVAL_MULTICHOICE);
 				}
 			});
