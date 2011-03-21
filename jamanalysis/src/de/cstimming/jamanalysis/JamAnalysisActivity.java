@@ -357,16 +357,21 @@ public class JamAnalysisActivity extends Activity implements LocationListener, S
 
 	@Override
 	public void resultFloat(float value, boolean good) {
-		int color = Color.RED;
-		if (good)
-		{
-			color = value > 0 ? Color.GREEN : Color.YELLOW;
-		}
-		String vstring = m_formatterSeconds.format(value);
-		sliceSenderResult(vstring, true, color);
-
 		if (!good)
 			return;
+
+		String vstring = m_formatterSeconds.format(value);
+		if (value == -1) {
+			vstring = getString(R.string.display_standstill);
+		} else if (value == 0) {
+			vstring = getString(R.string.display_freeflow);
+		}
+//		int color = Color.RED;
+//		if (good)
+//		{
+//			color = value > 0 ? Color.GREEN : Color.YELLOW;
+//		}
+		//sliceSenderResult(vstring, true, color); // gets overwritten anyway
 
 		if (m_buttonJamstart.isChecked()) {
 			// Heranfahren an Stau

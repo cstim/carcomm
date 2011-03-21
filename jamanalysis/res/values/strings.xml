@@ -33,4 +33,6 @@
     <string name="only_few_gps_points">Only %d GPS points so far</string>
     <string name="seconds_till_standstill">Standstill in %s s</string>
     <string name="seconds_till_free_drive">Free driving in %s s</string>
+    <string name="display_freeflow"> - Free Driving - </string>
+    <string name="display_standstill"> - Stopped - </string>
 </resources>
