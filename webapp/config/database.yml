@@ -18,9 +18,5 @@ test:
 production:
   adapter: mysql
   encoding: utf8
-  database: db17573_1
-  username: db17573_1
-  password: E9vUE7STJG
-  host: mysql4.cstim.de
   pool: 5
   timeout: 5000
